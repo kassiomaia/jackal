@@ -154,7 +154,6 @@ typedef struct
     jkl_qqword_t n_values;
   } bss;
   jkl_string_t symbols[JKL_MAX_CST_VALUES];
-  jkl_pointer_t symbols_refs[JKL_MAX_CST_VALUES];
   jkl_qqword_t n_symbols;
 } jkl_program_t;
 
@@ -202,17 +201,25 @@ typedef struct
   jkl_qqword_t n_objects;
 } jkl_heap_t;
 
+#define JKL_1MB 1048576
+#define JKL_8MB 8388608
+#define JKL_VM_PAGE_OBJECTS_SIZE JKL_8MB
+ 
 typedef struct
 {
   jkl_qqword_t pc;
   jkl_program_t *program;
   jkl_stack_frame_t *frame;
   jkl_heap_t *heap;
+  jkl_heap_object_t** objects;
+  jkl_qqword_t n_objects;
+  jkl_qqword_t n_objects_max;
   jkl_bool_t halted;
   struct {
     FILE *in;
     FILE *out;
     FILE *err;
+    FILE *memory;
   } io;
 } jkl_vm_t;
 

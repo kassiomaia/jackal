@@ -9,8 +9,6 @@ int yyerror(char*);
 jkl_program_t program;
 jkl_node_t *cc;
 
-#define DEBUG 0
-
 %}
 
 %union {
@@ -54,7 +52,7 @@ program: { jkl_program_init(&program); }
           } else
             jkl_error("jkl_parse", "the program is not a block");
 
-          #if DEBUG
+          #ifdef DUMP
             jkl_dump(&program);
           #else
             jkl_vm_t vm;
