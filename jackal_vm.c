@@ -92,12 +92,13 @@ jkl_word_t jkl_vm_run(jkl_vm_t *vm)
   {
     jkl_inst_t *inst = &vm->program->code.inst[vm->pc];
 
+
+
     switch (inst->type)
     {
     case JKL_NOP:
-      printf("[jackal_vm]: The program stopped abruptly.\n");
-      vm->halted = 1;
-      break;
+      jkl_note("jackal_vm", "the program stopped abruptly.");
+      goto halt;
     case JKL_PSH:
       break;
     case JKL_CST:

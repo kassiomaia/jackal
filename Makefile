@@ -5,14 +5,18 @@ OPT_FLAGS=-O3
 WARN_FLAGS=-Wall -Wextra -Werror
 STD_FLAGS=-std=c99
 PEDANTIC_FLAGS=-pedantic
-CFLAGS=$(INCLUDES) $(LIBS) $(DEBUG_FLAGS)
+
+FLAGS=
+export FLAGS
+
+CFLAGS=$(INCLUDES) $(LIBS) $(DEBUG_FLAGS) $(FLAGS)
 
 TARGET=bin/jackal
 
 SRCS=$(wildcard *.c)
 OBJS=$(SRCS:.c=.o)
 
-all: parser lexer $(OBJS)
+all: clean parser lexer $(OBJS)
 	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS)
 
 %.o: %.c
@@ -28,7 +32,7 @@ run: all
 	$(TARGET) ./samples/main.jkl
 
 gdb: all
-	gdb $(TARGET)
+	gdb --args $(TARGET) ./samples/main.jkl
 
 clean:
 	rm -f $(OBJS) $(TARGET)
