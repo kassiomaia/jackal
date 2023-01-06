@@ -167,8 +167,6 @@ jkl_word_t jkl_vm_run(jkl_vm_t *vm)
   {
     jkl_inst_t *inst = &vm->program->code.inst[vm->pc];
 
-
-
     switch (inst->type)
     {
     case JKL_NOP:
@@ -272,6 +270,7 @@ jkl_word_t jkl_vm_run(jkl_vm_t *vm)
       jkl_word_t r = jkl_vm_stack_pop(vm, val);
       if (r == -1)
         jkl_error("jackal_vm", "stack underflow.");
+
       if (val == NULL)
         fprintf(vm->io.err, "%s", "<NULL>\n");
 
