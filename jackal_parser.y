@@ -49,12 +49,10 @@ program: { jkl_program_init(&program); }
        | program statements {
           jkl_node_t *block = &$2;
           if (block->type == JKL_NODE_BLOCK) {
-            printf("[jkl_parse] emit program block\n");
+            jkl_log("jkl_parse", "emit program block");
             jkl_emit_block(&program, block);
-          } else {
-            printf("[jkl_parse] the program is not a block\n");
-            exit(1);
-          }
+          } else
+            jkl_error("jkl_parse", "the program is not a block");
 
           #if DEBUG
             jkl_dump(&program);
@@ -81,7 +79,7 @@ statement: LET ident ASSIGN expr {
             jkl_node_t expr = $4;
 
             if (ident.type != JKL_NODE_ID) {
-              yyerror("[jkl_parser] Expected identifier");
+              yyerror("expected an identifier");
               YYERROR;
             } else {
               jkl_node_t binop = JKL_AST_BINOP(&ident, JKL_OP_ASSIGN, &expr);
@@ -127,10 +125,7 @@ puts: PUTS CSTRING      {
 %%
 
 int yyerror(char *s) {
-  fprintf(stderr, "%s at line %d\n", s, yylineno);
-  fprintf(stderr, "near %s\n", yytext);
-  fprintf(stderr, "%s\n", s);
-  return 0;
+  jkl_error("jkl_parse", "line %d: %s near '%s'", yylineno, s, yytext);
 }
 
 int yywrap(void) {

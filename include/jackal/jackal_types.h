@@ -63,6 +63,13 @@ typedef struct
 } jkl_value_t;
 
 /*
+ * Error
+ */
+
+typedef unsigned int jkl_error_t;
+typedef jkl_string_t jkl_error_name_t;
+
+/*
  * AST
  */
 

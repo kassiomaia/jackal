@@ -1,31 +1,6 @@
 %{
 #include <jackal.h>
 #include "jackal_parser.tab.h"
-
-#define MAX_BUFFER_SIZE 1024
-char buffer[MAX_BUFFER_SIZE];
-int buffer_index = 0;
-int buffer_size = 0;
-
-#define PUT_CHAR(c) \
-  do { \
-    if (buffer_index >= MAX_BUFFER_SIZE) { \
-      fprintf(stderr, "Buffer overflow"); \
-      exit(1); \
-    } \
-    buffer[buffer_index++] = (c); \
-    buffer_size++; \
-  } while (0)
-
-#define CLEAR_BUFFER() \
-  do { \
-    buffer_index = 0; \
-    buffer_size = 0; \
-    for (int i = 0; i < MAX_BUFFER_SIZE; i++) { \
-      buffer[i] = 0; \
-    } \
-  } while (0)
-
 %}
 
 int [0-9]+
@@ -114,8 +89,7 @@ float [+|-]?{int}?[.]{int}
           *p = '"';
           break;
         default:
-          fprintf(stderr, "Unknown escape sequence: \\%c", *(p + 1));
-          exit(1);
+          jkl_error("jkl_lexer", "unknown escape sequence: \\%c", *(p + 1));
       }
       for (jkl_char_t *q = p + 1; *q; q++) {
         *q = *(q + 1);
