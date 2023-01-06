@@ -1,5 +1,6 @@
 #include <jackal/jackal_compiler.h>
 #include <jackal/jackal_string.h>
+#include <jackal/jackal_error.h>
 
 #define JKL_EMIT_CONST(program, P, T, V)               \
   do                                                   \
@@ -40,7 +41,7 @@ jkl_word_t jkl_emit_symbol(jkl_program_t *program, jkl_string_t symbol)
   jkl_word_t hash = jkl_string_hash(symbol);
   jkl_word_t pos = hash % JKL_MAX_CST_VALUES;
 
-  printf("[jkl_compiler] emitting symbol %s at %d with hash %d\n", symbol, pos, hash);
+  jkl_log("jkl_compiler", "emitting symbol %s at %d with hash %d", symbol, pos, hash);
 
   program->symbols[pos] = symbol;
   program->n_symbols++;
@@ -54,10 +55,7 @@ jkl_word_t jkl_symbol_load(jkl_program_t *program, jkl_string_t symbol)
   jkl_string_t sym = program->symbols[pos];
 
   if (sym == NULL)
-  {
-    fprintf(stderr, "Symbol '%s' not found\n", symbol);
-    exit(EXIT_FAILURE);
-  }
+    jkl_error("jkl_compiler", "symbol %s not found", symbol);
 
   return hash;
 }
@@ -83,60 +81,51 @@ jkl_bool_t jkl_get_symbol(jkl_program_t *program, jkl_word_t hash, jkl_string_t 
 jkl_bool_t jkl_set_symbol(jkl_program_t *program, jkl_word_t hash, jkl_heap_object_t *object)
 {
   jkl_word_t pos = hash % JKL_MAX_CST_VALUES;
-  printf("[jkl_compiler] setting symbol %s at %d\n", program->symbols[pos], pos);
-  if (pos >= JKL_MAX_CST_VALUES) {
-    printf("[jkl_compiler] symbol table overflow\n");
-    return 1;
-  }
+  jkl_log("jkl_compiler", "setting symbol %s at %d", program->symbols[pos], pos);
+  if (pos >= JKL_MAX_CST_VALUES)
+    jkl_error("jkl_compiler", "symbol table overflow");
 
   program->symbols_refs[pos] = object;
 
   // TODO: check if symbol is already defined
   jkl_heap_object_t *obj = program->symbols_refs[pos];
 
-  printf("[jkl_compiler] symbol %s at %d set\n", program->symbols[pos], pos); 
-  printf("[jkl_compiler] symbol %s at %d set to %d\n", program->symbols[pos], pos, obj->value->type);
-  printf("[jkl_compiler] symbol %s at %d set to %s\n", program->symbols[pos], pos, obj->value->v_string);
+  jkl_log("jkl_compiler", "symbol %s at %d set", program->symbols[pos], pos);
+  jkl_log("jkl_compiler", "symbol %s at %d set to %d", program->symbols[pos], pos, obj->value->type);
+  jkl_log("jkl_compiler", "symbol %s at %d set to %d", program->symbols[pos], pos, obj->value->v_string);
   return 0;
 }
 
 jkl_heap_object_t *jkl_get_symbol_ref(jkl_program_t *program, jkl_word_t hash)
 {
   jkl_word_t pos = hash % JKL_MAX_CST_VALUES;
-  if (pos >= JKL_MAX_CST_VALUES) {
-    printf("[jkl_compiler] symbol table overflow\n");
-    exit(1);
-  }
+  if (pos >= JKL_MAX_CST_VALUES)
+    jkl_error("jkl_compiler", "symbol table overflow");
 
-  printf("[jkl_compiler] getting symbol %s at %d\n", program->symbols[pos], pos);
-  if (program->symbols[pos] == NULL) {
-    printf("[jkl_compiler] symbol %s not found\n", program->symbols[pos]);
-    exit(1);
-  }
-  printf("[jkl_compiler] symbol %s found\n", program->symbols[pos]);
+  jkl_log("jkl_compiler", "getting symbol %s at %d", program->symbols[pos], pos);
+  if (program->symbols[pos] == NULL)
+    jkl_error("jkl_compiler", "symbol %s not found", program->symbols[pos]);
 
+  jkl_log("jkl_compiler", "symbol %s found", program->symbols[pos]);
   return &program->symbols_refs[pos];
 }
 
 jkl_bool_t jkl_get_2_symbol_ref(jkl_program_t *program, jkl_word_t hash, jkl_heap_object_t *ref)
 {
   jkl_word_t pos = hash % JKL_MAX_CST_VALUES;
-  if (pos >= JKL_MAX_CST_VALUES) {
-    printf("[jkl_compiler] symbol table overflow\n");
-    return 1;
-  }
+  if (pos >= JKL_MAX_CST_VALUES)
+    jkl_error("jkl_compiler", "symbol table overflow");
 
-  printf("[jkl_compiler] getting symbol %s at %d\n", program->symbols[pos], pos);
-  if (program->symbols[pos] == NULL) {
-    printf("[jkl_compiler] symbol %s not found\n", program->symbols[pos]);
-    exit(1);
-  }
-  printf("[jkl_compiler] symbol %s found\n", program->symbols[pos]);
+  jkl_log("jkl_compiler", "getting symbol %s at %d", program->symbols[pos], pos);
+  if (program->symbols[pos] == NULL)
+    jkl_error("jkl_compiler", "symbol %s not found", program->symbols[pos]);
+
+  jkl_log("jkl_compiler", "symbol %s found", program->symbols[pos]);
 
   ref = (jkl_heap_object_t*)&program->symbols_refs[pos];
-  printf("[jkl_compiler] symbol %s ref %p\n", program->symbols[pos], ref);
-  printf("[jkl_compiler] symbol %s ref type %d\n", program->symbols[pos], ref->value->type);
-  printf("[jkl_compiler] symbol %s ref value %s\n", program->symbols[pos], ref->value->v_string);
+  jkl_log("jkl_compiler", "symbol %s ref %p", program->symbols[pos], ref);
+  jkl_log("jkl_compiler", "symbol %s ref type %d", program->symbols[pos], ref->value->type);
+  jkl_log("jkl_compiler", "symbol %s ref value %d", program->symbols[pos], ref->value->v_string);
   return 0;
 }
 
@@ -275,10 +264,7 @@ jkl_word_t jkl_emit_binop(jkl_program_t *program, jkl_node_t *node)
     }
   }
 
-  printf("[jkl_compiler]: does not support this operation\n");
-  exit(1);
-
-  return 0;
+  jkl_error("jkl_compiler", "does not support this operation");
 }
 
 jkl_word_t jkl_emit_loop(jkl_program_t *program, jkl_node_t *node)
@@ -293,79 +279,65 @@ jkl_word_t jkl_emit_loop(jkl_program_t *program, jkl_node_t *node)
     return ilpb;
   }
 
-  printf("[jkl_compiler]: does not support this operation\n");
-  exit(1);
-
-  return 0;
+  jkl_error("jkl_compiler", "does not support this operation");
 }
 
 jkl_word_t jkl_emit_block(jkl_program_t *program, jkl_node_t *node)
 {
   if (node->type == JKL_NODE_BLOCK)
   {
-    printf("[jkl_compiler]: block\n");
+    jkl_log("jkl_compiler", "block");
     for (jkl_word_t i = 0; i < node->compound.n_nodes; i++)
     {
-      printf("[jkl_compiler]: block node %d\n", i);
+      jkl_log("jkl_compiler", "block node %d", i);
       jkl_node_t *child = &node->compound.nodes[i];
 
       if (child->type == JKL_NODE_BINOP)
         {
-          printf("[jkl_compiler]: block node %d is binop\n", i);
+          jkl_log("jkl_compiler", "block node %d is binop", i);
           jkl_emit_binop(program, child);
         }
       else if (child->type == JKL_NODE_LOOP)
         {
-          printf("[jkl_compiler]: block node %d is loop\n", i);
+          jkl_log("jkl_compiler", "block node %d is loop", i);
           jkl_emit_loop(program, child);
         }
       else if (child->type == JKL_NODE_BLOCK)
         {
-          printf("[jkl_compiler]: block node %d is block\n", i);
+          jkl_log("jkl_compiler", "block node %d is block", i);
           jkl_emit_block(program, child);
         }
       else if (child->type == JKL_NODE_RAISE)
         {
-          printf("[jkl_compiler]: emit raise\n");
+          jkl_log("jkl_compiler", "emit raise");
           jkl_emit_raise(program, child);
         }
       else if (child->type == JKL_NODE_PUTS)
         {
-          printf("[jkl_compiler]: emit puts\n");
+          jkl_log("jkl_compiler", "emit puts");
           jkl_emit_puts(program, child);
         }
       else
-        {
-          printf("[jkl_compiler]: block node %d is unknown\n", i);
-          jkl_print_ast_node(child);
-          exit(1);
-        }
+          jkl_error("jkl_compiler", "block node %d is unknown", i);
     }
 
     return 0;
   }
 
-  printf("[jkl_compiler]: does not support this operation\n");
-  exit(1);
-
-  return 0;
+  jkl_error("jkl_compiler", "does not support this operation");
 }
 
 jkl_word_t jkl_emit_raise(jkl_program_t *program, jkl_node_t *node) {
-  if (node->type != JKL_NODE_RAISE) {
-    printf("[jkl_compiler]: does not support this operation\n");
-    exit(1);
-  }
+  if (node->type != JKL_NODE_RAISE)
+    jkl_error("jkl_compiler", "does not support this operation");
 
   int imsg = jkl_emit_const_string(program, node->value.s);
   jkl_emit_inst_1(program, JKL_RAI, imsg);
 }
 
 jkl_word_t jkl_emit_puts(jkl_program_t *program, jkl_node_t *node) {
-  if (node->type != JKL_NODE_PUTS) {
-    printf("[jkl_compiler]: does not support this operation\n");
-    exit(1);
-  }
+  if (node->type != JKL_NODE_PUTS)
+    jkl_error("jkl_compiler", "does not support this operation");
 
   jkl_node_t *value = node->value.node;
   if (value->type == JKL_NODE_STRING) {
@@ -375,8 +347,6 @@ jkl_word_t jkl_emit_puts(jkl_program_t *program, jkl_node_t *node) {
     int ilabel = jkl_symbol_load(program, value->value.s);
     int iconst = jkl_emit_inst_1(program, JKL_CST, ilabel);
     jkl_emit_inst_1(program, JKL_PTS, iconst);
-  } else {
-    printf("[jkl_compiler]: does not support this operation\n");
-    exit(1);
-  }
+  } else
+    jkl_error("jkl_compiler", "does not support this operation");
 }

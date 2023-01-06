@@ -1,5 +1,6 @@
 #include <jackal/jackal_ast.h>
 #include <jackal/jackal_dump.h>
+#include <jackal/jackal_error.h>
 
 #define TABULATE(N)                          \
   for (jkl_word_t i = 0; i < depth + N; i++) \
@@ -72,27 +73,27 @@ jkl_word_t jkl_print_ast_node(jkl_node_t *node, jkl_word_t depth)
 jkl_word_t jkl_node_append(jkl_node_t *node, jkl_node_t *child)
 {
   if (node->type == JKL_NODE_BLOCK) {
-    printf("[jkl_node_append] appending to block\n");
+    jkl_log("jkl_node_append", "appending to block");
     if (node->compound.nodes == NULL) {
-      printf("[jkl_node_append] creating new node list\n");
+      jkl_log("jkl_node_append", "creating new node list");
       node->compound.nodes = calloc(1, sizeof(jkl_node_t));
       node->compound.nodes[0] = *child;
       node->compound.n_nodes = 1;
-      printf("[jkl_node_append] new node list created\n");
+      jkl_log("jkl_node_append", "new node list created");
     } else {
-      printf("[jkl_node_append] appending to existing node list\n");
+      jkl_log("jkl_node_append", "appending to existing node list");
       node->compound.n_nodes++;
-      printf("[jkl_node_append] new node list size: %d\n", node->compound.n_nodes);
+      jkl_log("jkl_node_append", "new node list size: %d", node->compound.n_nodes);
       node->compound.nodes = realloc(node->compound.nodes, node->compound.n_nodes * sizeof(jkl_node_t));
       node->compound.nodes[node->compound.n_nodes - 1] = *child;
-      printf("[jkl_node_append] node appended\n");
+      jkl_log("jkl_node_append", "node appended");
     }
 
-    printf("[jkl_node_append] node appended\n");
+    jkl_log("jkl_node_append", "node appended");
     return 0;
   }
 
-  printf("[jkl_node_append] ERROR: node type %d does not support children\n", node->type);
+  jkl_log("jkl_node_append", "ERROR: node type %d does not support children", node->type);
   exit(1);
 
   return 0;
