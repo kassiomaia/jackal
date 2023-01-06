@@ -4,6 +4,7 @@
 extern int yylineno;
 extern char *yytext;
 extern int yylex(void);
+int yyerror(char*);
 
 jkl_program_t program;
 jkl_node_t *cc;
@@ -101,7 +102,7 @@ expr: ID                              { $$ = JKL_AST_ID($1);      }
     ;
 
 ident: ID {
-        $$ = (jkl_node_t){.type = JKL_NODE_ID, .value = { .s = {$1} } };
+        $$ = (jkl_node_t){.type = JKL_NODE_ID, .value = { .s = $1 } };
       }
       ;
 
