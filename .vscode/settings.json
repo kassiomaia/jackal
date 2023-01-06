@@ -1,0 +1,9 @@
+{
+  "C_Cpp.errorSquiggles": "disabled",
+  "files.associations": {
+    "jackal_compiler.h": "c"
+  },
+  "files.exclude": {
+    "**/.o": true
+  }
+}
