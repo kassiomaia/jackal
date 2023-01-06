@@ -23,16 +23,13 @@ void jkl_program_init(jkl_program_t *program)
     program->bss.values[i].type = JKL_TYPE_NONE;
 
   for (jkl_word_t i = 0; i < JKL_MAX_INST; i++)
-  {
-    program->code.inst[i].type = JKL_NOP;
-    program->code.inst[i].n_args = 0;
-  }
+    {
+      program->code.inst[i].type = JKL_NOP;
+      program->code.inst[i].n_args = 0;
+    }
 
   for (jkl_word_t i = 0; i < JKL_MAX_CST_VALUES; i++)
-    {
-      program->symbols[i] = NULL;
-      program->symbols_refs[i] = 0;
-    }
+    program->symbols[i] = NULL;
 }
 
 jkl_word_t jkl_emit_symbol(jkl_program_t *program, jkl_string_t symbol)
@@ -75,57 +72,6 @@ jkl_bool_t jkl_get_symbol(jkl_program_t *program, jkl_word_t hash, jkl_string_t 
   if (*symbol == NULL)
     return 1;
 
-  return 0;
-}
-
-jkl_bool_t jkl_set_symbol(jkl_program_t *program, jkl_word_t hash, jkl_heap_object_t *object)
-{
-  jkl_word_t pos = hash % JKL_MAX_CST_VALUES;
-  jkl_log("jkl_compiler", "setting symbol %s at %d", program->symbols[pos], pos);
-  if (pos >= JKL_MAX_CST_VALUES)
-    jkl_error("jkl_compiler", "symbol table overflow");
-
-  program->symbols_refs[pos] = object;
-
-  // TODO: check if symbol is already defined
-  jkl_heap_object_t *obj = program->symbols_refs[pos];
-
-  jkl_log("jkl_compiler", "symbol %s at %d set", program->symbols[pos], pos);
-  jkl_log("jkl_compiler", "symbol %s at %d set to %d", program->symbols[pos], pos, obj->value->type);
-  jkl_log("jkl_compiler", "symbol %s at %d set to %d", program->symbols[pos], pos, obj->value->v_string);
-  return 0;
-}
-
-jkl_heap_object_t *jkl_get_symbol_ref(jkl_program_t *program, jkl_word_t hash)
-{
-  jkl_word_t pos = hash % JKL_MAX_CST_VALUES;
-  if (pos >= JKL_MAX_CST_VALUES)
-    jkl_error("jkl_compiler", "symbol table overflow");
-
-  jkl_log("jkl_compiler", "getting symbol %s at %d", program->symbols[pos], pos);
-  if (program->symbols[pos] == NULL)
-    jkl_error("jkl_compiler", "symbol %s not found", program->symbols[pos]);
-
-  jkl_log("jkl_compiler", "symbol %s found", program->symbols[pos]);
-  return &program->symbols_refs[pos];
-}
-
-jkl_bool_t jkl_get_2_symbol_ref(jkl_program_t *program, jkl_word_t hash, jkl_heap_object_t *ref)
-{
-  jkl_word_t pos = hash % JKL_MAX_CST_VALUES;
-  if (pos >= JKL_MAX_CST_VALUES)
-    jkl_error("jkl_compiler", "symbol table overflow");
-
-  jkl_log("jkl_compiler", "getting symbol %s at %d", program->symbols[pos], pos);
-  if (program->symbols[pos] == NULL)
-    jkl_error("jkl_compiler", "symbol %s not found", program->symbols[pos]);
-
-  jkl_log("jkl_compiler", "symbol %s found", program->symbols[pos]);
-
-  ref = (jkl_heap_object_t*)&program->symbols_refs[pos];
-  jkl_log("jkl_compiler", "symbol %s ref %p", program->symbols[pos], ref);
-  jkl_log("jkl_compiler", "symbol %s ref type %d", program->symbols[pos], ref->value->type);
-  jkl_log("jkl_compiler", "symbol %s ref value %d", program->symbols[pos], ref->value->v_string);
   return 0;
 }
 

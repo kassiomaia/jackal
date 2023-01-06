@@ -101,6 +101,8 @@ jkl_string_t jkl_inst_name(jkl_inst_t *inst)
     return "LPB";
   case JKL_LPE:
     return "LPE";
+  case JKL_STR:
+    return "STR";
   default:
     return "Unknown";
   }
@@ -111,7 +113,36 @@ void jkl_decoded_code_dump(jkl_program_t *program) {
   jkl_print_dash_line();
 
   for (jkl_word_t i = 0; i < program->code.n_insts; i++) {
-    printf("%d: %s\n", i, jkl_inst_name(&program->code.inst[i]));
+    jkl_inst_t *inst = &program->code.inst[i];
+    printf("%d: %s", i, jkl_inst_name(inst));
+
+    switch (inst->type) {
+    case JKL_NOP:
+      break;
+    case JKL_CST:
+      printf("  0x%04x\n", inst->args[0]);
+      break;
+    case JKL_PSH:
+      printf("  0x%04x0x%04x\n", inst->args[0], inst->args[1]);
+      break;
+    case JKL_PTS:
+      printf("  0x%04x\n", inst->args[0]);
+      break;
+    case JKL_RAI:
+      printf("  0x%04x\n", inst->args[0]);
+      break;
+    case JKL_LPB:
+      printf("  0x%04x\n", inst->args[0]);
+      break;
+    case JKL_LPE:
+      printf("  0x%04x\n", inst->args[0]);
+      break;
+    case JKL_STR:
+      printf("  0x%04x\n", inst->args[0]);
+      break;
+    default:
+      break;
+    }
   }
 }
 
