@@ -22,9 +22,16 @@
 // reset
 #define $E "\x1b[0m"
 
-#define ENABLE_COLOR 1
+#ifdef VERBOSE
+#define jkl_printf_impl(...) \
+  do { \
+    fprintf(stdout, __VA_ARGS__); \
+  } while (0)
+#else
+#define jkl_printf_impl(...)
+#endif
 
-#if ENABLE_COLOR
+#ifdef ENABLE_COLOR
   #define jkl_error(c_, f_, ...) \
     do { \
       fprintf(stderr, $R "[" c_ "]: " $E $RB f_ $E "\n", ##__VA_ARGS__); \
@@ -32,19 +39,13 @@
     } while (0);
 
   #define jkl_warn(c_, f_, ...) \
-    do { \
-      fprintf(stderr, $Y "[" c_ "]: " $E f_ "\n", ##__VA_ARGS__); \
-    } while (0);
+    jkl_printf_impl($Y "[" c_ "]: " $E $YB f_ $E "\n", ##__VA_ARGS__)
 
   #define jkl_log(c_, f_, ...) \
-    do { \
-      fprintf(stderr, $G "[" c_ "]: " $E f_ "\n", ##__VA_ARGS__); \
-    } while (0);
+    jkl_printf_impl($G "[" c_ "]: " $E f_ "\n", ##__VA_ARGS__)
 
   #define jkl_note(c_, f_, ...) \
-    do { \
-      fprintf(stderr, $CB "[" c_ "]: " $E $C f_ $E "\n", ##__VA_ARGS__); \
-    } while (0);
+    jkl_printf_impl($CB "[" c_ "]: " $E $C f_ $E "\n", ##__VA_ARGS__)
 #else
   #define jkl_error(c_, f_, ...) \
     do { \
@@ -53,19 +54,13 @@
     } while (0);
 
   #define jkl_warn(c_, f_, ...) \
-    do { \
-      fprintf(stderr, "[" c_ "]: " f_ "\n", ##__VA_ARGS__); \
-    } while (0);
+    jkl_printf_impl("[" c_ "]: " f_ "\n", ##__VA_ARGS__)
 
   #define jkl_log(c_, f_, ...) \
-    do { \
-      fprintf(stderr, "[" c_ "]: " f_ "\n", ##__VA_ARGS__); \
-    } while (0);
+    jkl_printf_impl("[" c_ "]: " f_ "\n", ##__VA_ARGS__)
 
   #define jkl_note(c_, f_, ...) \
-    do { \
-      fprintf(stderr, "[" c_ "]: " f_ "\n", ##__VA_ARGS__); \
-    } while (0);
+    jkl_printf_impl("[" c_ "]: " f_ "\n", ##__VA_ARGS__)
 #endif
 
 #define jkl_debug(w_) \
