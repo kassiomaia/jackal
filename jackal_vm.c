@@ -10,7 +10,7 @@ jkl_word_t jkl_vm_stack_push(jkl_vm_t *vm, jkl_value_t value)
   return i;
 }
 
-jkl_word_t jkl_vm_stack_pop(jkl_vm_t *vm, jkl_value_t *value)
+jkl_value_t* jkl_vm_stack_pop(jkl_vm_t *vm, jkl_value_t *value)
 {
   jkl_word_t i = vm->frame->sp - 1;
   value = &vm->frame->values[i];
@@ -100,37 +100,39 @@ jkl_word_t jkl_vm_run(jkl_vm_t *vm)
         printf("[jackal_vm]: pushing constant %d to the stack.\n", ilabel);
         jkl_heap_object_t *obj = jkl_get_symbol_ref(vm->program, ilabel);
         if (obj == NULL)
-        {
-          printf("[jackal_vm]: heap object not found.\n");
-          vm->halted = 1;
-          break;
-        }
+          {
+            printf("[jackal_vm]: heap object not found.\n");
+            vm->halted = 1;
+            break;
+          }
 
         jkl_dump_value(obj->value);
 
         if (obj->value == NULL)
-        {
-          printf("[jackal_vm]: value not found.\n");
-          vm->halted = 1;
-          break;
-        }
+          {
+            printf("[jackal_vm]: value not found.\n");
+            vm->halted = 1;
+            break;
+          }
 
-        if (obj->value->type == JKL_TYPE_NONE)
+        switch (obj->value->type)
         {
+        case JKL_TYPE_NONE:
           printf("[jackal_vm]: invalid constant type.\n");
           exit(1);
-        }
-        else if (obj->value->type == JKL_TYPE_STRING)
-        {
-          printf("[jackal_vm]: pushing string to the stack.\n");
-          if (obj->value->type == JKL_TYPE_STRING)
+        case JKL_TYPE_STRING:
           {
-            jkl_word_t i = jkl_vm_stack_push(vm, *obj->value);
-            printf("[jackal_vm]: pushed string to the stack.\n");
+            printf("[jackal_vm]: pushing string to the stack.\n");
+            if (obj->value->type == JKL_TYPE_STRING)
+            {
+              jkl_word_t i = jkl_vm_stack_push(vm, *obj->value);
+              printf("[jackal_vm]: pushed string to the stack.\n");
+            }
+            printf("[jackal_vm]: string: %s\n", obj->value->v_string);
           }
-          printf("[jackal_vm]: string: %s\n", obj->value->v_string);
+        default:
+          break;
         }
-
         break;
       }
     case JKL_STR:
@@ -140,11 +142,11 @@ jkl_word_t jkl_vm_run(jkl_vm_t *vm)
 
         jkl_string_t symbol;
         if (jkl_get_symbol(vm->program, ilhs, &symbol))
-        {
-          printf("[jackal_vm]: The symbol with hash '%d' is not defined.\n", ilhs);
-          vm->halted = 1;
-          break;
-        }
+          {
+            printf("[jackal_vm]: The symbol with hash '%d' is not defined.\n", ilhs);
+            vm->halted = 1;
+            break;
+          }
         printf("[jackal_vm]: the symbol '%s' '%d' is defined.\n", symbol, ilhs);
 
         // load irhs from bss
@@ -152,39 +154,44 @@ jkl_word_t jkl_vm_run(jkl_vm_t *vm)
         jkl_value_t irhs_val = vm->program->bss.values[irhs];
         printf("[jackal_vm]: the irhs value is '%p'.\n", &irhs_val);
 
-        if (irhs_val.type == JKL_TYPE_NONE) {
-          printf("[jackal_vm]: the irhs type is a node.\n");
-          exit(1);
-        }
-        if (irhs_val.type == JKL_TYPE_STRING) {
-          printf("[jackal_vm]: the irhs type is a string.\n");
-          printf("[jackal_vm]: the irhs value is '%s'.\n", irhs_val.v_string);
-        }
+        if (irhs_val.type == JKL_TYPE_NONE)
+          {
+            printf("[jackal_vm]: the irhs type is a node.\n");
+            exit(1);
+          }
+
+        if (irhs_val.type == JKL_TYPE_STRING)
+          {
+            printf("[jackal_vm]: the irhs type is a string.\n");
+            printf("[jackal_vm]: the irhs value is '%s'.\n", irhs_val.v_string);
+          }
 
         // allocate a new object in the heap
         printf("[jackal_vm]: allocating memory for the symbol '%d'.\n", ilhs);
         jkl_heap_object_t *rhs_obj = malloc(sizeof(jkl_heap_object_t));
         rhs_obj->refs.n_refs = 0;
 
-        if (irhs_val.type == JKL_TYPE_STRING) {
-          printf("[jackal_vm]: copy the string to the heap.\n");
-          rhs_obj->value = malloc(sizeof(jkl_value_t));
-          rhs_obj->value->type = JKL_TYPE_STRING;
-          rhs_obj->value->v_string = (jkl_string_t)malloc(strlen(irhs_val.v_string) + 1);
-          strcpy(rhs_obj->value->v_string, irhs_val.v_string);
-          printf("[jackal_vm]: the string is '%s'.\n", rhs_obj->value->v_string);
-        }
+        if (irhs_val.type == JKL_TYPE_STRING)
+          {
+            printf("[jackal_vm]: copy the string to the heap.\n");
+            rhs_obj->value = malloc(sizeof(jkl_value_t));
+            rhs_obj->value->type = JKL_TYPE_STRING;
+            rhs_obj->value->v_string = (jkl_string_t)malloc(strlen(irhs_val.v_string) + 1);
+            strcpy(rhs_obj->value->v_string, irhs_val.v_string);
+            printf("[jackal_vm]: the string is '%s'.\n", rhs_obj->value->v_string);
+          }
         printf("[jackal_vm]: the heap object has been allocated at '%p'.\n", rhs_obj);
 
         // add the object to symbol table
         printf("[jackal_vm]: set the heap object as reference for the symbol '%d'.\n", ilhs);
         jkl_bool_t r = jkl_set_symbol(vm->program, ilhs, rhs_obj);
-        if (r == 0) {
+        if (r == 0)
           printf("[jackal_vm]: the symbol '%d' has been set.\n", ilhs);
-        } else {
-          printf("[jackal_vm]: the symbol '%d' has not been set.\n", ilhs);
-          exit(0);
-        }
+        else
+          {
+            printf("[jackal_vm]: the symbol '%d' has not been set.\n", ilhs);
+            exit(0);
+          }
         break;
       }
     case JKL_LPB:
@@ -198,10 +205,8 @@ jkl_word_t jkl_vm_run(jkl_vm_t *vm)
         break;
       }
     case JKL_PTS:
-      {
-        fprintf(vm->io.out, "%s", "<null>");
-        break;
-      }
+      fprintf(vm->io.out, "%s", "<null>");
+      break;
     case JKL_LPE:
       jkl_word_t pc = inst->args[0];
       vm->pc = pc;
