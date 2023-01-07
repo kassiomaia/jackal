@@ -100,14 +100,6 @@ float [+|-]?{int}?[.]{int}
   return CSTRING;
 }
 
-
-.                                  {
-  printf("[jkl_lexer]: unknow char code %s\n", yytext);
-  exit(1);
-}
+. { jkl_error("jkl_lexer", "unknow char code %s\n", yytext); }
 
 %%
-
-void consume_string(void)
-{
-}

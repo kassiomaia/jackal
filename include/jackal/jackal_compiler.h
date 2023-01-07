@@ -38,4 +38,6 @@ jkl_word_t jkl_emit_block(jkl_program_t *program, jkl_node_t *node);
 jkl_word_t jkl_emit_raise(jkl_program_t *program, jkl_node_t *node);
 jkl_word_t jkl_emit_puts(jkl_program_t *program, jkl_node_t *node);
 
+jkl_word_t jkl_compile(jkl_program_t *program, jkl_node_t *node);
+
 #endif

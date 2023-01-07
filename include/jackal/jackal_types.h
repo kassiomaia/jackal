@@ -74,42 +74,51 @@ typedef jkl_string_t jkl_error_name_t;
  */
 
 typedef struct jkl_node jkl_node_t;
+typedef enum
+{
+  JKL_NODE_NONE,
+  JKL_NODE_INT,
+  JKL_NODE_FLOAT,
+  JKL_NODE_STRING,
+  JKL_NODE_ID,
+  JKL_NODE_BINOP,
+  JKL_NODE_LOOP,
+  JKL_NODE_BLOCK,
+  JKL_NODE_RAISE,
+  JKL_NODE_PUTS,
+} jkl_node_type_t;
 
 struct jkl_node
 {
-  enum
-  {
-    JKL_NODE_INT,
-    JKL_NODE_FLOAT,
-    JKL_NODE_STRING,
-    JKL_NODE_ID,
-    JKL_NODE_BINOP,
-    JKL_NODE_LOOP,
-    JKL_NODE_BLOCK,
-    JKL_NODE_RAISE,
-    JKL_NODE_PUTS,
-  } type;
+  jkl_node_type_t type;
   union
-  {
-    jkl_qqword_t i;
-    jkl_string_t s;
-    jkl_float_t f;
-    jkl_node_t *node;
-  } value;
-  struct
-  {
-    jkl_node_t *left;
-    enum
     {
-      JKL_OP_ASSIGN,
-    } op;
-    jkl_node_t *right;
-  } binop;
-  struct {
-    jkl_node_t *nodes;
-    jkl_word_t n_nodes;
-  } compound;
+      jkl_qqword_t i;
+      jkl_string_t s;
+      jkl_float_t f;
+    } value;
+  struct
+    {
+      jkl_node_t *left;
+      enum
+      {
+        JKL_OP_NONE = 0,
+        JKL_OP_ASSIGN,
+      } op;
+      jkl_node_t *right;
+    } binop;
+  struct
+    {
+      jkl_node_t *expr;
+    } unop;
+  struct
+    {
+      jkl_node_t *nodes;
+      jkl_word_t n_nodes;
+    } compound;
   jkl_node_t *block;
+  jkl_node_t *node;
+  jkl_node_t *parent;
 };
 
 /*
