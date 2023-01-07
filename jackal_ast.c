@@ -1,6 +1,40 @@
+#include <string.h>
 #include <jackal/jackal_ast.h>
 #include <jackal/jackal_dump.h>
 #include <jackal/jackal_error.h>
+
+jkl_node_t *jkl_node_new(jkl_node_type_t type)
+{
+  jkl_node_t *node = (jkl_node_t *)malloc(sizeof(jkl_node_t));
+
+  if (node == NULL)
+    jkl_error("jkl_ast", "failed to allocate memory");
+
+  node->type = type;
+  node->node = NULL;
+  node->block = NULL;
+  node->parent = NULL;
+  node->value.i = 0;
+  node->value.s = NULL;
+  node->value.f = 0.0;
+  node->binop.left = NULL;
+  node->binop.right = NULL;
+  node->binop.op = JKL_OP_NONE;
+  node->unop.expr = NULL;
+  return node;
+}
+
+jkl_word_t jkl_node_free(jkl_node_t *node)
+{
+  if (node == NULL)
+    return -1;
+
+  free(node);
+  return 0;
+}
+
+
+/* PRINT AST */
 
 #define TABULATE(N)                          \
   for (jkl_word_t i = 0; i < depth + N; i++) \
@@ -10,24 +44,35 @@ void jkl_print_ast_type(jkl_node_t *node)
 {
   switch (node->type)
   {
-  case JKL_NODE_ID:
-    printf("ID\n");
-    break;
-  case JKL_NODE_BINOP:
-    printf("BINOP\n");
-    break;
   case JKL_NODE_INT:
-    printf("INT\n");
+    jkl_log("jkl_ast", "JKL_NODE_INT\n");
     break;
   case JKL_NODE_FLOAT:
-    printf("FLOAT\n");
+    jkl_log("jkl_ast", "JKL_NODE_FLOAT\n");
     break;
   case JKL_NODE_STRING:
-    printf("STRING\n");
+    jkl_log("jkl_ast", "JKL_NODE_STRING\n");
+    break;
+  case JKL_NODE_ID:
+    jkl_log("jkl_ast", "JKL_NODE_ID\n");
+    break;
+  case JKL_NODE_BINOP:
+    jkl_log("jkl_ast", "JKL_NODE_BINOP\n");
+    break;
+  case JKL_NODE_LOOP:
+    jkl_log("jkl_ast", "JKL_NODE_LOOP\n");
+    break;
+  case JKL_NODE_BLOCK:
+    jkl_log("jkl_ast", "JKL_NODE_BLOCK\n");
+    break;
+  case JKL_NODE_RAISE:
+    jkl_log("jkl_ast", "JKL_NODE_RAISE\n");
+    break;
+  case JKL_NODE_PUTS:
+    jkl_log("jkl_ast", "JKL_NODE_PUTS\n");
     break;
   default:
-    printf("UNKNOWN\n");
-    break;
+    jkl_error("jkl_ast", "unknown node type");
   }
 }
 
@@ -77,16 +122,25 @@ jkl_word_t jkl_node_append(jkl_node_t *node, jkl_node_t *child)
     if (node->compound.nodes == NULL) {
       jkl_log("jkl_node_append", "creating new node list");
       node->compound.nodes = calloc(1, sizeof(jkl_node_t));
-      node->compound.nodes[0] = *child;
+      if (node->compound.nodes == NULL) {
+        jkl_error("jkl_node_append", "failed to allocate memory");
+        return 1;
+      }
+      memset(node->compound.nodes, 0, sizeof(jkl_node_t));
+      memcpy(&node->compound.nodes[0], child, sizeof(jkl_node_t));
       node->compound.n_nodes = 1;
-      jkl_log("jkl_node_append", "new node list created");
     } else {
-      jkl_log("jkl_node_append", "appending to existing node list");
       node->compound.n_nodes++;
-      jkl_log("jkl_node_append", "new node list size: %d", node->compound.n_nodes);
+
+      jkl_log("jkl_node_append", "resize node list: %d", node->compound.n_nodes);
+      jkl_log("jkl_node_append", "appending to existing node list");
       node->compound.nodes = realloc(node->compound.nodes, node->compound.n_nodes * sizeof(jkl_node_t));
-      node->compound.nodes[node->compound.n_nodes - 1] = *child;
-      jkl_log("jkl_node_append", "node appended");
+      if (node->compound.nodes == NULL) {
+        jkl_error("jkl_node_append", "failed to allocate memory");
+        return 1;
+      }
+      memset(&node->compound.nodes[node->compound.n_nodes - 1], 0, sizeof(jkl_node_t));
+      memcpy(&node->compound.nodes[node->compound.n_nodes - 1], child, sizeof(jkl_node_t));
     }
 
     jkl_log("jkl_node_append", "node appended");

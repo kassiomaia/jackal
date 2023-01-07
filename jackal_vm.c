@@ -155,6 +155,15 @@ jkl_word_t jkl_vm_load(jkl_vm_t *vm, jkl_program_t *program)
   return 0;
 }
 
+#define JKL_ARG_1(i_) ((i_)->args[0])
+#define JKL_ARG_2(i_) ((i_)->args[1])
+#define JKL_ARG_3(i_) ((i_)->args[2])
+#define JKL_ARG_4(i_) ((i_)->args[3])
+#define JKL_ARG_5(i_) ((i_)->args[4])
+#define JKL_ARG_6(i_) ((i_)->args[5])
+#define JKL_ARG_7(i_) ((i_)->args[6])
+#define JKL_ARG_8(i_) ((i_)->args[8])
+
 jkl_word_t jkl_vm_run(jkl_vm_t *vm)
 {
   if (vm == NULL)
@@ -173,7 +182,22 @@ jkl_word_t jkl_vm_run(jkl_vm_t *vm)
       jkl_note("jackal_vm", "the program stopped abruptly.");
       goto halt;
     case JKL_PSH:
-      break;
+      {
+        jkl_log("jkl_vm_run", "pushing value to stack");
+        jkl_word_t type = JKL_ARG_1(inst);
+        jkl_word_t loc = JKL_ARG_2(inst);
+
+        if (type == JKL_TYPE_STRING)
+          {
+            if (loc > vm->program->bss.n_values)
+              jkl_error("jkl_vm_run", "invalid string location");
+
+            jkl_value_t value = vm->program->bss.values[loc];
+            jkl_word_t i = jkl_vm_stack_push(vm, value);
+            jkl_log("jackal_vm", "pushed string to the stack.");
+          }
+        break;
+      }
     case JKL_CST:
       {
         jkl_word_t ilabel = inst->args[0];

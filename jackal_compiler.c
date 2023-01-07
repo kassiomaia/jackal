@@ -285,14 +285,28 @@ jkl_word_t jkl_emit_puts(jkl_program_t *program, jkl_node_t *node) {
   if (node->type != JKL_NODE_PUTS)
     jkl_error("jkl_compiler", "does not support this operation");
 
-  jkl_node_t *value = node->value.node;
+  jkl_node_t *value = node->node;
+  jkl_log("jkl_compiler", "puts value type 0x%04x", value->type);
+  jkl_print_ast_type(value);
   if (value->type == JKL_NODE_STRING) {
     int imsg = jkl_emit_const_string(program, value->value.s);
+    jkl_emit_inst_2(program, JKL_PSH, JKL_TYPE_STRING, imsg);
     jkl_emit_inst_1(program, JKL_PTS, imsg);
   } else if (value->type == JKL_NODE_ID) {
     int ilabel = jkl_symbol_load(program, value->value.s);
     int iconst = jkl_emit_inst_1(program, JKL_CST, ilabel);
     jkl_emit_inst_1(program, JKL_PTS, iconst);
-  } else
+  } else {
+    jkl_print_ast_type(value);
+    jkl_dump(program);
     jkl_error("jkl_compiler", "does not support this operation");
+  }
+}
+
+jkl_word_t jkl_compile(jkl_program_t *program, jkl_node_t *node)
+{
+  if (node->type == JKL_NODE_BLOCK)
+    return jkl_emit_block(program, node);
+
+  jkl_error("jkl_compiler", "does not support this operation")
 }

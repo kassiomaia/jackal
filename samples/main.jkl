@@ -1,5 +1,2 @@
-let name := "Johnn\n"
-
 loop {
-  puts name
 }

@@ -9,6 +9,42 @@ int yyerror(char*);
 jkl_program_t program;
 jkl_node_t *cc;
 
+struct {
+  jkl_node_t* frames[1024];
+  int pos;
+} context;
+
+jkl_node_t* jkl_get_context(jkl_program_t *program) {
+  if (context.pos == 0) {
+    return NULL;
+  }
+
+  jkl_log("jkl_parser", "context.pos = %d", context.pos);
+  return context.frames[context.pos - 1];
+}
+
+void jkl_push_context(jkl_program_t *program, jkl_node_t *node) {
+  if (jkl_get_context(program) != NULL) {
+    jkl_node_t* parent = jkl_get_context(program);
+    node->parent = parent;
+  }
+
+  jkl_log("jkl_parser", "pushing context");
+  context.frames[context.pos] = node;
+  context.pos++;
+}
+
+jkl_node_t* jkl_pop_context(jkl_program_t *program) {
+  context.pos--;
+  jkl_log("jkl_parser", "popping context");
+  return context.frames[context.pos];
+}
+
+void jkl_ensure_empty_contexts() {
+  if (context.pos != 0)
+    jkl_error("jkl_error", "context stack is not empty");
+}
+
 %}
 
 %union {
@@ -16,8 +52,7 @@ jkl_node_t *cc;
     char *string;
     int number;
     float fnumber;
-    jkl_node_t node;
-    jkl_node_t block;
+    jkl_node_t *node;
 }
 
 %token <id>       ID
@@ -35,95 +70,196 @@ jkl_node_t *cc;
 
 %type <node>  expr
 %type <node>  ident
-%type <node>  loop
-%type <node>  statement
-%type <block> statements
-%type <node>  block
 %type <node>  puts
+
+%type statement
+%type statements
 
 %%
 
-program: { jkl_program_init(&program); }
+program: { 
+          jkl_program_init(&program);
+          jkl_node_t* block = jkl_node_new(JKL_NODE_BLOCK);
+          jkl_push_context(&program, block);
+        }
        | program statements {
-          jkl_node_t *block = &$2;
-          if (block->type == JKL_NODE_BLOCK) {
-            jkl_log("jkl_parse", "emit program block");
-            jkl_emit_block(&program, block);
-          } else
-            jkl_error("jkl_parse", "the program is not a block");
+          jkl_node_t* block = jkl_pop_context(&program);
+          jkl_ensure_empty_contexts();
 
-          #ifdef DUMP
+          jkl_word_t n = jkl_compile(&program, block);
+          if (n != 0) {
+            jkl_error("jkl_error", "compilation failed");
+          }
+
+#ifdef DUMP
             jkl_dump(&program);
-          #else
+#else
             jkl_vm_t vm;
             jkl_vm_init(&vm);
             jkl_vm_load(&vm, &program);
             jkl_vm_run(&vm);
-          #endif
-       }
+#endif
+        }
        ;
 
 statements:
-          | statements statement {
-            jkl_node_t *block = &$$;
-            block->type = JKL_NODE_BLOCK;
-
-            jkl_node_append(block, &$2);
-          }
+          | statements statement
+          | statement
           ;
 
 statement: LET ident ASSIGN expr {
-            jkl_node_t ident = $2;
-            jkl_node_t expr = $4;
+            jkl_node_t* ident = $2;
+            jkl_node_t* expr = $4;
 
-            if (ident.type != JKL_NODE_ID) {
+            if (jkl_get_context(&program) == NULL)
+              jkl_error("jkl_parser", "no current context");
+
+            if (ident->type != JKL_NODE_ID) {
               yyerror("expected an identifier");
               YYERROR;
-            } else {
-              jkl_node_t binop = JKL_AST_BINOP(&ident, JKL_OP_ASSIGN, &expr);
-              $$ = binop;
-            }
+            } 
+
+            // jkl_node_t* binop = &JKL_AST_BINOP(&ident, JKL_OP_ASSIGN, &expr);
+            jkl_node_t* binop = jkl_node_new(JKL_NODE_BINOP);
+            binop->binop.op = JKL_OP_ASSIGN;
+            binop->binop.left = ident;
+            binop->binop.right = expr;
+
+            jkl_log("jkl_parser", "emit statement: %p", binop);
+            jkl_print_ast_type(binop);
+
+            jkl_node_append(jkl_get_context(&program), binop);
          }
          | loop
          | RAISE CSTRING {
-            $$ = JKL_AST_RAISE($2);
+            jkl_node_t* raise = jkl_node_new(JKL_NODE_RAISE);
+            raise->value.s = $2;
+
+            if (jkl_get_context(&program) == NULL)
+              jkl_error("jkl_parser", "no current context");
+
+            jkl_log("jkl_parser", "raise: %s", $2);
+            jkl_print_ast_type(raise);
+
+            jkl_node_append(jkl_get_context(&program), raise);
          }
-         | puts
+         | puts {
+            jkl_note("jkl_parser", "emit ast puts");
+            jkl_node_t* puts = $1;
+
+            if (jkl_get_context(&program) == NULL)
+              jkl_error("jkl_parser", "no current context");
+
+            jkl_log("jkl_parser", "puts: %p", puts);
+            jkl_print_ast_type(puts);
+
+            jkl_node_append(jkl_get_context(&program), puts);
+          }
          ;
 
-expr: ID                              { $$ = JKL_AST_ID($1);      }
-    | CINT                            { $$ = JKL_AST_INT($1);     }
-    | CSTRING                         { $$ = JKL_AST_STRING($1);  }
-    | CFLOAT                          { $$ = JKL_AST_FLOAT($1);   }
+expr: ID {
+      jkl_node_t* ident = jkl_node_new(JKL_NODE_ID);
+      ident->value.s = $1;
+
+      jkl_log("jkl_parser", "emit ast ident: %s", $1);
+      jkl_print_ast_type(ident);
+
+      $$ = ident;
+    }
+    | CINT {
+      jkl_node_t* cint = jkl_node_new(JKL_NODE_INT);
+      cint->value.i = $1;
+
+      jkl_log("jkl_parser", "emit ast cint: %d", $1);
+      jkl_print_ast_type(cint);
+
+      $$ = cint;
+    }
+    | CSTRING {
+      jkl_node_t* cstring = jkl_node_new(JKL_NODE_STRING);
+      cstring->value.s = $1;
+
+      jkl_log("jkl_parser", "emit ast cstring: %s", $1);
+      jkl_print_ast_type(cstring);
+
+      $$ = cstring;
+    }
+    | CFLOAT {
+      jkl_node_t* cfloat = jkl_node_new(JKL_NODE_FLOAT);
+      cfloat->value.f = $1;
+
+      jkl_log("jkl_parser", "emit ast cfloat: %f", $1);
+      jkl_print_ast_type(cfloat);
+
+      $$ = cfloat;
+    }
     ;
 
 ident: ID {
-        $$ = (jkl_node_t){.type = JKL_NODE_ID, .value = { .s = $1 } };
+        jkl_node_t* ident = jkl_node_new(JKL_NODE_ID);
+        ident->value.s = $1;
+
+        jkl_log("jkl_parser", "emit ast ident: %s", $1);
+        jkl_print_ast_type(ident);
+
+        $$ = ident;
       }
       ;
 
-loop: LOOP block {
-        jkl_node_t *block = &$2;
-        jkl_node_t loop = JKL_AST_LOOP(block);
+loop: LOOP LBRACE {
+        jkl_note("jkl_parser", "begin emit ast loop");
+        jkl_note("jkl_parser", "begin emit ast block");
+        jkl_node_t* block = jkl_node_new(JKL_NODE_BLOCK);
+        jkl_push_context(&program, block);
+      } block_stmts RBRACE {
+        jkl_note("jkl_parser", "end emit ast block");
+        jkl_node_t* block = jkl_pop_context(&program);
 
-        $$ = loop;
+        jkl_node_t *loop = jkl_node_new(JKL_NODE_LOOP);
+        loop->block = block;
+
+        jkl_node_t *context = jkl_get_context(&program);
+        if (context == NULL)
+          jkl_error("jkl_parser", "no current context");
+
+        jkl_node_append(context, loop);
+        jkl_log("jkl_parser", "emit ast loop");
       }
       ;
 
-block: LBRACE statements RBRACE { $$ = $2; }
-     ;
+block_stmts: block_stmts statement
+            | statement
+            |
+            ;
 
 puts: PUTS CSTRING      {
-        jkl_node_t str = JKL_AST_STRING($2);
-        $$ = JKL_AST_PUTS(&str);
-      }
-    | PUTS ident        { $$ = JKL_AST_PUTS(&$2); }
+      jkl_node_t* cstring = jkl_node_new(JKL_NODE_STRING);
+      cstring->value.s = $2;
+
+      jkl_node_t* puts = jkl_node_new(JKL_NODE_PUTS);
+      puts->node = cstring;
+
+      jkl_log("jkl_parser", "emit ast puts: %s", $2);
+      jkl_print_ast_type(puts);
+
+      $$ = puts;
+    }
+    | PUTS ident {
+      jkl_node_t* ident = $2;
+      jkl_node_t* puts = jkl_node_new(JKL_NODE_PUTS);
+      puts->node = ident;
+
+      jkl_log("jkl_parser", "emit ast puts: %s", $2);
+      jkl_print_ast_type(puts);
+
+      $$ = puts;
+    }
     ;
 
 %%
 
 int yyerror(char *s) {
-  jkl_error("jkl_parse", "line %d: %s near '%s'", yylineno, s, yytext);
+  jkl_error("jkl_parser", "line %d: %s near '%s'", yylineno, s, yytext);
 }
 
 int yywrap(void) {
