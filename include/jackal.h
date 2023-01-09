@@ -15,5 +15,6 @@
 #include <jackal/jackal_vm.h>
 #include <jackal/jackal_dump.h>
 #include <jackal/jackal_error.h>
+#include <jackal/jackal_class.h>
 
 #endif

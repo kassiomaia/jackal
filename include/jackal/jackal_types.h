@@ -113,7 +113,7 @@ struct jkl_node
     } unop;
   struct
     {
-      jkl_node_t *nodes;
+      jkl_node_t **nodes;
       jkl_word_t n_nodes;
     } compound;
   jkl_node_t *block;
@@ -213,6 +213,9 @@ typedef struct
 #define JKL_1MB 1048576
 #define JKL_8MB 8388608
 #define JKL_VM_PAGE_OBJECTS_SIZE JKL_8MB
+
+#include <stdlib.h>
+#include <stdio.h>
  
 typedef struct
 {

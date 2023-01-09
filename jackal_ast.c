@@ -5,7 +5,7 @@
 
 jkl_node_t *jkl_node_new(jkl_node_type_t type)
 {
-  jkl_node_t *node = (jkl_node_t *)malloc(sizeof(jkl_node_t));
+  jkl_node_t *node = malloc(sizeof(jkl_node_t));
 
   if (node == NULL)
     jkl_error("jkl_ast", "failed to allocate memory");
@@ -21,6 +21,8 @@ jkl_node_t *jkl_node_new(jkl_node_type_t type)
   node->binop.right = NULL;
   node->binop.op = JKL_OP_NONE;
   node->unop.expr = NULL;
+  node->compound.n_nodes = 0;
+  node->compound.nodes = NULL;
   return node;
 }
 
@@ -32,7 +34,6 @@ jkl_word_t jkl_node_free(jkl_node_t *node)
   free(node);
   return 0;
 }
-
 
 /* PRINT AST */
 
@@ -121,26 +122,27 @@ jkl_word_t jkl_node_append(jkl_node_t *node, jkl_node_t *child)
     jkl_log("jkl_node_append", "appending to block");
     if (node->compound.nodes == NULL) {
       jkl_log("jkl_node_append", "creating new node list");
-      node->compound.nodes = calloc(1, sizeof(jkl_node_t));
+      node->compound.nodes = malloc(sizeof(jkl_node_t*));
       if (node->compound.nodes == NULL) {
         jkl_error("jkl_node_append", "failed to allocate memory");
         return 1;
       }
-      memset(node->compound.nodes, 0, sizeof(jkl_node_t));
-      memcpy(&node->compound.nodes[0], child, sizeof(jkl_node_t));
+      node->compound.nodes[0] = child;
       node->compound.n_nodes = 1;
     } else {
       node->compound.n_nodes++;
 
       jkl_log("jkl_node_append", "resize node list: %d", node->compound.n_nodes);
       jkl_log("jkl_node_append", "appending to existing node list");
-      node->compound.nodes = realloc(node->compound.nodes, node->compound.n_nodes * sizeof(jkl_node_t));
+      printf("n_nodes: %d\n", node->compound.n_nodes);
+      printf("sizeof: %d\n", sizeof(jkl_node_t*));
+      printf("reallocating %d bytes\n", sizeof(jkl_node_t*) * node->compound.n_nodes);
+      node->compound.nodes = realloc(node->compound.nodes, node->compound.n_nodes * sizeof(jkl_node_t*));
       if (node->compound.nodes == NULL) {
         jkl_error("jkl_node_append", "failed to allocate memory");
         return 1;
       }
-      memset(&node->compound.nodes[node->compound.n_nodes - 1], 0, sizeof(jkl_node_t));
-      memcpy(&node->compound.nodes[node->compound.n_nodes - 1], child, sizeof(jkl_node_t));
+      node->compound.nodes[node->compound.n_nodes - 1] = child;
     }
 
     jkl_log("jkl_node_append", "node appended");
