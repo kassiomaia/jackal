@@ -1,4 +1,5 @@
 #include <jackal.h>
+#include <jackal/jackal_class.h>
 
 extern FILE *yyin;
 extern int yyparse();
@@ -12,11 +13,14 @@ int main(int argv, char **argc)
     exit(EXIT_FAILURE);
   }
 
+  jkl_class_init();
+
   yyin = fopen(argc[1], "r");
   if (yyin == NULL)
     jkl_error("jkl_main", "cannot open file '%s'", argc[1]);
 
   yyparse();
   fclose(yyin);
+
   return 0;
 }

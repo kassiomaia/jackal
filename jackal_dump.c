@@ -72,7 +72,7 @@ void jkl_bss_dump(jkl_program_t *program)
       printf("%lld: %p\n", i, program->bss.values[i].v_pointer);
       break;
     case JKL_TYPE_FUNCTION:
-      printf("%lld: %p\n", i, program->bss.values[i].v_function);
+      printf("%lld: function\n", i);
       break;
     default:
       printf("Unknown type: %d\n", program->bss.values[i].type);
@@ -84,7 +84,6 @@ void jkl_bss_dump(jkl_program_t *program)
 
 jkl_string_t jkl_inst_name(jkl_inst_t *inst)
 {
-  jkl_string_t name;
   switch (inst->type)
   {
   case JKL_NOP:
@@ -243,7 +242,7 @@ void jkl_dump_value(jkl_value_t *value) {
       printf("JKL_TYPE_POINTER: %p", value->v_pointer);
       break;
     case JKL_TYPE_FUNCTION:
-      printf("JKL_TYPE_FUNCTION: %p", value->v_function);
+      printf("JKL_TYPE_FUNCTION: function");
       break;
     default:
       printf("Unknown type: %d", value->type);

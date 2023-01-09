@@ -3,7 +3,7 @@ LIBS=-Llib
 DEBUG_FLAGS=-g
 OPT_FLAGS=-O3
 WARN_FLAGS=-Wall -Wextra -Werror
-STD_FLAGS=-std=c99
+STD_FLAGS=-fsanitize=address
 PEDANTIC_FLAGS=-pedantic
 
 FLAGS=
@@ -37,4 +37,4 @@ gdb: all
 clean:
 	rm -f $(OBJS) $(TARGET)
 
-.PHONY: all clean run
+.PHONY: all clean run gdb

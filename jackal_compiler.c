@@ -34,7 +34,6 @@ void jkl_program_init(jkl_program_t *program)
 
 jkl_word_t jkl_emit_symbol(jkl_program_t *program, jkl_string_t symbol)
 {
-  jkl_word_t i = program->n_symbols;
   jkl_word_t hash = jkl_string_hash(symbol);
   jkl_word_t pos = hash % JKL_MAX_CST_VALUES;
 
@@ -204,7 +203,7 @@ jkl_word_t jkl_emit_binop(jkl_program_t *program, jkl_node_t *node)
       if (rhs->type == JKL_NODE_ID)
       {
         jkl_word_t ilabel = jkl_symbol_load(program, rhs->value.s);
-        jkl_word_t iconst = jkl_emit_inst_1(program, JKL_CST, ilabel);
+        jkl_emit_inst_1(program, JKL_CST, ilabel);
         return 0;
       }
     }
@@ -220,8 +219,8 @@ jkl_word_t jkl_emit_loop(jkl_program_t *program, jkl_node_t *node)
     jkl_word_t i = program->code.n_insts;
     jkl_word_t ilpb = jkl_emit_inst_0(program, JKL_LPB);
     jkl_node_t *block = node->block;
-    jkl_word_t iblk = jkl_emit_block(program, block);
-    jkl_word_t ilpe = jkl_emit_inst_1(program, JKL_LPE, i);
+    jkl_emit_block(program, block);
+    jkl_emit_inst_1(program, JKL_LPE, i);
     return ilpb;
   }
 
@@ -236,7 +235,7 @@ jkl_word_t jkl_emit_block(jkl_program_t *program, jkl_node_t *node)
     for (jkl_word_t i = 0; i < node->compound.n_nodes; i++)
     {
       jkl_log("jkl_compiler", "block node %d", i);
-      jkl_node_t *child = &node->compound.nodes[i];
+      jkl_node_t *child = node->compound.nodes[i];
 
       if (child->type == JKL_NODE_BINOP)
         {
@@ -279,6 +278,7 @@ jkl_word_t jkl_emit_raise(jkl_program_t *program, jkl_node_t *node) {
 
   int imsg = jkl_emit_const_string(program, node->value.s);
   jkl_emit_inst_1(program, JKL_RAI, imsg);
+  return 0;
 }
 
 jkl_word_t jkl_emit_puts(jkl_program_t *program, jkl_node_t *node) {
@@ -287,7 +287,7 @@ jkl_word_t jkl_emit_puts(jkl_program_t *program, jkl_node_t *node) {
 
   jkl_node_t *value = node->node;
   jkl_log("jkl_compiler", "puts value type 0x%04x", value->type);
-  jkl_print_ast_type(value);
+
   if (value->type == JKL_NODE_STRING) {
     int imsg = jkl_emit_const_string(program, value->value.s);
     jkl_emit_inst_2(program, JKL_PSH, JKL_TYPE_STRING, imsg);
@@ -296,11 +296,10 @@ jkl_word_t jkl_emit_puts(jkl_program_t *program, jkl_node_t *node) {
     int ilabel = jkl_symbol_load(program, value->value.s);
     int iconst = jkl_emit_inst_1(program, JKL_CST, ilabel);
     jkl_emit_inst_1(program, JKL_PTS, iconst);
-  } else {
-    jkl_print_ast_type(value);
-    jkl_dump(program);
+  } else
     jkl_error("jkl_compiler", "does not support this operation");
-  }
+
+  return 0;
 }
 
 jkl_word_t jkl_compile(jkl_program_t *program, jkl_node_t *node)

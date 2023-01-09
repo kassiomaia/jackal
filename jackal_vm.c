@@ -83,7 +83,7 @@ jkl_word_t jkl_vm_init(jkl_vm_t *vm)
    *  - frame: It's a stack of stack frames.
    */
 
-  vm->frame = (jkl_stack_frame_t *)malloc(sizeof(jkl_stack_frame_t));
+  vm->frame = malloc(sizeof(jkl_stack_frame_t));
   vm->frame->pc = 0;
   vm->frame->bp = 0;
   vm->frame->sp = 0;
@@ -113,8 +113,8 @@ jkl_word_t jkl_vm_init(jkl_vm_t *vm)
    *  - root: It's a special object that is always present in the heap.
    */
 
-  vm->heap = (jkl_heap_t *)malloc(sizeof(jkl_heap_t));
-  vm->heap->root = (jkl_heap_object_t *)calloc(1, sizeof(jkl_heap_object_t));
+  vm->heap = malloc(sizeof(jkl_heap_t));
+  vm->heap->root = malloc(sizeof(jkl_heap_object_t));
   vm->heap->root->refs.n_refs = 0;
   vm->heap->root->data.size = 0;
   vm->heap->root->data.data = NULL;
@@ -268,7 +268,7 @@ jkl_word_t jkl_vm_run(jkl_vm_t *vm)
             jkl_log("jackal_vm", "copy the string to the heap.");
             rhs_obj->value = malloc(sizeof(jkl_value_t));
             rhs_obj->value->type = JKL_TYPE_STRING;
-            rhs_obj->value->v_string = (jkl_string_t)malloc(strlen(irhs_val.v_string) + 1);
+            rhs_obj->value->v_string = malloc(strlen(irhs_val.v_string) + 1);
             strcpy(rhs_obj->value->v_string, irhs_val.v_string);
             jkl_log("jackal_vm", "the string is '%s'.", rhs_obj->value->v_string);
           }
