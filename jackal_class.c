@@ -344,5 +344,5 @@ void jkl_class_init()
   jkl_class_add_method(IO, jkl_method_new("puts", 1, JKL_METHOD_STATIC, jkl_not_implemented));
   jkl_class_add_method(IO, jkl_method_new("gets", 0, JKL_METHOD_STATIC, jkl_not_implemented));
 
-  // atexit(jkl_class_destroy_all);
+  atexit(jkl_class_destroy_all);
 }
