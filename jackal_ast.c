@@ -134,9 +134,6 @@ jkl_word_t jkl_node_append(jkl_node_t *node, jkl_node_t *child)
 
       jkl_log("jkl_node_append", "resize node list: %d", node->compound.n_nodes);
       jkl_log("jkl_node_append", "appending to existing node list");
-      printf("n_nodes: %d\n", node->compound.n_nodes);
-      printf("sizeof: %d\n", sizeof(jkl_node_t*));
-      printf("reallocating %d bytes\n", sizeof(jkl_node_t*) * node->compound.n_nodes);
       node->compound.nodes = realloc(node->compound.nodes, node->compound.n_nodes * sizeof(jkl_node_t*));
       if (node->compound.nodes == NULL) {
         jkl_error("jkl_node_append", "failed to allocate memory");

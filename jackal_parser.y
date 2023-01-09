@@ -90,6 +90,7 @@ program: {
           if (n != 0) {
             jkl_error("jkl_error", "compilation failed");
           }
+          jkl_node_free(block);
 
 #ifdef DUMP
             jkl_dump(&program);
