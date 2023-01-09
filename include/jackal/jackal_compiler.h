@@ -3,7 +3,8 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "jackal_types.h"
+#include <jackal/jackal_types.h>
+#include <jackal/jackal_class.h>
 
 /*
  * Compiler
@@ -37,6 +38,7 @@ jkl_word_t jkl_emit_loop(jkl_program_t *program, jkl_node_t *node);
 jkl_word_t jkl_emit_block(jkl_program_t *program, jkl_node_t *node);
 jkl_word_t jkl_emit_raise(jkl_program_t *program, jkl_node_t *node);
 jkl_word_t jkl_emit_puts(jkl_program_t *program, jkl_node_t *node);
+jkl_word_t jkl_emit_class(jkl_program_t *program, jkl_class_t *klass);
 
 jkl_word_t jkl_compile(jkl_program_t *program, jkl_node_t *node);
 
