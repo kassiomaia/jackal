@@ -1,2 +1,7 @@
+let code := "Kassio"
+
 loop {
+  puts code
+  puts " "
+  puts "Maia\n"
 }
