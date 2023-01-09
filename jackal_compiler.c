@@ -302,6 +302,11 @@ jkl_word_t jkl_emit_puts(jkl_program_t *program, jkl_node_t *node) {
   return 0;
 }
 
+jkl_word_t jkl_emit_class(jkl_program_t *program, jkl_class_t *klass)
+{
+  jkl_error("jkl_compiler", "not implemented yet");
+}
+
 jkl_word_t jkl_compile(jkl_program_t *program, jkl_node_t *node)
 {
   if (node->type == JKL_NODE_BLOCK)
