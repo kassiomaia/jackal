@@ -37,12 +37,6 @@ float [+|-]?{int}?[.]{int}
   return CFLOAT;
 }
 
-"---"                                {
-  yylval.string = malloc(strlen(yytext) - 1);
-  strncpy(yylval.string, yytext + 1, strlen(yytext) - 2);
-  return CSTRING;
-}
-
 ["]                                  {
   BEGIN(STR);
   yytext[0] = '\0';
