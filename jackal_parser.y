@@ -6,11 +6,13 @@ extern char *yytext;
 extern int yylex(void);
 int yyerror(char*);
 
+#define MAX_NESTED_BLOCKS 1024
+
 jkl_program_t program;
 jkl_node_t *cc;
 
 struct {
-  jkl_node_t* frames[1024];
+  jkl_node_t* frames[MAX_NESTED_BLOCKS];
   int pos;
 } context;
 
@@ -48,29 +50,29 @@ void jkl_ensure_empty_contexts() {
 %}
 
 %union {
-    char *id;
-    char *string;
-    int number;
-    float fnumber;
-    jkl_node_t *node;
+  char *id;
+  char *string;
+  int number;
+  float fnumber;
+  jkl_node_t *node;
 }
 
-%token <id>       ID
-%token <number>   CINT
-%token <fnumber>  CFLOAT
-%token <string>   CSTRING
+%token <id>      ID
+%token <number>  CINT
+%token <fnumber> CFLOAT
+%token <string>  CSTRING
 
-%token LET        "let"
-%token ASSIGN     ":="
-%token LBRACE     "{"
-%token RBRACE     "}"
-%token LOOP       "loop"
-%token RAISE      "raise"
-%token PUTS       "puts"
+%token LET    "let"
+%token ASSIGN ":="
+%token LBRACE "{"
+%token RBRACE "}"
+%token LOOP   "loop"
+%token RAISE  "raise"
+%token PUTS   "puts"
 
-%type <node>  expr
-%type <node>  ident
-%type <node>  puts
+%type <node> expr
+%type <node> ident
+%type <node> puts
 
 %type statement
 %type statements
@@ -93,12 +95,12 @@ program: {
           jkl_node_free(block);
 
 #ifdef DUMP
-            jkl_dump(&program);
+          jkl_dump(&program);
 #else
-            jkl_vm_t vm;
-            jkl_vm_init(&vm);
-            jkl_vm_load(&vm, &program);
-            jkl_vm_run(&vm);
+          jkl_vm_t vm;
+          jkl_vm_init(&vm);
+          jkl_vm_load(&vm, &program);
+          jkl_vm_run(&vm);
 #endif
         }
        ;
@@ -120,7 +122,6 @@ statement: LET ident ASSIGN expr {
               YYERROR;
             } 
 
-            // jkl_node_t* binop = &JKL_AST_BINOP(&ident, JKL_OP_ASSIGN, &expr);
             jkl_node_t* binop = jkl_node_new(JKL_NODE_BINOP);
             binop->binop.op = JKL_OP_ASSIGN;
             binop->binop.left = ident;
@@ -212,7 +213,9 @@ loop: LOOP LBRACE {
         jkl_note("jkl_parser", "begin emit ast block");
         jkl_node_t* block = jkl_node_new(JKL_NODE_BLOCK);
         jkl_push_context(&program, block);
-      } block_stmts RBRACE {
+      }
+      block_stmts
+      RBRACE {
         jkl_note("jkl_parser", "end emit ast block");
         jkl_node_t* block = jkl_pop_context(&program);
 
@@ -228,12 +231,12 @@ loop: LOOP LBRACE {
       }
       ;
 
-block_stmts: block_stmts statement
-            | statement
-            |
-            ;
+block_stmts:
+           | block_stmts statement
+           | statement
+           ;
 
-puts: PUTS CSTRING      {
+puts: PUTS CSTRING {
       jkl_node_t* cstring = jkl_node_new(JKL_NODE_STRING);
       cstring->value.s = $2;
 
