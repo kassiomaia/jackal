@@ -32,7 +32,7 @@ void jkl_program_init(jkl_program_t *program)
     program->symbols[i] = NULL;
 }
 
-jkl_word_t jkl_emit_symbol(jkl_program_t *program, jkl_string_t symbol)
+jkl_word_t jkl_add_symbol(jkl_program_t *program, jkl_string_t symbol)
 {
   jkl_word_t hash = jkl_string_hash(symbol);
   jkl_word_t pos = hash % JKL_MAX_CST_VALUES;
@@ -172,44 +172,33 @@ jkl_word_t jkl_emit_inst_2(jkl_program_t *program, jkl_inst_type_t type, jkl_wor
 
 jkl_word_t jkl_emit_binop(jkl_program_t *program, jkl_node_t *node)
 {
-  if (node->type == JKL_NODE_BINOP)
-  {
-    if (node->binop.op == JKL_OP_ASSIGN)
+  if (node->type != JKL_NODE_BINOP)
+    jkl_error("jkl_compiler", "node is not a binary operator");
+
+  jkl_node_t *lhs = node->binop.left;
+  jkl_node_t *rhs = node->binop.right;
+  jkl_emit_expr(program, lhs);
+  jkl_emit_expr(program, rhs);
+
+  switch(node->binop.op)
     {
-      jkl_word_t ilhs = jkl_emit_symbol(program, node->binop.left->value.s);
-      jkl_node_t *rhs = node->binop.right;
-
-      if (rhs->type == JKL_NODE_STRING)
-      {
-        jkl_word_t irhs = jkl_emit_const_string(program, rhs->value.s);
-        jkl_word_t iop = jkl_emit_inst_2(program, JKL_STR, ilhs, irhs);
-        return iop;
-      }
-
-      if (rhs->type == JKL_NODE_INT)
-      {
-        jkl_word_t irhs = jkl_emit_const_word(program, rhs->value.i);
-        jkl_word_t iop = jkl_emit_inst_2(program, JKL_PSH, ilhs, irhs);
-        return iop;
-      }
-
-      if (rhs->type == JKL_NODE_FLOAT)
-      {
-        jkl_word_t irhs = jkl_emit_const_double(program, rhs->value.f);
-        jkl_word_t iop = jkl_emit_inst_2(program, JKL_PSH, ilhs, irhs);
-        return iop;
-      }
-
-      if (rhs->type == JKL_NODE_ID)
-      {
-        jkl_word_t ilabel = jkl_symbol_load(program, rhs->value.s);
-        jkl_emit_inst_1(program, JKL_CST, ilabel);
-        return 0;
-      }
+    case JKL_OP_EQL:
+      return jkl_emit_inst_0(program, JKL_EQL);
+    default:
+      jkl_error("jkl_compiler", "unknown binary operator");
     }
-  }
 
-  jkl_error("jkl_compiler", "does not support this operation");
+  return 0;
+}
+
+jkl_word_t jkl_emit_if(jkl_program_t *program, jkl_node_t *node)
+{
+  jkl_emit_expr(program, node->node);
+  jkl_emit_inst_1(program, JKL_JCP, 0);
+  unsigned int i = program->code.n_insts - 1;
+  jkl_emit_block(program, node->block);
+  program->code.inst[i].args[0] = program->code.n_insts - 2;
+  return 0;
 }
 
 jkl_word_t jkl_emit_loop(jkl_program_t *program, jkl_node_t *node)
@@ -222,51 +211,6 @@ jkl_word_t jkl_emit_loop(jkl_program_t *program, jkl_node_t *node)
     jkl_emit_block(program, block);
     jkl_emit_inst_1(program, JKL_LPE, i);
     return ilpb;
-  }
-
-  jkl_error("jkl_compiler", "does not support this operation");
-}
-
-jkl_word_t jkl_emit_block(jkl_program_t *program, jkl_node_t *node)
-{
-  if (node->type == JKL_NODE_BLOCK)
-  {
-    jkl_log("jkl_compiler", "block");
-    for (jkl_word_t i = 0; i < node->compound.n_nodes; i++)
-    {
-      jkl_log("jkl_compiler", "block node %d", i);
-      jkl_node_t *child = node->compound.nodes[i];
-
-      if (child->type == JKL_NODE_BINOP)
-        {
-          jkl_log("jkl_compiler", "block node %d is binop", i);
-          jkl_emit_binop(program, child);
-        }
-      else if (child->type == JKL_NODE_LOOP)
-        {
-          jkl_log("jkl_compiler", "block node %d is loop", i);
-          jkl_emit_loop(program, child);
-        }
-      else if (child->type == JKL_NODE_BLOCK)
-        {
-          jkl_log("jkl_compiler", "block node %d is block", i);
-          jkl_emit_block(program, child);
-        }
-      else if (child->type == JKL_NODE_RAISE)
-        {
-          jkl_log("jkl_compiler", "emit raise");
-          jkl_emit_raise(program, child);
-        }
-      else if (child->type == JKL_NODE_PUTS)
-        {
-          jkl_log("jkl_compiler", "emit puts");
-          jkl_emit_puts(program, child);
-        }
-      else
-          jkl_error("jkl_compiler", "block node %d is unknown", i);
-    }
-
-    return 0;
   }
 
   jkl_error("jkl_compiler", "does not support this operation");
@@ -288,16 +232,25 @@ jkl_word_t jkl_emit_puts(jkl_program_t *program, jkl_node_t *node) {
   jkl_node_t *value = node->node;
   jkl_log("jkl_compiler", "puts value type 0x%04x", value->type);
 
-  if (value->type == JKL_NODE_STRING) {
-    int imsg = jkl_emit_const_string(program, value->value.s);
-    jkl_emit_inst_2(program, JKL_PSH, JKL_TYPE_STRING, imsg);
-    jkl_emit_inst_1(program, JKL_PTS, imsg);
-  } else if (value->type == JKL_NODE_ID) {
-    int ilabel = jkl_symbol_load(program, value->value.s);
-    int iconst = jkl_emit_inst_1(program, JKL_CST, ilabel);
-    jkl_emit_inst_1(program, JKL_PTS, iconst);
-  } else
-    jkl_error("jkl_compiler", "does not support this operation");
+  switch (value->type)
+    {
+    case JKL_NODE_STRING: 
+      {
+        int imsg = jkl_emit_const_string(program, value->value.s);
+        jkl_emit_inst_2(program, JKL_PSH, JKL_TYPE_STRING, imsg);
+        jkl_emit_inst_1(program, JKL_PTS, imsg);
+        break;
+      }
+    case JKL_NODE_ID:
+      {
+        jkl_word_t ilabel = jkl_symbol_load(program, value->value.s);
+        jkl_word_t iconst = jkl_emit_inst_1(program, JKL_CST, ilabel);
+        jkl_emit_inst_2(program, JKL_PTS, value->type, iconst);
+        break;
+      }
+    default:
+        jkl_error("jkl_compiler", "does not support this operation");
+    }
 
   return 0;
 }
@@ -307,10 +260,107 @@ jkl_word_t jkl_emit_class(jkl_program_t *program, jkl_class_t *klass)
   jkl_error("jkl_compiler", "not implemented yet");
 }
 
+jkl_word_t jkl_emit_expr(jkl_program_t *program, jkl_node_t *node)
+{
+  switch (node->type)
+  {
+  case JKL_NODE_STRING:
+    {
+      jkl_log("jkl_compiler", "emit string %s", node->value.s);
+      jkl_word_t iconst = jkl_emit_const_string(program, node->value.s);
+      return jkl_emit_inst_2(program, JKL_PSH, JKL_TYPE_STRING, iconst);
+    }
+  case JKL_NODE_ID:
+    {
+      jkl_log("jkl_compiler", "emit id %s", node->value.s);
+      jkl_word_t ilabel = jkl_symbol_load(program, node->value.s);
+      return jkl_emit_inst_1(program, JKL_CST, ilabel);
+    }
+  case JKL_NODE_BINOP:
+    jkl_log("jkl_compiler", "emit binop");
+    return jkl_emit_binop(program, node);
+  default:
+    jkl_error("jkl_compiler", "does not support this expression");
+  }
+  return 0;
+}
+
+jkl_word_t jkl_emit_let(jkl_program_t *program, jkl_node_t *node)
+{
+  if (node->type != JKL_NODE_LET)
+    jkl_error("jkl_compiler", "node is not a let");
+
+  if (node->id->type != JKL_NODE_ID)
+    jkl_error("jkl_compiler", "invalid id type");
+
+  jkl_bool_t has_symbol = jkl_symbol_exist(program, node->id->value.s);
+  if (has_symbol)
+    jkl_error("jkl_compiler", "variable %s already defined", node->id->value.s);
+
+  jkl_word_t ilabel = jkl_add_symbol(program, node->id->value.s);
+  jkl_word_t iexpr = jkl_emit_expr(program, node->assign);
+  jkl_emit_inst_2(program, JKL_STR, ilabel, iexpr);
+
+  return 0;
+}
+
+jkl_word_t jkl_emit_block(jkl_program_t *program, jkl_node_t *node)
+{
+  if (node->type != JKL_NODE_BLOCK)
+    jkl_error("jkl_compiler", "node is not a block");
+
+  jkl_log("jkl_compiler", "emitting statements");
+  for (jkl_word_t i = 0; i < node->compound.n_nodes; i++)
+  {
+    jkl_node_t *child = node->compound.nodes[i];
+
+    switch (child->type)
+    {
+    case JKL_NODE_LET:
+      {
+        jkl_log("jkl_compiler", "emitting let");
+        jkl_emit_let(program, child);
+        break;
+      }
+    case JKL_NODE_LOOP:
+      {
+        jkl_log("jkl_compiler", "emitting loop");
+        jkl_emit_loop(program, child);
+        break;
+      }
+    case JKL_NODE_RAISE:
+      {
+        jkl_log("jkl_compiler", "emit raise");
+        jkl_emit_raise(program, child);
+        break;
+      }
+    case JKL_NODE_PUTS:
+      {
+        jkl_log("jkl_compiler", "emit puts");
+        jkl_emit_puts(program, child);
+        break;
+      }
+    case JKL_NODE_IF:
+      {
+        jkl_log("jkl_compiler", "emit if");
+        jkl_emit_if(program, child);
+        break;
+      }
+    default:
+        jkl_error("jkl_compiler", "block node %d is unknown", i);
+    }
+  }
+
+  return 0;
+}
+
 jkl_word_t jkl_compile(jkl_program_t *program, jkl_node_t *node)
 {
-  if (node->type == JKL_NODE_BLOCK)
-    return jkl_emit_block(program, node);
+  if (node->type != JKL_NODE_BLOCK)
+    jkl_error("jkl_compiler", "only block is supported");
 
-  jkl_error("jkl_compiler", "does not support this operation")
+  jkl_emit_block(program, node);
+  jkl_emit_inst_0(program, JKL_HLT);
+
+  return 0;
 }

@@ -13,13 +13,32 @@ float [+|-]?{int}?[.]{int}
 
 [ \t]+
 
-"let"                                   { return LET;     }
-"loop"                                  { return LOOP;    }
-"raise"                                 { return RAISE;   }
-"puts"                                  { return PUTS;    }
-":="                                    { return ASSIGN;  }
-"{"                                     { return LBRACE;  }
-"}"                                     { return RBRACE;  }
+"let"                                   { return LET;    }
+"loop"                                  { return LOOP;   }
+"raise"                                 { return RAISE;  }
+"puts"                                  { return PUTS;   }
+"if"                                    { return IF;     }
+"elif"                                  { return ELIF;   }
+"else"                                  { return ELSE;   }
+":="                                    { return ASSIGN; }
+"{"                                     { return LBRACE; }
+"}"                                     { return RBRACE; }
+"=="                                    { return EQL;    }
+"!="                                    { return NEQ;    }
+">"                                     { return GT;     }
+"<"                                     { return LT;     }
+">="                                    { return GTE;    }
+"<="                                    { return LTE;    }
+"+"                                     { return PLUS;   }
+"-"                                     { return MINUS;  }
+"*"                                     { return MUL;    }
+"/"                                     { return DIV;    }
+"%"                                     { return MOD;    }
+"&&"                                    { return AND;    }
+"||"                                    { return OR;     }
+"!"                                     { return NOT;    }
+"("                                     { return LPAREN; }
+")"                                     { return RPAREN; }
 
 [a-zA-Z_][a-zA-Z0-9_]*                  {
   yylval.id = malloc(strlen(yytext) + 1);

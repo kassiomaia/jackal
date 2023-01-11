@@ -15,7 +15,11 @@ __attribute__((nothrow)) jkl_word_t jkl_vm_run(jkl_vm_t *vm);
 
 jkl_word_t jkl_vm_stack_push(jkl_vm_t *vm, jkl_value_t value)
 {
-  jkl_log("jkl_vm_stack_push", "Pushing value to stack: %ld", value.v_qword);
+  if (value.type == JKL_TYPE_STRING)
+    jkl_log("jkl_vm_stack_push", "Pushing value to stack: %s", value.v_string);
+  else
+    jkl_log("jkl_vm_stack_push", "Pushing value to stack: %ld", value.v_qword);
+
   jkl_word_t i = vm->frame->sp;
   vm->frame->values[i] = value;
   vm->frame->sp++;
@@ -172,6 +176,7 @@ jkl_word_t jkl_vm_run(jkl_vm_t *vm)
   if (vm->program == NULL)
     return 2;
 
+  jkl_log("jkl_vm", "start running program");
   while (vm->halted == 0)
   {
     jkl_inst_t *inst = &vm->program->code.inst[vm->pc];
@@ -181,6 +186,121 @@ jkl_word_t jkl_vm_run(jkl_vm_t *vm)
     case JKL_NOP:
       jkl_note("jackal_vm", "the program stopped abruptly.");
       goto halt;
+    case JKL_HLT:
+      jkl_note("jackal_vm", "the program halted.");
+      goto halt;
+    case JKL_EQL:
+      {
+        jkl_value_t lhs, rhs;
+        printf("stack size: %d\n", vm->frame->sp);
+        jkl_vm_stack_pop(vm, &lhs);
+        jkl_vm_stack_pop(vm, &rhs);
+
+        if (lhs.type != rhs.type)
+          {
+            jkl_error("jkl_vm_run", "type mismatch");
+            jkl_error("jkl_vm_run", "lhs and rhs are not of the same type");
+            goto halt;
+          }
+
+        
+        jkl_value_t result;
+        result.type = JKL_TYPE_BOOL;
+
+        switch (lhs.type)
+        {
+        case JKL_TYPE_WORD:
+          result.v_bool = lhs.v_word == rhs.v_word;
+          break;
+        case JKL_TYPE_STRING:
+          result.v_bool = strcmp(lhs.v_string, rhs.v_string) == 0;
+          break;
+        default:
+          jkl_error("jkl_vm_run", "unknown value type");
+        }
+
+        jkl_vm_stack_push(vm, result);
+        break;
+      }
+    case JKL_NEQ:
+      {
+        jkl_value_t lhs, rhs;
+        jkl_vm_stack_pop(vm, &lhs);
+        jkl_vm_stack_pop(vm, &rhs);
+
+        if (lhs.type != rhs.type)
+          jkl_error("jkl_vm_run", "lhs and rhs are not of the same type");
+
+        jkl_value_t result;
+        result.type = JKL_TYPE_BOOL;
+
+        switch (lhs.type)
+        {
+        case JKL_TYPE_WORD:
+          result.v_bool = lhs.v_word != rhs.v_word;
+          break;
+        case JKL_TYPE_STRING:
+          result.v_bool = strcmp(lhs.v_string, rhs.v_string) != 0;
+          break;
+        default:
+          jkl_error("jkl_vm_run", "unknown value type");
+        }
+
+        jkl_vm_stack_push(vm, result);
+        break;
+      }
+    case JKL_OR:
+      {
+        jkl_value_t lhs, rhs;
+        jkl_vm_stack_pop(vm, &lhs);
+        jkl_vm_stack_pop(vm, &rhs);
+
+        if (lhs.type != rhs.type)
+          jkl_error("jkl_vm_run", "lhs and rhs are not of the same type");
+
+        jkl_value_t result;
+        result.type = JKL_TYPE_BOOL;
+        result.v_bool = lhs.v_bool || rhs.v_bool;
+
+        jkl_vm_stack_push(vm, result);
+        break;
+      }
+    case JKL_AND:
+      {
+        jkl_value_t lhs, rhs;
+        jkl_vm_stack_pop(vm, &lhs);
+        jkl_vm_stack_pop(vm, &rhs);
+
+        jkl_value_t r;
+        jkl_vm_stack_pop(vm, &r);
+
+        jkl_value_t result;
+        result.type = JKL_TYPE_BOOL;
+        result.v_bool = lhs.v_bool && rhs.v_bool;
+
+        jkl_vm_stack_push(vm, result);
+        break;
+      }
+    case JKL_JCP:
+      {
+        jkl_value_t r;
+        jkl_vm_stack_pop(vm, &r);
+
+        if (r.type != JKL_TYPE_BOOL)
+          jkl_error("jkl_vm_run", "the value on the top of the stack is not a boolean");
+
+        jkl_log("jkl_vm", "boolean value: %d", r.v_bool);
+        jkl_log("jkl_vm", "stack size: %d", vm->frame->sp);
+        if (r.v_bool == 0)
+          {
+            jkl_log("jkl_vm_run", "jumping to %d", JKL_ARG_1(inst));
+            vm->pc = JKL_ARG_1(inst);
+          }
+        else {
+          jkl_log("jkl_vm_run", "not jumping");
+        }
+        break;
+      }
     case JKL_PSH:
       {
         jkl_log("jkl_vm_run", "pushing value to stack");
@@ -193,9 +313,12 @@ jkl_word_t jkl_vm_run(jkl_vm_t *vm)
               jkl_error("jkl_vm_run", "invalid string location");
 
             jkl_value_t value = vm->program->bss.values[loc];
+            jkl_log("jkl_vm_run", "pushing string %s", value.v_string);
             jkl_word_t i = jkl_vm_stack_push(vm, value);
             jkl_log("jackal_vm", "pushed string to the stack.");
           }
+        else
+          jkl_error("jkl_vm_run", "unknown value type");
         break;
       }
     case JKL_CST:
@@ -221,11 +344,8 @@ jkl_word_t jkl_vm_run(jkl_vm_t *vm)
         case JKL_TYPE_STRING:
           {
             jkl_log("jackal_vm", "pushing string to the stack.");
-            if (obj->value->type == JKL_TYPE_STRING)
-            {
-              jkl_word_t i = jkl_vm_stack_push(vm, *obj->value);
-              jkl_log("jackal_vm", "pushed string to the stack.");
-            }
+            jkl_word_t i = jkl_vm_stack_push(vm, *obj->value);
+            jkl_log("jackal_vm", "pushed string to the stack.");
             jkl_log("jackal_vm", "what string variable from heap: %s", obj->value->v_string);
           }
         default:
@@ -290,15 +410,14 @@ jkl_word_t jkl_vm_run(jkl_vm_t *vm)
       }
     case JKL_PTS:
       jkl_log("jackal_vm", "popping value from the stack.");
-      jkl_value_t* val;
-      jkl_word_t r = jkl_vm_stack_pop(vm, val);
+      jkl_value_t val;
+
+      jkl_log("jackal_vm", "stack size: %d", vm->frame->sp);
+      jkl_word_t r = jkl_vm_stack_pop(vm, &val);
       if (r == -1)
         jkl_error("jackal_vm", "stack underflow.");
 
-      if (val == NULL)
-        fprintf(vm->io.err, "%s", "<NULL>\n");
-
-      fprintf(vm->io.out, "%s", val->v_string);
+      fprintf(vm->io.out, "%s", val.v_string);
       break;
     case JKL_LPE:
       jkl_word_t pc = inst->args[0];
@@ -356,7 +475,16 @@ halt:
   jkl_log("jackal_vm", "halting the vm.");
   vm->halted = 1;
   vm->pc = 0;
-  jkl_word_t r = munmap(vm->io.memory, JKL_VM_PAGE_OBJECTS_SIZE);
+
+  for (int object_idx = 0; object_idx < vm->n_objects; object_idx++)
+    {
+      free(vm->objects[object_idx]->value->v_string);
+      free(vm->objects[object_idx]->value);
+      free(vm->objects[object_idx]);
+    }
+
+  jkl_word_t r = munmap(vm->objects, JKL_VM_PAGE_OBJECTS_SIZE);
+  free(vm->frame);
 
   if (r != 0)
     jkl_error("jackal_vm", "failed to unmap the memory.");

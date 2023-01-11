@@ -50,11 +50,12 @@ void jkl_ensure_empty_contexts() {
 %}
 
 %union {
-  char *id;
-  char *string;
-  int number;
-  float fnumber;
-  jkl_node_t *node;
+  char        *id;
+  char        *string;
+  int         number;
+  float       fnumber;
+  jkl_node_t  *node;
+  jkl_op_t    op;
 }
 
 %token <id>      ID
@@ -66,16 +67,41 @@ void jkl_ensure_empty_contexts() {
 %token ASSIGN ":="
 %token LBRACE "{"
 %token RBRACE "}"
+%token EQL    "=="
+%token NEQ    "!="
+%token GT     ">"
+%token LT     "<"
+%token GTE    ">="
+%token LTE    "<="
+%token PLUS   "+"
+%token MINUS  "-"
+%token MUL    "*"
+%token DIV    "/"
+%token MOD    "%"
+%token AND    "&&"
+%token OR     "||"
+%token NOT    "!"
 %token LOOP   "loop"
 %token RAISE  "raise"
 %token PUTS   "puts"
+%token IF     "if"
+%token ELIF   "elif"
+%token ELSE   "else"
+%token LPAREN "("
+%token RPAREN ")"
 
 %type <node> expr
 %type <node> ident
 %type <node> puts
+%type <node> term
+%type <op>   op
 
 %type statement
 %type statements
+
+%left PLUS MINUS
+%left MUL DIV MOD
+%left AND OR
 
 %%
 
@@ -122,15 +148,14 @@ statement: LET ident ASSIGN expr {
               YYERROR;
             } 
 
-            jkl_node_t* binop = jkl_node_new(JKL_NODE_BINOP);
-            binop->binop.op = JKL_OP_ASSIGN;
-            binop->binop.left = ident;
-            binop->binop.right = expr;
+            jkl_node_t* let = jkl_node_new(JKL_NODE_LET);
+            let->id = ident;
+            let->assign = expr;
 
-            jkl_log("jkl_parser", "emit statement: %p", binop);
-            jkl_print_ast_type(binop);
+            jkl_log("jkl_parser", "emit statement: %p", let);
+            jkl_print_ast_type(let);
 
-            jkl_node_append(jkl_get_context(&program), binop);
+            jkl_node_append(jkl_get_context(&program), let);
          }
          | loop
          | RAISE CSTRING {
@@ -157,9 +182,47 @@ statement: LET ident ASSIGN expr {
 
             jkl_node_append(jkl_get_context(&program), puts);
           }
+         | if_stm
          ;
 
-expr: ID {
+expr: term op term {
+      jkl_node_t* binop = jkl_node_new(JKL_NODE_BINOP);
+      binop->binop.op = $2;
+      binop->binop.left = $1;
+      binop->binop.right = $3;
+      $$ = binop;
+    }
+    | expr op expr {
+      jkl_node_t* binop = jkl_node_new(JKL_NODE_BINOP);
+      binop->binop.op = $2;
+      binop->binop.left = $1;
+      binop->binop.right = $3;
+      $$ = binop;
+    }
+    | LPAREN expr RPAREN {
+      $$ = $2;
+    }
+    | term {
+      $$ = $1;
+    }
+    ;
+
+op: EQL   { $$ = JKL_OP_EQL; }
+  | NEQ   { $$ = JKL_OP_NEQ; }
+  | GT    { $$ = JKL_OP_GT; }
+  | LT    { $$ = JKL_OP_LT; }
+  | GTE   { $$ = JKL_OP_GTE; }
+  | LTE   { $$ = JKL_OP_LTE; }
+  | PLUS  { $$ = JKL_OP_PLUS; }
+  | MINUS { $$ = JKL_OP_MINUS; }
+  | MUL   { $$ = JKL_OP_MUL; }
+  | DIV   { $$ = JKL_OP_DIV; }
+  | MOD   { $$ = JKL_OP_MOD; }
+  | AND   { $$ = JKL_OP_AND; }
+  | OR    { $$ = JKL_OP_OR; }
+  ;
+
+term: ID {
       jkl_node_t* ident = jkl_node_new(JKL_NODE_ID);
       ident->value.s = $1;
 
@@ -228,6 +291,22 @@ loop: LOOP LBRACE {
 
         jkl_node_append(context, loop);
         jkl_log("jkl_parser", "emit ast loop");
+      }
+      ;
+
+if_stm: IF expr {
+        jkl_note("jkl_parser", "begin emit ast if");
+        jkl_node_t* if_stm = jkl_node_new(JKL_NODE_IF);
+        if_stm->node = $2;
+        if_stm->block = jkl_node_new(JKL_NODE_BLOCK);
+        jkl_node_append(jkl_get_context(&program), if_stm);
+
+        jkl_push_context(&program, if_stm->block);
+        jkl_note("jkl_parser", "begin emit ast if block");
+      } LBRACE block_stmts RBRACE
+      {
+        jkl_pop_context(&program);
+        jkl_note("jkl_parser", "end emit ast if");
       }
       ;
 

@@ -37,4 +37,11 @@ gdb: all
 clean:
 	rm -f $(OBJS) $(TARGET)
 
-.PHONY: all clean run gdb
+dump:
+	make FLAGS="-DDUMP -DVERBOSE -DENABLE_COLOR"
+
+verbose:
+	make FLAGS="-DVERBOSE -DENABLE_COLOR -fsanitize=address"
+		
+.PHONY: all clean run gdb verbose
+
