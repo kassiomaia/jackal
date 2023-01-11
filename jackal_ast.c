@@ -72,6 +72,9 @@ void jkl_print_ast_type(jkl_node_t *node)
   case JKL_NODE_PUTS:
     jkl_log("jkl_ast", "JKL_NODE_PUTS\n");
     break;
+  case JKL_NODE_LET:
+    jkl_log("jkl_ast", "JKL_NODE_LET\n");
+    break;
   default:
     jkl_error("jkl_ast", "unknown node type");
   }

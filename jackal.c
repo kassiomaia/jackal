@@ -13,7 +13,7 @@ int main(int argv, char **argc)
     exit(EXIT_FAILURE);
   }
 
-  jkl_class_init();
+  // jkl_class_init();
 
   yyin = fopen(argc[1], "r");
   if (yyin == NULL)

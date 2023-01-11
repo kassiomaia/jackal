@@ -102,6 +102,18 @@ jkl_string_t jkl_inst_name(jkl_inst_t *inst)
     return "LPE";
   case JKL_STR:
     return "STR";
+  case JKL_OR:
+    return "OR";
+  case JKL_AND:
+    return "AND";
+  case JKL_EQL:
+    return "EQL";
+  case JKL_NEQ:
+    return "NEQ";
+  case JKL_JCP:
+    return "JCP";
+  case JKL_HLT:
+    return "HLT";
   default:
     return "Unknown";
   }
@@ -113,31 +125,29 @@ void jkl_decoded_code_dump(jkl_program_t *program) {
 
   for (jkl_word_t i = 0; i < program->code.n_insts; i++) {
     jkl_inst_t *inst = &program->code.inst[i];
-    printf("%d: %s", i, jkl_inst_name(inst));
+    printf("0x%04x: %s", i + 1, jkl_inst_name(inst));
 
     switch (inst->type) {
     case JKL_NOP:
       break;
-    case JKL_CST:
-      printf("  0x%04x\n", inst->args[0]);
-      break;
     case JKL_PSH:
-      printf("  0x%04x0x%04x\n", inst->args[0], inst->args[1]);
+      printf("\t\t0x%04x\t0x%04x\n", inst->args[0], inst->args[1]);
       break;
+    case JKL_CST:
     case JKL_PTS:
-      printf("  0x%04x\n", inst->args[0]);
-      break;
     case JKL_RAI:
-      printf("  0x%04x\n", inst->args[0]);
-      break;
     case JKL_LPB:
-      printf("  0x%04x\n", inst->args[0]);
-      break;
     case JKL_LPE:
-      printf("  0x%04x\n", inst->args[0]);
+    case JKL_JCP:
+      printf("\t\t0x%04x\n", inst->args[0]);
       break;
     case JKL_STR:
-      printf("  0x%04x\n", inst->args[0]);
+    case JKL_OR:
+    case JKL_AND:
+    case JKL_EQL:
+    case JKL_NEQ:
+    case JKL_HLT:
+      printf("\t\t\n");
       break;
     default:
       break;

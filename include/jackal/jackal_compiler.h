@@ -36,9 +36,12 @@ jkl_bool_t jkl_get_symbol(jkl_program_t *program, jkl_word_t hash, jkl_string_t 
 jkl_word_t jkl_emit_binop(jkl_program_t *program, jkl_node_t *node);
 jkl_word_t jkl_emit_loop(jkl_program_t *program, jkl_node_t *node);
 jkl_word_t jkl_emit_block(jkl_program_t *program, jkl_node_t *node);
+jkl_word_t jkl_emit_let(jkl_program_t *program, jkl_node_t *node);
 jkl_word_t jkl_emit_raise(jkl_program_t *program, jkl_node_t *node);
 jkl_word_t jkl_emit_puts(jkl_program_t *program, jkl_node_t *node);
 jkl_word_t jkl_emit_class(jkl_program_t *program, jkl_class_t *klass);
+jkl_word_t jkl_emit_if(jkl_program_t *program, jkl_node_t *node);
+jkl_word_t jkl_emit_expr(jkl_program_t *program, jkl_node_t *node);
 
 jkl_word_t jkl_compile(jkl_program_t *program, jkl_node_t *node);
 

@@ -77,6 +77,7 @@ typedef struct jkl_node jkl_node_t;
 typedef enum
 {
   JKL_NODE_NONE,
+  JKL_NODE_LET,
   JKL_NODE_INT,
   JKL_NODE_FLOAT,
   JKL_NODE_STRING,
@@ -86,7 +87,27 @@ typedef enum
   JKL_NODE_BLOCK,
   JKL_NODE_RAISE,
   JKL_NODE_PUTS,
+  JKL_NODE_IF,
 } jkl_node_type_t;
+
+typedef enum {
+  JKL_OP_NONE = 0,
+  JKL_OP_ASSIGN,
+  JKL_OP_EQL,
+  JKL_OP_NEQ,
+  JKL_OP_GT,
+  JKL_OP_LT,
+  JKL_OP_GTE,
+  JKL_OP_LTE,
+  JKL_OP_PLUS,
+  JKL_OP_MINUS,
+  JKL_OP_MUL,
+  JKL_OP_DIV,
+  JKL_OP_MOD,
+  JKL_OP_AND,
+  JKL_OP_OR,
+  JKL_OP_NOT,
+} jkl_op_t;
 
 struct jkl_node
 {
@@ -100,11 +121,7 @@ struct jkl_node
   struct
     {
       jkl_node_t *left;
-      enum
-      {
-        JKL_OP_NONE = 0,
-        JKL_OP_ASSIGN,
-      } op;
+      jkl_op_t op;
       jkl_node_t *right;
     } binop;
   struct
@@ -119,6 +136,8 @@ struct jkl_node
   jkl_node_t *block;
   jkl_node_t *node;
   jkl_node_t *parent;
+  jkl_node_t *id;
+  jkl_node_t *assign;
 };
 
 /*
@@ -136,6 +155,12 @@ typedef enum
   JKL_RAI = 0x00f9,
   JKL_PTS = 0x00f8,
   JKL_STR = 0x00f7,
+  JKL_OR  = 0x00f6,
+  JKL_AND = 0x00f5,
+  JKL_EQL = 0x00f4,
+  JKL_NEQ = 0x00f3,
+  JKL_JCP = 0x00f2,
+  JKL_HLT = 0x00f1,
 } jkl_inst_type_t;
 
 #define JKL_MAX_INST_ARGS 8
@@ -170,8 +195,8 @@ typedef struct
  * VM
  */
 
-#define JKL_VM_STACK_FRAME_SIZE 1024
-#define JKL_VM_STACK_SIZE 1024
+#define JKL_VM_STACK_FRAME_SIZE 10
+#define JKL_VM_STACK_SIZE 10
 
 typedef struct
 {
