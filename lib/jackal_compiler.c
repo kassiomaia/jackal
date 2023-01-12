@@ -37,6 +37,11 @@ jkl_word_t jkl_compile_block(jkl_program_t *program, jkl_node_t *block)
         jkl_warn("jkl_compiler", "no rules implemented for JKL_NODE_LOOP");
         break;
       }
+    case JKL_NODE_CALL:
+      {
+        jkl_warn("jkl_compiler", "no rules implemented for JKL_NODE_CALL");
+        break;
+      }
     default:
       jkl_print_ast_type(child);
       jkl_error("jkl_compiler", "does not support this node element yet");
