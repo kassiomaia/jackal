@@ -11,10 +11,8 @@
 #include <jackal/jackal_types.h>
 #include <jackal/jackal_string.h>
 #include <jackal/jackal_ast.h>
-#include <jackal/jackal_compiler.h>
-#include <jackal/jackal_vm.h>
-#include <jackal/jackal_dump.h>
 #include <jackal/jackal_error.h>
 #include <jackal/jackal_class.h>
+#include <jackal/jackal_context.h>
 
 #endif
