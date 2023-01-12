@@ -7,6 +7,10 @@ extern int yylex(void);
 int yyerror(char*);
 
 jkl_program_t program;
+jkl_symbol_table_t symbol_table;
+
+#define USE_EVAL
+#undef USE_EVAL
 
 %}
 
@@ -67,6 +71,7 @@ jkl_program_t program;
 
 program: { 
           jkl_program_init(&program);
+          jkl_symbol_table_init(&symbol_table);
           program.ast_prog_root = jkl_node_new(JKL_NODE_BLOCK);
           jkl_push_context(&program, program.ast_prog_root);
         }
@@ -74,7 +79,11 @@ program: {
           jkl_pop_context(&program);
           jkl_ensure_empty_contexts();
 
+#ifdef USE_EVAL
+          jkl_word_t n = jkl_eval(&program);
+#else
           jkl_word_t n = jkl_compile(&program);
+#endif
           if (n != 0) {
             jkl_error("jkl_error", "compilation failed");
           }
@@ -100,7 +109,9 @@ statement: LET ident ASSIGN expr {
 
             jkl_node_t* let = jkl_node_new(JKL_NODE_LET);
             let->id = ident;
-            let->assign = expr;
+            let->expr = expr;
+
+            jkl_symbol_table_add(&symbol_table, ident->value.s, JKL_SYMBOL_LET);
 
             jkl_log("jkl_parser", "emit statement: %p", let);
             jkl_node_append(jkl_get_context(&program), let);
@@ -168,14 +179,7 @@ op: EQL   { $$ = JKL_OP_EQL; }
   | OR    { $$ = JKL_OP_OR; }
   ;
 
-term: ID {
-      jkl_node_t* ident = jkl_node_new(JKL_NODE_ID);
-      ident->value.s = $1;
-
-      jkl_log("jkl_parser", "emit ast ident: %s", $1);
-
-      $$ = ident;
-    }
+term: ident
     | CINT {
       jkl_node_t* cint = jkl_node_new(JKL_NODE_INT);
       cint->value.i = $1;

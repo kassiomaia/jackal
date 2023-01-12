@@ -14,5 +14,8 @@
 #include <jackal/jackal_error.h>
 #include <jackal/jackal_class.h>
 #include <jackal/jackal_context.h>
+#include <jackal/jackal_eval.h>
+#include <jackal/jackal_symbol_table.h>
+#include <jackal/jackal_optimizer.h>
 
 #endif
