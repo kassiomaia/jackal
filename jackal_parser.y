@@ -44,7 +44,6 @@ jkl_program_t program;
 %token NOT    "!"
 %token LOOP   "loop"
 %token RAISE  "raise"
-%token PUTS   "puts"
 %token IF     "if"
 %token ELIF   "elif"
 %token ELSE   "else"
@@ -53,7 +52,7 @@ jkl_program_t program;
 
 %type <node> expr
 %type <node> ident
-%type <node> puts
+%type <node> call
 %type <node> term
 %type <op>   op
 
@@ -118,16 +117,16 @@ statement: LET ident ASSIGN expr {
 
             jkl_node_append(jkl_get_context(&program), raise);
          }
-         | puts {
-            jkl_note("jkl_parser", "emit ast puts");
-            jkl_node_t* puts = $1;
+         | call {
+            jkl_note("jkl_parser", "emit ast call");
+            jkl_node_t* call = $1;
 
             if (jkl_get_context(&program) == NULL)
               jkl_error("jkl_parser", "no current context");
 
-            jkl_log("jkl_parser", "puts: %p", puts);
+            jkl_log("jkl_parser", "call: %p", call);
 
-            jkl_node_append(jkl_get_context(&program), puts);
+            jkl_node_append(jkl_get_context(&program), call);
           }
          | if_stm
          ;
@@ -257,25 +256,25 @@ block_stmts:
            | statement
            ;
 
-puts: PUTS CSTRING {
+call: ID CSTRING {
       jkl_node_t* cstring = jkl_node_new(JKL_NODE_STRING);
       cstring->value.s = $2;
 
-      jkl_node_t* puts = jkl_node_new(JKL_NODE_PUTS);
-      puts->node = cstring;
+      jkl_node_t* call = jkl_node_new(JKL_NODE_CALL);
+      call->node = cstring;
 
-      jkl_log("jkl_parser", "emit ast puts: %s", $2);
+      jkl_log("jkl_parser", "emit ast call: %s", $2);
 
-      $$ = puts;
+      $$ = call;
     }
-    | PUTS ident {
+    | ID ident {
       jkl_node_t* ident = $2;
-      jkl_node_t* puts = jkl_node_new(JKL_NODE_PUTS);
-      puts->node = ident;
+      jkl_node_t* call = jkl_node_new(JKL_NODE_CALL);
+      call->node = ident;
 
-      jkl_log("jkl_parser", "emit ast puts: %s", $2);
+      jkl_log("jkl_parser", "emit ast call: %s", $2);
 
-      $$ = puts;
+      $$ = call;
     }
     ;
 

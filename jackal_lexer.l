@@ -16,7 +16,6 @@ float [+|-]?{int}?[.]{int}
 "let"                                   { return LET;    }
 "loop"                                  { return LOOP;   }
 "raise"                                 { return RAISE;  }
-"puts"                                  { return PUTS;   }
 "if"                                    { return IF;     }
 "elif"                                  { return ELIF;   }
 "else"                                  { return ELSE;   }
