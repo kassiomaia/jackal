@@ -44,34 +44,37 @@ void jkl_print_ast_type(jkl_node_t *node)
   switch (node->type)
   {
   case JKL_NODE_INT:
-    jkl_log("jkl_ast", "JKL_NODE_INT\n");
+    jkl_log("jkl_ast", "JKL_NODE_INT");
     break;
   case JKL_NODE_FLOAT:
-    jkl_log("jkl_ast", "JKL_NODE_FLOAT\n");
+    jkl_log("jkl_ast", "JKL_NODE_FLOAT");
     break;
   case JKL_NODE_STRING:
-    jkl_log("jkl_ast", "JKL_NODE_STRING\n");
+    jkl_log("jkl_ast", "JKL_NODE_STRING");
     break;
   case JKL_NODE_ID:
-    jkl_log("jkl_ast", "JKL_NODE_ID\n");
+    jkl_log("jkl_ast", "JKL_NODE_ID");
     break;
   case JKL_NODE_BINOP:
-    jkl_log("jkl_ast", "JKL_NODE_BINOP\n");
+    jkl_log("jkl_ast", "JKL_NODE_BINOP");
     break;
   case JKL_NODE_LOOP:
-    jkl_log("jkl_ast", "JKL_NODE_LOOP\n");
+    jkl_log("jkl_ast", "JKL_NODE_LOOP");
     break;
   case JKL_NODE_BLOCK:
-    jkl_log("jkl_ast", "JKL_NODE_BLOCK\n");
+    jkl_log("jkl_ast", "JKL_NODE_BLOCK");
     break;
   case JKL_NODE_RAISE:
-    jkl_log("jkl_ast", "JKL_NODE_RAISE\n");
+    jkl_log("jkl_ast", "JKL_NODE_RAISE");
     break;
-  case JKL_NODE_PUTS:
-    jkl_log("jkl_ast", "JKL_NODE_PUTS\n");
+  case JKL_NODE_CALL:
+    jkl_log("jkl_ast", "JKL_NODE_CALL");
     break;
   case JKL_NODE_LET:
-    jkl_log("jkl_ast", "JKL_NODE_LET\n");
+    jkl_log("jkl_ast", "JKL_NODE_LET");
+    break;
+  case JKL_NODE_IF:
+    jkl_log("jkl_ast", "JKL_NODE_IF");
     break;
   default:
     jkl_error("jkl_ast", "unknown node type");
