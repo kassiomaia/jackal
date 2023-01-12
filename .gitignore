@@ -3,6 +3,8 @@
 
 #extensions
 *.o
+*.so
+*.a
 *.yy.c
 
 #files

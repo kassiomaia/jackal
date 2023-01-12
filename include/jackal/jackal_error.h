@@ -1,7 +1,7 @@
 #ifndef JACKAL_ERROR_H
 #define JACKAL_ERROR_H
 
-#include <jackal/jackal_types.h>
+#include <jackal.h>
 
 // normal colors
 #define $R "\x1b[31m"
@@ -23,8 +23,9 @@
 #define $E "\x1b[0m"
 
 #ifdef VERBOSE
-#define jkl_printf_impl(...) \
-  do { \
+#define jkl_printf_impl(...)      \
+  do                              \
+  {                               \
     fprintf(stdout, __VA_ARGS__); \
   } while (0)
 #else
@@ -32,51 +33,57 @@
 #endif
 
 #ifdef ENABLE_COLOR
-  #define jkl_error(c_, f_, ...) \
-    do { \
-      fprintf(stderr, $R "[" c_ "]: " $E $RB f_ $E "\n", ##__VA_ARGS__); \
-      exit(1); \
-    } while (0);
+#define jkl_error(c_, f_, ...)                                         \
+  do                                                                   \
+  {                                                                    \
+    fprintf(stderr, $R "[" c_ "]: " $E $RB f_ $E "\n", ##__VA_ARGS__); \
+    exit(1);                                                           \
+  } while (0);
 
-  #define jkl_warn(c_, f_, ...) \
-    jkl_printf_impl($Y "[" c_ "]: " $E $YB f_ $E "\n", ##__VA_ARGS__)
+#define jkl_warn(c_, f_, ...) \
+  jkl_printf_impl($Y "[" c_ "]: " $E $YB f_ $E "\n", ##__VA_ARGS__)
 
-  #define jkl_log(c_, f_, ...) \
-    jkl_printf_impl($G "[" c_ "]: " $E f_ "\n", ##__VA_ARGS__)
+#define jkl_log(c_, f_, ...) \
+  jkl_printf_impl($G "[" c_ "]: " $E f_ "\n", ##__VA_ARGS__)
 
-  #define jkl_note(c_, f_, ...) \
-    jkl_printf_impl($CB "[" c_ "]: " $E $C f_ $E "\n", ##__VA_ARGS__)
+#define jkl_note(c_, f_, ...) \
+  jkl_printf_impl($CB "[" c_ "]: " $E $C f_ $E "\n", ##__VA_ARGS__)
 #else
-  #define jkl_error(c_, f_, ...) \
-    do { \
-      fprintf(stderr, "[" c_ "]: " f_ "\n", ##__VA_ARGS__); \
-      exit(1); \
-    } while (0);
+#define jkl_error(c_, f_, ...)                            \
+  do                                                      \
+  {                                                       \
+    fprintf(stderr, "[" c_ "]: " f_ "\n", ##__VA_ARGS__); \
+    exit(1);                                              \
+  } while (0);
 
-  #define jkl_warn(c_, f_, ...) \
-    jkl_printf_impl("[" c_ "]: " f_ "\n", ##__VA_ARGS__)
+#define jkl_warn(c_, f_, ...) \
+  jkl_printf_impl("[" c_ "]: " f_ "\n", ##__VA_ARGS__)
 
-  #define jkl_log(c_, f_, ...) \
-    jkl_printf_impl("[" c_ "]: " f_ "\n", ##__VA_ARGS__)
+#define jkl_log(c_, f_, ...) \
+  jkl_printf_impl("[" c_ "]: " f_ "\n", ##__VA_ARGS__)
 
-  #define jkl_note(c_, f_, ...) \
-    jkl_printf_impl("[" c_ "]: " f_ "\n", ##__VA_ARGS__)
+#define jkl_note(c_, f_, ...) \
+  jkl_printf_impl("[" c_ "]: " f_ "\n", ##__VA_ARGS__)
 #endif
 
-#define jkl_debug(w_) \
-  do { \
+#define jkl_debug(w_)                                                    \
+  do                                                                     \
+  {                                                                      \
     fprintf(stdout, $M "debuging at %s:%d" $E "\n", __FILE__, __LINE__); \
-    char c = getc(stdin); \
-    if (c == 'c') { \
-      fprintf(stdout, $M "Continuing..." $E "\n"); \
-    } \
-    if (c == 'w') { \
-      w_; \
-    } \
-    if (c == 'q') { \
-      fprintf(stdout, $M "Quitting..." $E "\n"); \
-      exit(1); \
-    } \
+    char c = getc(stdin);                                                \
+    if (c == 'c')                                                        \
+    {                                                                    \
+      fprintf(stdout, $M "Continuing..." $E "\n");                       \
+    }                                                                    \
+    if (c == 'w')                                                        \
+    {                                                                    \
+      w_;                                                                \
+    }                                                                    \
+    if (c == 'q')                                                        \
+    {                                                                    \
+      fprintf(stdout, $M "Quitting..." $E "\n");                         \
+      exit(1);                                                           \
+    }                                                                    \
   } while (0);
 
 #endif

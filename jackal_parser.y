@@ -6,46 +6,7 @@ extern char *yytext;
 extern int yylex(void);
 int yyerror(char*);
 
-#define MAX_NESTED_BLOCKS 1024
-
 jkl_program_t program;
-jkl_node_t *cc;
-
-struct {
-  jkl_node_t* frames[MAX_NESTED_BLOCKS];
-  int pos;
-} context;
-
-jkl_node_t* jkl_get_context(jkl_program_t *program) {
-  if (context.pos == 0) {
-    return NULL;
-  }
-
-  jkl_log("jkl_parser", "context.pos = %d", context.pos);
-  return context.frames[context.pos - 1];
-}
-
-void jkl_push_context(jkl_program_t *program, jkl_node_t *node) {
-  if (jkl_get_context(program) != NULL) {
-    jkl_node_t* parent = jkl_get_context(program);
-    node->parent = parent;
-  }
-
-  jkl_log("jkl_parser", "pushing context");
-  context.frames[context.pos] = node;
-  context.pos++;
-}
-
-jkl_node_t* jkl_pop_context(jkl_program_t *program) {
-  context.pos--;
-  jkl_log("jkl_parser", "popping context");
-  return context.frames[context.pos];
-}
-
-void jkl_ensure_empty_contexts() {
-  if (context.pos != 0)
-    jkl_error("jkl_error", "context stack is not empty");
-}
 
 %}
 
@@ -107,27 +68,17 @@ void jkl_ensure_empty_contexts() {
 
 program: { 
           jkl_program_init(&program);
-          jkl_node_t* block = jkl_node_new(JKL_NODE_BLOCK);
-          jkl_push_context(&program, block);
+          program.ast_prog_root = jkl_node_new(JKL_NODE_BLOCK);
+          jkl_push_context(&program, program.ast_prog_root);
         }
        | program statements {
-          jkl_node_t* block = jkl_pop_context(&program);
+          jkl_pop_context(&program);
           jkl_ensure_empty_contexts();
 
-          jkl_word_t n = jkl_compile(&program, block);
+          jkl_word_t n = jkl_compile(&program);
           if (n != 0) {
             jkl_error("jkl_error", "compilation failed");
           }
-          jkl_node_free(block);
-
-#ifdef DUMP
-          jkl_dump(&program);
-#else
-          jkl_vm_t vm;
-          jkl_vm_init(&vm);
-          jkl_vm_load(&vm, &program);
-          jkl_vm_run(&vm);
-#endif
         }
        ;
 
@@ -153,8 +104,6 @@ statement: LET ident ASSIGN expr {
             let->assign = expr;
 
             jkl_log("jkl_parser", "emit statement: %p", let);
-            jkl_print_ast_type(let);
-
             jkl_node_append(jkl_get_context(&program), let);
          }
          | loop
@@ -166,7 +115,6 @@ statement: LET ident ASSIGN expr {
               jkl_error("jkl_parser", "no current context");
 
             jkl_log("jkl_parser", "raise: %s", $2);
-            jkl_print_ast_type(raise);
 
             jkl_node_append(jkl_get_context(&program), raise);
          }
@@ -178,7 +126,6 @@ statement: LET ident ASSIGN expr {
               jkl_error("jkl_parser", "no current context");
 
             jkl_log("jkl_parser", "puts: %p", puts);
-            jkl_print_ast_type(puts);
 
             jkl_node_append(jkl_get_context(&program), puts);
           }
@@ -227,7 +174,6 @@ term: ID {
       ident->value.s = $1;
 
       jkl_log("jkl_parser", "emit ast ident: %s", $1);
-      jkl_print_ast_type(ident);
 
       $$ = ident;
     }
@@ -236,7 +182,6 @@ term: ID {
       cint->value.i = $1;
 
       jkl_log("jkl_parser", "emit ast cint: %d", $1);
-      jkl_print_ast_type(cint);
 
       $$ = cint;
     }
@@ -245,7 +190,6 @@ term: ID {
       cstring->value.s = $1;
 
       jkl_log("jkl_parser", "emit ast cstring: %s", $1);
-      jkl_print_ast_type(cstring);
 
       $$ = cstring;
     }
@@ -254,7 +198,6 @@ term: ID {
       cfloat->value.f = $1;
 
       jkl_log("jkl_parser", "emit ast cfloat: %f", $1);
-      jkl_print_ast_type(cfloat);
 
       $$ = cfloat;
     }
@@ -265,7 +208,6 @@ ident: ID {
         ident->value.s = $1;
 
         jkl_log("jkl_parser", "emit ast ident: %s", $1);
-        jkl_print_ast_type(ident);
 
         $$ = ident;
       }
@@ -323,7 +265,6 @@ puts: PUTS CSTRING {
       puts->node = cstring;
 
       jkl_log("jkl_parser", "emit ast puts: %s", $2);
-      jkl_print_ast_type(puts);
 
       $$ = puts;
     }
@@ -333,7 +274,6 @@ puts: PUTS CSTRING {
       puts->node = ident;
 
       jkl_log("jkl_parser", "emit ast puts: %s", $2);
-      jkl_print_ast_type(puts);
 
       $$ = puts;
     }

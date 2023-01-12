@@ -13,8 +13,6 @@ int main(int argv, char **argc)
     exit(EXIT_FAILURE);
   }
 
-  // jkl_class_init();
-
   yyin = fopen(argc[1], "r");
   if (yyin == NULL)
     jkl_error("jkl_main", "cannot open file '%s'", argc[1]);

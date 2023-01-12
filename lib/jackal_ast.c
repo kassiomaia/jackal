@@ -1,6 +1,5 @@
 #include <string.h>
 #include <jackal/jackal_ast.h>
-#include <jackal/jackal_dump.h>
 #include <jackal/jackal_error.h>
 
 jkl_node_t *jkl_node_new(jkl_node_type_t type)
@@ -20,7 +19,6 @@ jkl_node_t *jkl_node_new(jkl_node_type_t type)
   node->binop.left = NULL;
   node->binop.right = NULL;
   node->binop.op = JKL_OP_NONE;
-  node->unop.expr = NULL;
   node->compound.n_nodes = 0;
   node->compound.nodes = NULL;
   return node;
@@ -106,9 +104,6 @@ jkl_word_t jkl_print_ast_node(jkl_node_t *node, jkl_word_t depth)
     TABULATE(1)
     switch (node->binop.op)
     {
-    case JKL_OP_ASSIGN:
-      printf("ASSIGN\n");
-      break;
     default:
       break;
     }
@@ -121,24 +116,30 @@ jkl_word_t jkl_print_ast_node(jkl_node_t *node, jkl_word_t depth)
 
 jkl_word_t jkl_node_append(jkl_node_t *node, jkl_node_t *child)
 {
-  if (node->type == JKL_NODE_BLOCK) {
+  if (node->type == JKL_NODE_BLOCK)
+  {
     jkl_log("jkl_node_append", "appending to block");
-    if (node->compound.nodes == NULL) {
+    if (node->compound.nodes == NULL)
+    {
       jkl_log("jkl_node_append", "creating new node list");
-      node->compound.nodes = malloc(sizeof(jkl_node_t*));
-      if (node->compound.nodes == NULL) {
+      node->compound.nodes = malloc(sizeof(jkl_node_t *));
+      if (node->compound.nodes == NULL)
+      {
         jkl_error("jkl_node_append", "failed to allocate memory");
         return 1;
       }
       node->compound.nodes[0] = child;
       node->compound.n_nodes = 1;
-    } else {
+    }
+    else
+    {
       node->compound.n_nodes++;
 
       jkl_log("jkl_node_append", "resize node list: %d", node->compound.n_nodes);
       jkl_log("jkl_node_append", "appending to existing node list");
-      node->compound.nodes = realloc(node->compound.nodes, node->compound.n_nodes * sizeof(jkl_node_t*));
-      if (node->compound.nodes == NULL) {
+      node->compound.nodes = realloc(node->compound.nodes, node->compound.n_nodes * sizeof(jkl_node_t *));
+      if (node->compound.nodes == NULL)
+      {
         jkl_error("jkl_node_append", "failed to allocate memory");
         return 1;
       }

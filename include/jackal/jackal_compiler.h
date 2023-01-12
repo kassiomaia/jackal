@@ -1,10 +1,7 @@
 #ifndef JACKAL_COMPILER_H
 #define JACKAL_COMPILER_H
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <jackal/jackal_types.h>
-#include <jackal/jackal_class.h>
+#include <jackal.h>
 
 /*
  * Compiler
@@ -12,6 +9,7 @@
 
 void jkl_program_init(jkl_program_t *program);
 
+/*
 jkl_word_t jkl_emit_symbol(jkl_program_t *program, jkl_string_t symbol);
 jkl_word_t jkl_emit_const_bool(jkl_program_t *program, jkl_bool_t value);
 jkl_word_t jkl_emit_const_char(jkl_program_t *program, jkl_char_t value);
@@ -42,7 +40,8 @@ jkl_word_t jkl_emit_puts(jkl_program_t *program, jkl_node_t *node);
 jkl_word_t jkl_emit_class(jkl_program_t *program, jkl_class_t *klass);
 jkl_word_t jkl_emit_if(jkl_program_t *program, jkl_node_t *node);
 jkl_word_t jkl_emit_expr(jkl_program_t *program, jkl_node_t *node);
+*/
 
-jkl_word_t jkl_compile(jkl_program_t *program, jkl_node_t *node);
+jkl_word_t jkl_compile(jkl_program_t *program);
 
 #endif

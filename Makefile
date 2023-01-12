@@ -1,23 +1,13 @@
-INCLUDES=-Iinclude
-LIBS=-Llib
-DEBUG_FLAGS=-g
-OPT_FLAGS=-O3
-WARN_FLAGS=-Wall -Wextra -Werror
-STD_FLAGS=-fsanitize=address
-PEDANTIC_FLAGS=-pedantic
-
-FLAGS=
-export FLAGS
-
-CFLAGS=$(INCLUDES) $(LIBS) $(DEBUG_FLAGS) $(FLAGS)
-
 TARGET=bin/jackal
 
 SRCS=$(wildcard *.c)
 OBJS=$(SRCS:.c=.o)
+DEBUG=-fsanitize=address -fsanitize=undefined -g -DVERBOSE -DENABLE_COLOR
+CFLAGS=-Iinclude -Llib -lm -ljackal -Wl,-rpath=lib
+GDB=gdb --args
 
-all: clean parser lexer $(OBJS)
-	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS)
+all: jackal clean parser lexer $(OBJS)
+	$(CC) -o $(TARGET) $(OBJS) $(CFLAGS)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -28,20 +18,20 @@ parser: jackal_parser.y
 lexer: jackal_lexer.l
 	flex -o jackal_lexer.yy.c jackal_lexer.l
 
-run: all
-	$(TARGET) ./samples/main.jkl
-
-gdb: all
-	gdb --args $(TARGET) ./samples/main.jkl
-
 clean:
 	rm -f $(OBJS) $(TARGET)
 
-dump:
-	make FLAGS="-DDUMP -DVERBOSE -DENABLE_COLOR"
+gdb: all
+	$(GDB) $(TARGET) ./samples/main.jkl
 
-verbose:
-	make FLAGS="-DVERBOSE -DENABLE_COLOR -fsanitize=address"
-		
-.PHONY: all clean run gdb verbose
+jackal:
+	$(MAKE) -e DEBUG="-DVERBOSE -DDISABLE_VM -DENABLE_COLOR" -C lib
+
+run: all
+	$(TARGET) ./samples/main.jkl
+
+test:
+	$(MAKE) -C tests
+
+.PHONY: all clean run gdb jackal run
 
