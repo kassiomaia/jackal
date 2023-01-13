@@ -24,7 +24,8 @@ typedef struct {
 } jkl_symbol_table_t;
 
 void jkl_symbol_table_init(jkl_symbol_table_t *table);
-jkl_word_t jkl_symbol_table_add(jkl_symbol_table_t *table, jkl_string_t id, jkl_symbol_type_t type);
+jkl_word_t jkl_symbol_table_add(jkl_symbol_table_t *table, jkl_string_t id,
+                                jkl_symbol_type_t type);
 jkl_symbol_t *jkl_symbol_table_get(jkl_symbol_table_t *table, jkl_string_t id);
 void jkl_symbol_table_free(jkl_symbol_table_t *table);
 
