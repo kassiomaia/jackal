@@ -1,14 +1,9 @@
-SRCS=main.c
-OBJS=$(SRCS:.c=.o)
 CFLAGS=-g -I../include -L../lib -DVERBOSE -DENABLE_COLOR -Wl,-rpath=../lib 
-TARGET=test
+TARGET=../bin/jackaltest
 
-all: build_lib $(OBJS)
-	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS) -ljackal
-	./test
-
-%.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+compiler: build_lib
+	$(CC) $(CFLAGS) -o $(TARGET) main.c compiler.c -ljackal -lm -lcheck
+	./$(TARGET)
 
 build_lib:
 	make FLAGS="-DVERBOSE -DENABLE_COLOR" -C ../lib

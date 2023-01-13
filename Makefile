@@ -38,5 +38,11 @@ test:
 format:
 	$(ASTYLE) --style=linux --indent=spaces=2 --indent-switches --indent-preproc-define --indent-preproc-cond --indent-col1-comments --pad-oper --pad-header --unpad-paren --align-pointer=name --align-reference=name --add-brackets --convert-tabs --close-templates --max-code-length=80 --suffix=none --mode=c lib/*.c include/**/*.h
 
-.PHONY: all clean run gdb jackal run test format
+defs:
+	gperf -t -L ANSI-C -C -E -k '1,3,$$' -H hash -N keyword_lookup -p -t -j1 -o -i 1 -g -G -s 2 ./defs/keywords.gperf > ./include/jackal/jackal_keywords.h
+
+cppcheck:
+	cppcheck -I include lib/*.c
+
+.PHONY: all clean run gdb jackal run test format defs
 

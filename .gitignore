@@ -1,13 +1,16 @@
 #folders
 /bin
+/share
 
 #extensions
 *.o
 *.so
 *.a
+*.la
 *.yy.c
 *.h~
 *.c~
+*.so.*
 
 #files
 jackal_parser.tab.c
