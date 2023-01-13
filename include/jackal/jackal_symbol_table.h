@@ -23,6 +23,7 @@ typedef struct {
   size_t n_symbols;
 } jkl_symbol_table_t;
 
+jkl_symbol_table_t *jkl_symbol_table_new();
 void jkl_symbol_table_init(jkl_symbol_table_t *table);
 jkl_word_t jkl_symbol_table_add(jkl_symbol_table_t *table, jkl_string_t id,
                                 jkl_symbol_type_t type);
