@@ -79,6 +79,7 @@ void jkl_ir_store_string(jkl_ir_code_t *ir_code, jkl_string_t *string)
   jkl_byte_t *bss = ir_code->bss;
   jkl_word_t pos = hash % (1 << (sizeof(jkl_word_t) * 8) - 1);
   jkl_note("jkl_ir", "storing string at bss[%d]", pos);
+
   memcpy(bss + pos, string, jkl_string_len(string));
 }
 
