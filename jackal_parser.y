@@ -6,8 +6,7 @@ extern char *yytext;
 extern int yylex(void);
 int yyerror(char*);
 
-jkl_program_t program;
-jkl_symbol_table_t symbol_table;
+jkl_program_t *program;
 
 #define USE_EVAL
 #undef USE_EVAL
@@ -76,20 +75,21 @@ jkl_symbol_table_t symbol_table;
 %%
 
 program: { 
-          jkl_program_init(&program);
-          jkl_symbol_table_init(&symbol_table);
-          program.ast_prog_root = jkl_node_new(JKL_NODE_BLOCK);
-          jkl_push_context(&program, program.ast_prog_root);
+          program = jkl_program_new();
+          program->symbol_table = jkl_hash_new();
+          program->ast_prog_root = jkl_node_new(JKL_NODE_BLOCK);
+          jkl_push_context(program, program->ast_prog_root);
         }
        | program statements {
-          jkl_pop_context(&program);
+          jkl_pop_context(program);
           jkl_ensure_empty_contexts();
 
 #ifdef USE_EVAL
-          jkl_word_t n = jkl_eval(&program);
+          jkl_word_t n = jkl_eval(program);
 #else
-          jkl_word_t n = jkl_compile(&program);
+          jkl_word_t n = jkl_compile(program);
 #endif
+          free(program);
           if (n != 0) {
             jkl_error("jkl_error", "compilation failed");
           }
@@ -105,7 +105,7 @@ statement: LET ident ASSIGN expr {
             jkl_node_t* ident = $2;
             jkl_node_t* expr = $4;
 
-            if (jkl_get_context(&program) == NULL)
+            if (jkl_get_context(program) == NULL)
               jkl_error("jkl_parser", "no current context");
 
             if (ident->type != JKL_NODE_ID) {
@@ -117,45 +117,43 @@ statement: LET ident ASSIGN expr {
             let->id = ident;
             let->expr = expr;
 
-            jkl_symbol_table_add(&symbol_table, ident->value.s, JKL_SYMBOL_LET);
-
             jkl_log("jkl_parser", "emit statement: %p", let);
-            jkl_node_append(jkl_get_context(&program), let);
+            jkl_node_append(jkl_get_context(program), let);
          }
          | loop
          | RAISE CSTRING {
             jkl_node_t* raise = jkl_node_new(JKL_NODE_RAISE);
             raise->value.s = $2;
 
-            if (jkl_get_context(&program) == NULL)
+            if (jkl_get_context(program) == NULL)
               jkl_error("jkl_parser", "no current context");
 
             jkl_log("jkl_parser", "raise: %s", $2);
 
-            jkl_node_append(jkl_get_context(&program), raise);
+            jkl_node_append(jkl_get_context(program), raise);
          }
          | call {
             jkl_note("jkl_parser", "emit ast call");
             jkl_node_t* call = $1;
 
-            if (jkl_get_context(&program) == NULL)
+            if (jkl_get_context(program) == NULL)
               jkl_error("jkl_parser", "no current context");
 
             jkl_log("jkl_parser", "call: %p", call);
 
-            jkl_node_append(jkl_get_context(&program), call);
+            jkl_node_append(jkl_get_context(program), call);
           }
          | if_stm
          | RETURN expr {
             jkl_node_t* ret = jkl_node_new(JKL_NODE_RETURN);
             ret->expr = $2;
 
-            if (jkl_get_context(&program) == NULL)
+            if (jkl_get_context(program) == NULL)
               jkl_error("jkl_parser", "no current context");
 
             jkl_log("jkl_parser", "return: %p", ret);
 
-            jkl_node_append(jkl_get_context(&program), ret);
+            jkl_node_append(jkl_get_context(program), ret);
          }
          | func
          ;
@@ -238,17 +236,17 @@ loop: LOOP LBRACE {
         jkl_note("jkl_parser", "begin emit ast loop");
         jkl_note("jkl_parser", "begin emit ast block");
         jkl_node_t* block = jkl_node_new(JKL_NODE_BLOCK);
-        jkl_push_context(&program, block);
+        jkl_push_context(program, block);
       }
       block_stmts
       RBRACE {
         jkl_note("jkl_parser", "end emit ast block");
-        jkl_node_t* block = jkl_pop_context(&program);
+        jkl_node_t* block = jkl_pop_context(program);
 
         jkl_node_t *loop = jkl_node_new(JKL_NODE_LOOP);
         loop->block = block;
 
-        jkl_node_t *context = jkl_get_context(&program);
+        jkl_node_t *context = jkl_get_context(program);
         if (context == NULL)
           jkl_error("jkl_parser", "no current context");
 
@@ -262,13 +260,13 @@ if_stm: IF expr {
         jkl_node_t* if_stm = jkl_node_new(JKL_NODE_IF);
         if_stm->expr = $2;
         if_stm->block = jkl_node_new(JKL_NODE_BLOCK);
-        jkl_node_append(jkl_get_context(&program), if_stm);
+        jkl_node_append(jkl_get_context(program), if_stm);
 
-        jkl_push_context(&program, if_stm->block);
+        jkl_push_context(program, if_stm->block);
         jkl_note("jkl_parser", "begin emit ast if block");
       } LBRACE block_stmts RBRACE
       {
-        jkl_pop_context(&program);
+        jkl_pop_context(program);
         jkl_note("jkl_parser", "end emit ast if");
       }
       ;
@@ -302,39 +300,39 @@ call: ID CSTRING {
 
 func: FUNC ident func_params LBRACE {
         jkl_node_t* block = jkl_node_new(JKL_NODE_BLOCK);
-        jkl_push_context(&program, block);
+        jkl_push_context(program, block);
       } block_stmts RBRACE {
-      jkl_node_t* block = jkl_pop_context(&program);
-      jkl_node_t* func = jkl_node_new(JKL_NODE_FUNC);
+        jkl_node_t* block = jkl_pop_context(program);
+        jkl_node_t* func = jkl_node_new(JKL_NODE_FUNC);
 
-      func->id = $2;
-      func->params = $3;
-      func->block = block;
+        func->id = $2;
+        func->params = $3;
+        func->block = block;
 
-      jkl_log("jkl_parser", "emit ast func: %s", $2);
+        jkl_log("jkl_parser", "emit ast func: %s", $2);
 
-      $$ = func;
-    }
+        $$ = func;
+      }
     ;
 
 func_params: LPAREN {
             jkl_node_t* params = jkl_node_new(JKL_NODE_PARAMS);
-            jkl_push_context(&program, params);
+            jkl_push_context(program, params);
            } params RPAREN {
-            $$ = jkl_pop_context(&program);
+            $$ = jkl_pop_context(program);
            }
            ;
 
 params:
       | params COMMA param {
-        jkl_node_t* params = jkl_pop_context(&program);
+        jkl_node_t* params = jkl_pop_context(program);
         jkl_node_append(params, $3);
-        jkl_push_context(&program, params);
+        jkl_push_context(program, params);
       }
       | param {
-        jkl_node_t* params = jkl_pop_context(&program);
+        jkl_node_t* params = jkl_pop_context(program);
         jkl_node_append(params, $1);
-        jkl_push_context(&program, params);
+        jkl_push_context(program, params);
       }
       ;
 

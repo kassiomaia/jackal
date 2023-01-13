@@ -10,7 +10,7 @@ typedef struct {
   jkl_word_t n_notes;
   jkl_word_t n_ids;
   jkl_word_t n_funcs;
-  jkl_hash_tbl symbol_table;
+  jkl_hash_tbl *symbol_table;
 } jkl_program_t;
 
 /*

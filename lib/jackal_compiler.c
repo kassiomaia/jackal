@@ -209,7 +209,7 @@ jkl_word_t jkl_compile_block(jkl_program_t *program, jkl_node_t *block)
         jkl_hash_set(props, "type", "function", JKL_HASH_TYPE_STRING);
         jkl_hash_set(props, "value", "main", JKL_HASH_TYPE_STRING);
 
-        jkl_hash_set(&program->symbol_table, child->id->value.s, props,
+        jkl_hash_set(program->symbol_table, child->id->value.s, props,
                      JKL_HASH_TYPE_OBJECT);
 
         jkl_warn("jkl_compiler", "no rules implemented for JKL_NODE_LET");
@@ -264,7 +264,7 @@ jkl_word_t jkl_compile_block(jkl_program_t *program, jkl_node_t *block)
         jkl_hash_set(props, "name", child->id->value.s, JKL_HASH_TYPE_STRING);
         jkl_hash_set(props, "args", "10", JKL_HASH_TYPE_STRING);
 
-        jkl_hash_set(&program->symbol_table, child->id->value.s, props,
+        jkl_hash_set(program->symbol_table, child->id->value.s, props,
                      JKL_HASH_TYPE_OBJECT);
         jkl_compile_block(program, child->block);
         break;
@@ -296,7 +296,7 @@ jkl_word_t jkl_compile(jkl_program_t *program)
   jkl_hash_set(props, "type", "function", JKL_HASH_TYPE_STRING);
   jkl_hash_set(props, "value", "main", JKL_HASH_TYPE_STRING);
 
-  jkl_hash_set(&program->symbol_table, "entry_point", props,
+  jkl_hash_set(program->symbol_table, "entry_point", props,
                JKL_HASH_TYPE_OBJECT);
 
   jkl_log("jkl_compiler", "compiling program");
@@ -304,11 +304,11 @@ jkl_word_t jkl_compile(jkl_program_t *program)
   jkl_ir_code_push(&ir_code, JKL_EMIT_IR(JKL_IR_HALT, 0, 0, 0));
   char *json = malloc(sizeof(char) * 4096);
   memset(json, 0, sizeof(char) * 4096);
-  jkl_hash_to_json(&program->symbol_table, 0, json);
+  jkl_hash_to_json(program->symbol_table, 0, json);
   jkl_log("jkl_compiler", "symbol table: %s", json);
   free(json);
 
-  jkl_hash_free(&program->symbol_table);
+  jkl_hash_free(program->symbol_table);
 
   return 0;
 }
