@@ -41,6 +41,7 @@ void jkl_program_init(jkl_program_t *program)
   program->n_notes = 0;
   program->n_ids = 0;
   program->n_funcs = 0;
+  jkl_hash_init(&program->symbol_table);
 }
 
 jkl_word_t jkl_get_idx(jkl_program_t *program)
@@ -56,61 +57,89 @@ jkl_word_t jkl_emit_expr_op(jkl_program_t *program, jkl_op_t op)
   switch(op)
     {
       case JKL_OP_EQL:
-        fprintf(ir, "eql\n");
-        jkl_ir_code_push(&ir_code, JKL_EMIT_IR(JKL_IR_EQL, 0, 0, 0));
-        break;
+        {
+          fprintf(ir, "eql\n");
+          jkl_ir_code_push(&ir_code, JKL_EMIT_IR(JKL_IR_EQL, 0, 0, 0));
+          break;
+        }
       case JKL_OP_NEQ:
-        fprintf(ir, "neq\n");
-        jkl_ir_code_push(&ir_code, JKL_EMIT_IR(JKL_IR_NEQ, 0, 0, 0));
-        break;
+        {
+          fprintf(ir, "neq\n");
+          jkl_ir_code_push(&ir_code, JKL_EMIT_IR(JKL_IR_NEQ, 0, 0, 0));
+          break;
+        }
       case JKL_OP_GT:
-        fprintf(ir, "gt\n");
-        jkl_ir_code_push(&ir_code, JKL_EMIT_IR(JKL_IR_GT, 0, 0, 0));
-        break;
+        {
+          fprintf(ir, "gt\n");
+          jkl_ir_code_push(&ir_code, JKL_EMIT_IR(JKL_IR_GT, 0, 0, 0));
+          break;
+        }
       case JKL_OP_LT:
-        fprintf(ir, "lt\n");
-        jkl_ir_code_push(&ir_code, JKL_EMIT_IR(JKL_IR_LT, 0, 0, 0));
-        break;
+        {
+          fprintf(ir, "lt\n");
+          jkl_ir_code_push(&ir_code, JKL_EMIT_IR(JKL_IR_LT, 0, 0, 0));
+          break;
+        }
       case JKL_OP_GTE:
-        fprintf(ir, "gte\n");
-        jkl_ir_code_push(&ir_code, JKL_EMIT_IR(JKL_IR_GTE, 0, 0, 0));
-        break;
+        {
+          fprintf(ir, "gte\n");
+          jkl_ir_code_push(&ir_code, JKL_EMIT_IR(JKL_IR_GTE, 0, 0, 0));
+          break;
+        }
       case JKL_OP_LTE:
-        fprintf(ir, "lte\n");
-        jkl_ir_code_push(&ir_code, JKL_EMIT_IR(JKL_IR_LTE, 0, 0, 0));
-        break;
+        {
+          fprintf(ir, "lte\n");
+          jkl_ir_code_push(&ir_code, JKL_EMIT_IR(JKL_IR_LTE, 0, 0, 0));
+          break;
+        }
       case JKL_OP_PLUS:
-        fprintf(ir, "add\n");
-        jkl_ir_code_push(&ir_code, JKL_EMIT_IR(JKL_IR_ADD, 0, 0, 0));
-        break;
+        {
+          fprintf(ir, "add\n");
+          jkl_ir_code_push(&ir_code, JKL_EMIT_IR(JKL_IR_ADD, 0, 0, 0));
+          break;
+        }
       case JKL_OP_MINUS:
-        fprintf(ir, "sub\n");
-        jkl_ir_code_push(&ir_code, JKL_EMIT_IR(JKL_IR_SUB, 0, 0, 0));
-        break;
+        {
+          fprintf(ir, "sub\n");
+          jkl_ir_code_push(&ir_code, JKL_EMIT_IR(JKL_IR_SUB, 0, 0, 0));
+          break;
+        }
       case JKL_OP_MUL:
-        fprintf(ir, "mul\n");
-        jkl_ir_code_push(&ir_code, JKL_EMIT_IR(JKL_IR_MUL, 0, 0, 0));
-        break;
+        {
+          fprintf(ir, "mul\n");
+          jkl_ir_code_push(&ir_code, JKL_EMIT_IR(JKL_IR_MUL, 0, 0, 0));
+          break;
+        }
       case JKL_OP_DIV:
-        fprintf(ir, "div\n");
-        jkl_ir_code_push(&ir_code, JKL_EMIT_IR(JKL_IR_DIV, 0, 0, 0));
-        break;
+        {
+          fprintf(ir, "div\n");
+          jkl_ir_code_push(&ir_code, JKL_EMIT_IR(JKL_IR_DIV, 0, 0, 0));
+          break;
+        }
       case JKL_OP_MOD:
-        fprintf(ir, "mod\n");
-        jkl_ir_code_push(&ir_code, JKL_EMIT_IR(JKL_IR_MOD, 0, 0, 0));
-        break;
+        {
+          fprintf(ir, "mod\n");
+          jkl_ir_code_push(&ir_code, JKL_EMIT_IR(JKL_IR_MOD, 0, 0, 0));
+          break;
+        }
       case JKL_OP_AND:
-        fprintf(ir, "and\n");
-        jkl_ir_code_push(&ir_code, JKL_EMIT_IR(JKL_IR_AND, 0, 0, 0));
-        break;
+        {
+          fprintf(ir, "and\n");
+          jkl_ir_code_push(&ir_code, JKL_EMIT_IR(JKL_IR_AND, 0, 0, 0));
+          break;
+        }
       case JKL_OP_OR:
-        fprintf(ir, "or\n");
-        jkl_ir_code_push(&ir_code, JKL_EMIT_IR(JKL_IR_OR, 0, 0, 0));
-        break;
+        {
+          fprintf(ir, "or\n");
+          jkl_ir_code_push(&ir_code, JKL_EMIT_IR(JKL_IR_OR, 0, 0, 0));
+          break;
+        }
       case JKL_OP_NOT:
+        {
           fprintf(ir, "not\n");
-        jkl_ir_code_push(&ir_code, JKL_EMIT_IR(JKL_IR_NOT, 0, 0, 0));
-        break;
+          jkl_ir_code_push(&ir_code, JKL_EMIT_IR(JKL_IR_NOT, 0, 0, 0));
+          break;
+        }
       default:
         jkl_error("jkl_compiler", "invlaid expr op");
     }
@@ -184,6 +213,14 @@ jkl_word_t jkl_compile_block(jkl_program_t *program, jkl_node_t *block)
       {
         jkl_word_t hash = jkl_string_hash(child->id->value.s);
 
+        jkl_hash_tbl *props = jkl_hash_new();
+
+        jkl_hash_set(props, "name", "main", JKL_HASH_TYPE_STRING);
+        jkl_hash_set(props, "type", "function", JKL_HASH_TYPE_STRING);
+        jkl_hash_set(props, "value", "main", JKL_HASH_TYPE_STRING);
+
+        jkl_hash_set(&program->symbol_table, child->id->value.s, props, JKL_HASH_TYPE_OBJECT);
+
         jkl_warn("jkl_compiler", "no rules implemented for JKL_NODE_LET");
         fprintf(ir, "; let %s = $1\n", child->id->value.s);
         fprintf(ir, "alloc 0x%00x\n", hash);
@@ -234,6 +271,13 @@ jkl_word_t jkl_compile_block(jkl_program_t *program, jkl_node_t *block)
         jkl_warn("jkl_compiler", "no rules implemented for JKL_NODE_FUNC");
         fprintf(ir, "func_%d:\n", program->n_funcs + 1);
         program->n_funcs++;
+
+        jkl_hash_tbl *props = jkl_hash_new();
+
+        jkl_hash_set(props, "name", child->id->value.s, JKL_HASH_TYPE_STRING);
+        jkl_hash_set(props, "args", "10", JKL_HASH_TYPE_STRING);
+
+        jkl_hash_set(&program->symbol_table, child->id->value.s, props, JKL_HASH_TYPE_OBJECT);
         jkl_compile_block(program, child->block);
         break;
       }
@@ -259,9 +303,24 @@ jkl_word_t jkl_compile(jkl_program_t *program)
   invariant(program == NULL, "program is NULL");
   invariant(program->ast_prog_root == NULL, "ast root is NULL");
 
+  jkl_hash_tbl *props = jkl_hash_new();
+
+  jkl_hash_set(props, "name", "main", JKL_HASH_TYPE_STRING);
+  jkl_hash_set(props, "type", "function", JKL_HASH_TYPE_STRING);
+  jkl_hash_set(props, "value", "main", JKL_HASH_TYPE_STRING);
+
+  jkl_hash_set(&program->symbol_table, "entry_point", props, JKL_HASH_TYPE_OBJECT);
+
   jkl_log("jkl_compiler", "compiling program");
   jkl_compile_block(program, program->ast_prog_root);
   jkl_ir_code_push(&ir_code, JKL_EMIT_IR(JKL_IR_HALT, 0, 0, 0));
+  char *json = malloc(sizeof(char) * 4096);
+  memset(json, 0, sizeof(char) * 4096);
+  jkl_hash_to_json(&program->symbol_table, 0, json);
+  jkl_log("jkl_compiler", "symbol table: %s", json);
+  free(json);
+  
+  jkl_hash_free(&program->symbol_table);
 
   return 0;
 }

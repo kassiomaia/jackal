@@ -1,22 +1,24 @@
-func main(argc, argv) {
-  let doc := 1
-  let name := "John"
-  let projetos := 10
-  let first_name := "Kássio Maia"
-  let second_name := "de Queiroz"
-  let full_name := "Kassio Maia" + 10
-  let n := 2.35
+let doc := 1
+let name := "John"
+let projetos := 10
+let first_name := "Kássio Maia"
+let second_name := "de Queiroz"
+let full_name := "Kassio Maia" + 10
+let n := 2.35
 
-  if doc == 1 {
+if doc == 1 {
+  puts "OK"
+}
+
+puts "OK"
+
+loop {
+  let projetos1 := 10
+  if a > 10 {
     puts "OK"
   }
+}
 
-  puts "OK"
+func main(argc, argv) {
 
-  loop {
-    let projetos1 := 10
-    if a > 10 {
-      puts "OK"
-    }
-  }
 }

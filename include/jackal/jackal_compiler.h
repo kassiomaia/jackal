@@ -3,6 +3,17 @@
 
 #include <jackal.h>
 
+typedef struct
+{
+  jkl_node_t *ast_prog_root;
+  jkl_error_t n_errors;
+  jkl_word_t n_warnings;
+  jkl_word_t n_notes;
+  jkl_word_t n_ids;
+  jkl_word_t n_funcs;
+  jkl_hash_tbl symbol_table;
+} jkl_program_t;
+
 /*
  * Compiler
  */

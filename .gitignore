@@ -6,6 +6,8 @@
 *.so
 *.a
 *.yy.c
+*.h~
+*.c~
 
 #files
 jackal_parser.tab.c
