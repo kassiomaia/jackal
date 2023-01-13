@@ -1,5 +1,16 @@
 #include <jackal.h>
 
+jkl_symbol_table_t *jkl_symbol_table_new()
+{
+  jkl_symbol_table_t *table = malloc(sizeof(jkl_symbol_table_t));
+  if (table == NULL) {
+    jkl_error("jkl_symbol_table", "cannot allocate memory for symbol table");
+  }
+  memset(table, 0, sizeof(jkl_symbol_table_t));
+  jkl_symbol_table_init(table);
+  return table;
+}
+
 void jkl_symbol_table_init(jkl_symbol_table_t *table)
 {
   table->n_symbols = 0;
