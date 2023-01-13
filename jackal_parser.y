@@ -242,7 +242,7 @@ loop: LOOP LBRACE {
 if_stm: IF expr {
         jkl_note("jkl_parser", "begin emit ast if");
         jkl_node_t* if_stm = jkl_node_new(JKL_NODE_IF);
-        if_stm->node = $2;
+        if_stm->expr = $2;
         if_stm->block = jkl_node_new(JKL_NODE_BLOCK);
         jkl_node_append(jkl_get_context(&program), if_stm);
 
