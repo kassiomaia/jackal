@@ -40,6 +40,7 @@ void jkl_program_init(jkl_program_t *program)
   program->n_warnings = 0;
   program->n_notes = 0;
   program->n_ids = 0;
+  program->n_funcs = 0;
 }
 
 jkl_word_t jkl_get_idx(jkl_program_t *program)
@@ -139,14 +140,15 @@ jkl_word_t jkl_compile_expr(jkl_program_t *program, jkl_node_t *expr)
           jkl_word_t hash = jkl_string_hash(expr->value.s);
           fprintf(ir, "load [0x%00x:0x%00x]\n", hash, hash + jkl_string_len(expr->value.s));
           jkl_ir_store_string(&ir_code, expr->value.s);
-          jkl_ir_code_push(&ir_code, JKL_EMIT_IR(JKL_IR_PUSHS, 0, 0, 0));
+          jkl_ir_code_push(&ir_code, JKL_EMIT_IR(JKL_IR_LOAD, hash, hash + jkl_string_len(expr->value.s), 0));
           break;
         }
       case JKL_NODE_ID:
         {
-          fprintf(ir, "load [ref] 0x%00x\n", jkl_string_hash(expr->value.s));
+          jkl_qword_t hash = jkl_string_hash(expr->value.s);
+          fprintf(ir, "load [ref] 0x%00x\n", hash);
           jkl_ir_store_string(&ir_code, expr->value.s);
-          jkl_ir_code_push(&ir_code, JKL_EMIT_IR(JKL_IR_LOAD, 1, 0, 0));
+          jkl_ir_code_push(&ir_code, JKL_EMIT_IR(JKL_IR_LOAD, hash, 0, 0));
           break;
         }
       case JKL_NODE_BINOP:
@@ -180,17 +182,17 @@ jkl_word_t jkl_compile_block(jkl_program_t *program, jkl_node_t *block)
     {
     case JKL_NODE_LET:
       {
-        jkl_word_t memory_pos = jkl_string_hash(child->id->value.s);
+        jkl_word_t hash = jkl_string_hash(child->id->value.s);
 
         jkl_warn("jkl_compiler", "no rules implemented for JKL_NODE_LET");
         fprintf(ir, "; let %s = $1\n", child->id->value.s);
-        fprintf(ir, "alloc 0x%00x\n", memory_pos);
+        fprintf(ir, "alloc 0x%00x\n", hash);
 
-        jkl_ir_code_push(&ir_code, JKL_EMIT_IR(JKL_IR_ALLOC, memory_pos, 0, 0));
+        jkl_ir_code_push(&ir_code, JKL_EMIT_IR(JKL_IR_ALLOC, hash, 0, 0));
         jkl_compile_expr(program, child->expr);
-        jkl_ir_code_push(&ir_code, JKL_EMIT_IR(JKL_IR_STORE, memory_pos, 0, 0));
+        jkl_ir_code_push(&ir_code, JKL_EMIT_IR(JKL_IR_STORE, hash, 0, 0));
 
-        fprintf(ir, "store 0x%00x\n", memory_pos);
+        fprintf(ir, "store 0x%00x\n", hash);
         break;
       }
     case JKL_NODE_IF:
@@ -224,6 +226,21 @@ jkl_word_t jkl_compile_block(jkl_program_t *program, jkl_node_t *block)
       {
         jkl_warn("jkl_compiler", "no rules implemented for JKL_NODE_CALL");
         fprintf(ir, "call $1\n");
+        jkl_ir_code_push(&ir_code, JKL_EMIT_IR(JKL_IR_CALL, 0, 0, 0));
+        break;
+      }
+    case JKL_NODE_FUNC:
+      {
+        jkl_warn("jkl_compiler", "no rules implemented for JKL_NODE_FUNC");
+        fprintf(ir, "func_%d:\n", program->n_funcs + 1);
+        program->n_funcs++;
+        jkl_compile_block(program, child->block);
+        break;
+      }
+    case JKL_NODE_RETURN:
+      {
+        jkl_warn("jkl_compiler", "no rules implemented for JKL_NODE_RETURN");
+        fprintf(ir, "return $1\n");
         break;
       }
     default:

@@ -76,6 +76,18 @@ void jkl_print_ast_type(jkl_node_t *node)
   case JKL_NODE_IF:
     jkl_log("jkl_ast", "JKL_NODE_IF");
     break;
+  case JKL_NODE_FUNC:
+    jkl_log("jkl_ast", "JKL_NODE_FUNC");
+    break;
+  case JKL_NODE_RETURN:
+    jkl_log("jkl_ast", "JKL_NODE_RETURN");
+    break;
+  case JKL_NODE_PARAMS:
+    jkl_log("jkl_ast", "JKL_NODE_PARAMS");
+    break;
+  case JKL_NODE_PARAM:
+    jkl_log("jkl_ast", "JKL_NODE_PARAM");
+    break;
   default:
     jkl_error("jkl_ast", "unknown node type");
   }
@@ -119,16 +131,16 @@ jkl_word_t jkl_print_ast_node(jkl_node_t *node, jkl_word_t depth)
 
 jkl_word_t jkl_node_append(jkl_node_t *node, jkl_node_t *child)
 {
-  if (node->type == JKL_NODE_BLOCK)
+  if (node->type == JKL_NODE_BLOCK || node->type == JKL_NODE_PARAMS)
   {
-    jkl_log("jkl_node_append", "appending to block");
+    jkl_log("jkl_ast", "appending to node");
     if (node->compound.nodes == NULL)
     {
-      jkl_log("jkl_node_append", "creating new node list");
+      jkl_log("jkl_ast", "creating new node list");
       node->compound.nodes = malloc(sizeof(jkl_node_t *));
       if (node->compound.nodes == NULL)
       {
-        jkl_error("jkl_node_append", "failed to allocate memory");
+        jkl_error("jkl_ast", "failed to allocate memory");
         return 1;
       }
       node->compound.nodes[0] = child;
@@ -138,8 +150,8 @@ jkl_word_t jkl_node_append(jkl_node_t *node, jkl_node_t *child)
     {
       node->compound.n_nodes++;
 
-      jkl_log("jkl_node_append", "resize node list: %d", node->compound.n_nodes);
-      jkl_log("jkl_node_append", "appending to existing node list");
+      jkl_log("jkl_ast", "resize node list: %d", node->compound.n_nodes);
+      jkl_log("jkl_ast", "appending to existing node list");
       node->compound.nodes = realloc(node->compound.nodes, node->compound.n_nodes * sizeof(jkl_node_t *));
       if (node->compound.nodes == NULL)
       {
@@ -149,11 +161,11 @@ jkl_word_t jkl_node_append(jkl_node_t *node, jkl_node_t *child)
       node->compound.nodes[node->compound.n_nodes - 1] = child;
     }
 
-    jkl_log("jkl_node_append", "node appended");
+    jkl_log("jkl_ast", "node appended");
     return 0;
   }
 
-  jkl_log("jkl_node_append", "ERROR: node type %d does not support children", node->type);
+  jkl_log("jkl_ast", "ERROR: node type %d does not support children", node->type);
   exit(1);
 
   return 0;

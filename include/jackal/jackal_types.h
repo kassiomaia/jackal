@@ -23,6 +23,7 @@ typedef void (*jkl_function_t)(void);
 typedef char jkl_bool_t;
 typedef char jkl_char_t;
 typedef void jkl_void_t;
+typedef void* jkl_any_t;
 
 /*
  * Error
@@ -52,6 +53,9 @@ typedef enum
   JKL_NODE_CALL,
   JKL_NODE_RETURN,
   JKL_NODE_BINOP,
+  JKL_NODE_FUNC,
+  JKL_NODE_PARAM,
+  JKL_NODE_PARAMS,
 } jkl_node_type_t;
 
 typedef enum
@@ -99,6 +103,7 @@ struct jkl_node
   jkl_node_t *parent;
   jkl_node_t *id;
   jkl_node_t *assign;
+  jkl_node_t *params;
 };
 
 typedef struct
@@ -108,6 +113,7 @@ typedef struct
   jkl_word_t n_warnings;
   jkl_word_t n_notes;
   jkl_word_t n_ids;
+  jkl_word_t n_funcs;
 } jkl_program_t;
 
 #endif
