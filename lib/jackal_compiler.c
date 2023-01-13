@@ -191,6 +191,9 @@ jkl_word_t jkl_compile_block(jkl_program_t *program, jkl_node_t *block)
       }
       case JKL_NODE_LOOP: {
         jkl_warn("jkl_compiler", "no rules implemented for JKL_NODE_LOOP");
+        unsigned int loop_pos = program->ir_code->n_irs - 1;
+        jkl_compile_block(program, child->block);
+        jkl_ir_code_push(program->ir_code, JKL_EMIT_IR(JKL_IR_JMP, loop_pos, 0, 0));
         break;
       }
       case JKL_NODE_CALL: {
