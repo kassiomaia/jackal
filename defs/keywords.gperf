@@ -1,0 +1,9 @@
+struct jkl_keyword { char *id, int has_block; };
+%%
+let, 0
+loop, 1
+if, 1
+elif, 1
+else, 1
+for, 1
+func, 1

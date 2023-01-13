@@ -16,11 +16,11 @@
 #include <jackal/jackal_stack.h>
 #include <jackal/jackal_hash.h>
 #include <jackal/jackal_class.h>
+#include <jackal/jackal_ir.h>
 #include <jackal/jackal_compiler.h>
 #include <jackal/jackal_context.h>
 #include <jackal/jackal_eval.h>
 #include <jackal/jackal_symbol_table.h>
 #include <jackal/jackal_optimizer.h>
-#include <jackal/jackal_ir.h>
 
 #endif

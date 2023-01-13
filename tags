@@ -18,24 +18,62 @@ $RB	include/jackal/jackal_error.h	15;"	d
 $Y	include/jackal/jackal_error.h	9;"	d
 $YB	include/jackal/jackal_error.h	17;"	d
 AND	jackal_parser.tab.h	/^    AND = 277,                     \/* "&&"  *\/$/;"	e	enum:yytokentype
-ASSERT	tests/test.h	19;"	d
-ASSERT_EQ	tests/test.h	23;"	d
 ASSIGN	jackal_parser.tab.h	/^    ASSIGN = 263,                  \/* ":="  *\/$/;"	e	enum:yytokentype
+ASTYLE	Makefile	/^ASTYLE=\/home\/kassio\/projects\/astyle\/build\/gcc\/bin\/astyle$/;"	m
 BEGIN	jackal_lexer.yy.c	118;"	d	file:
 CFLAGS	Makefile	/^CFLAGS=-Iinclude -Llib -lm -ljackal -Wl,-rpath=lib$/;"	m
 CFLAGS	lib/Makefile	/^CFLAGS=-I..\/include -L..\/lib -g$/;"	m
 CFLAGS	tests/Makefile	/^CFLAGS=-g -I..\/include -L..\/lib -DVERBOSE -DENABLE_COLOR -Wl,-rpath=..\/lib $/;"	m
 CFLOAT	jackal_parser.tab.h	/^    CFLOAT = 260,                  \/* CFLOAT  *\/$/;"	e	enum:yytokentype
+CHECK_H	include/check.h	23;"	d
+CHECK_MAJOR_VERSION	include/check.h	128;"	d
+CHECK_MICRO_VERSION	include/check.h	130;"	d
+CHECK_MINOR_VERSION	include/check.h	129;"	d
 CINT	jackal_parser.tab.h	/^    CINT = 259,                    \/* CINT  *\/$/;"	e	enum:yytokentype
+CK_ATTRIBUTE_FORMAT	include/check.h	67;"	d
+CK_ATTRIBUTE_NORETURN	include/check.h	74;"	d
+CK_ATTRIBUTE_UNUSED	include/check.h	66;"	d
+CK_CPPEND	include/check.h	40;"	d
+CK_CPPSTART	include/check.h	39;"	d
+CK_CTX_INVALID	include/check.h	/^    CK_CTX_INVALID,             \/**< Default value; should not encounter this *\/$/;"	e	enum:ck_result_ctx
+CK_CTX_SETUP	include/check.h	/^    CK_CTX_SETUP,               \/**< Setup before a test *\/$/;"	e	enum:ck_result_ctx
+CK_CTX_TEARDOWN	include/check.h	/^    CK_CTX_TEARDOWN             \/**< Teardown after a test *\/$/;"	e	enum:ck_result_ctx
+CK_CTX_TEST	include/check.h	/^    CK_CTX_TEST,                \/**< Body of test itself *\/$/;"	e	enum:ck_result_ctx
+CK_DIAGNOSTIC_HELPER1	include/check.h	82;"	d
+CK_DIAGNOSTIC_HELPER2	include/check.h	83;"	d
+CK_DIAGNOSTIC_POP	include/check.h	87;"	d
+CK_DIAGNOSTIC_PUSH_IGNORE	include/check.h	84;"	d
+CK_DIAGNOSTIC_STRINGIFY	include/check.h	81;"	d
+CK_DLL_EXP	include/check.h	123;"	d
+CK_ENV	include/check.h	/^    CK_ENV,                     \/**< Look at environment var CK_VERBOSITY$/;"	e	enum:print_output
+CK_ERROR	include/check.h	/^    CK_ERROR                    \/**< Test failed to complete$/;"	e	enum:test_result
+CK_EXPORT	include/check.h	106;"	d
+CK_FAILURE	include/check.h	/^    CK_FAILURE,                 \/**< Test completed but failed *\/$/;"	e	enum:test_result
+CK_FLOATING_DIG	include/check.h	735;"	d
+CK_FORK	include/check.h	/^    CK_FORK,                    \/**< call fork to run tests *\/$/;"	e	enum:fork_status
+CK_FORK_GETENV	include/check.h	/^    CK_FORK_GETENV,             \/**< look in the environment for CK_FORK *\/$/;"	e	enum:fork_status
+CK_LAST	include/check.h	/^    CK_LAST                     \/**< Not a valid option *\/$/;"	e	enum:print_output
+CK_MAX_ASSERT_MEM_PRINT_SIZE	include/check.h	1610;"	d
+CK_MAX_ASSERT_MEM_PRINT_SIZE	include/check.h	1618;"	d
+CK_MINIMAL	include/check.h	/^    CK_MINIMAL,                 \/**< Only summary output *\/$/;"	e	enum:print_output
+CK_NOFORK	include/check.h	/^    CK_NOFORK                   \/**< don't call fork *\/$/;"	e	enum:fork_status
+CK_NORMAL	include/check.h	/^    CK_NORMAL,                  \/**< All failed tests *\/$/;"	e	enum:print_output
+CK_PASS	include/check.h	/^    CK_PASS,                    \/**< Test passed *\/$/;"	e	enum:test_result
+CK_SILENT	include/check.h	/^    CK_SILENT,                  \/**< No output *\/$/;"	e	enum:print_output
+CK_TEST_RESULT_INVALID	include/check.h	/^    CK_TEST_RESULT_INVALID,     \/**< Default value; should not encounter this *\/$/;"	e	enum:test_result
+CK_VERBOSE	include/check.h	/^    CK_VERBOSE,                 \/**< All tests *\/$/;"	e	enum:print_output
 CMT	jackal_lexer.yy.c	504;"	d	file:
 COMMA	jackal_parser.tab.h	/^    COMMA = 289                    \/* ","  *\/$/;"	e	enum:yytokentype
 CSTRING	jackal_parser.tab.h	/^    CSTRING = 261,                 \/* CSTRING  *\/$/;"	e	enum:yytokentype
 DEBUG	Makefile	/^DEBUG=-fsanitize=address -fsanitize=undefined -g -DVERBOSE -DENABLE_COLOR$/;"	m
 DEBUG	lib/Makefile	/^DEBUG=$/;"	m
+DEFINE_AST_HELPER	tests/compiler.c	/^DEFINE_AST_HELPER(qword, i)$/;"	f
+DEFINE_AST_HELPER	tests/compiler.c	51;"	d	file:
 DIV	jackal_parser.tab.h	/^    DIV = 275,                     \/* "\/"  *\/$/;"	e	enum:yytokentype
 ECHO	jackal_lexer.yy.c	599;"	d	file:
 ELIF	jackal_parser.tab.h	/^    ELIF = 283,                    \/* "elif"  *\/$/;"	e	enum:yytokentype
 ELSE	jackal_parser.tab.h	/^    ELSE = 284,                    \/* "else"  *\/$/;"	e	enum:yytokentype
+END_TEST	include/check.h	462;"	d
 EOB_ACT_CONTINUE_SCAN	jackal_lexer.yy.c	162;"	d	file:
 EOB_ACT_END_OF_FILE	jackal_lexer.yy.c	163;"	d	file:
 EOB_ACT_LAST_MATCH	jackal_lexer.yy.c	164;"	d	file:
@@ -47,6 +85,8 @@ FLEX_BETA	jackal_lexer.yy.c	14;"	d	file:
 FLEX_SCANNER	jackal_lexer.yy.c	9;"	d	file:
 FLOAT	include/jackal_parser.h	/^    FLOAT = 260,                   \/* FLOAT  *\/$/;"	e	enum:yytokentype
 FUNC	jackal_parser.tab.h	/^    FUNC = 285,                    \/* "func"  *\/$/;"	e	enum:yytokentype
+GCC_VERSION_AT_LEAST	include/check.h	53;"	d
+GCC_VERSION_AT_LEAST	include/check.h	93;"	d
 GDB	Makefile	/^GDB=gdb --args$/;"	m
 GT	jackal_parser.tab.h	/^    GT = 268,                      \/* ">"  *\/$/;"	e	enum:yytokentype
 GTE	jackal_parser.tab.h	/^    GTE = 270,                     \/* ">="  *\/$/;"	e	enum:yytokentype
@@ -68,102 +108,113 @@ JACKAL_CONTEXT_H	include/jackal/jackal_context.h	2;"	d
 JACKAL_ERROR_H	include/jackal/jackal_error.h	2;"	d
 JACKAL_EVAL_H	include/jackal/jackal_eval.h	2;"	d
 JACKAL_H	include/jackal.h	2;"	d
+JACKAL_HASHOBJ_H	include/jackal/jackal_hash.h	2;"	d
 JACKAL_IR_H	include/jackal/jackal_ir.h	2;"	d
 JACKAL_OPTIMIZER_H	include/jackal/jackal_optimizer.h	2;"	d
+JACKAL_STACK_H	include/jackal/jackal_stack.h	2;"	d
 JACKAL_STRING_H	include/jackal/jackal_string.h	2;"	d
 JACKAL_SYMBOL_TABLE_H	include/jackal/jackal_symbol_table.h	2;"	d
 JACKAL_TYPES_H	include/jackal/jackal_types.h	2;"	d
 JKL_ARITY	include/jackal/jackal_ir.h	67;"	d
-JKL_CLASS_ABSTRACT	include/jackal/jackal_class.h	/^  JKL_CLASS_ABSTRACT = 0x01,$/;"	e	enum:__anon8
-JKL_CLASS_FINAL	include/jackal/jackal_class.h	/^  JKL_CLASS_FINAL = 0x02,$/;"	e	enum:__anon8
+JKL_CLASS_ABSTRACT	include/jackal/jackal_class.h	/^  JKL_CLASS_ABSTRACT = 0x01,$/;"	e	enum:__anon13
+JKL_CLASS_FINAL	include/jackal/jackal_class.h	/^  JKL_CLASS_FINAL = 0x02,$/;"	e	enum:__anon13
 JKL_CLASS_ID	lib/jackal_class.c	/^static jkl_word_t JKL_CLASS_ID = 0;$/;"	v	file:
-JKL_CLASS_NATIVE	include/jackal/jackal_class.h	/^  JKL_CLASS_NATIVE = 0x04,$/;"	e	enum:__anon8
-JKL_CLASS_STANDARD	include/jackal/jackal_class.h	/^  JKL_CLASS_STANDARD = 0x00,$/;"	e	enum:__anon8
+JKL_CLASS_NATIVE	include/jackal/jackal_class.h	/^  JKL_CLASS_NATIVE = 0x04,$/;"	e	enum:__anon13
+JKL_CLASS_STANDARD	include/jackal/jackal_class.h	/^  JKL_CLASS_STANDARD = 0x00,$/;"	e	enum:__anon13
 JKL_EMIT_IR	include/jackal/jackal_ir.h	61;"	d
 JKL_EMIT_IR_NOPE	include/jackal/jackal_ir.h	64;"	d
-JKL_IR_ADD	include/jackal/jackal_ir.h	/^  JKL_IR_ADD      = 0x00d4,         \/\/ [0x00d4]: 0000 0000 1101 0100$/;"	e	enum:__anon3
-JKL_IR_ALLOC	include/jackal/jackal_ir.h	/^  JKL_IR_ALLOC    = 0x01cb,         \/\/ [0x01cb]: 0000 0001 1100 1011$/;"	e	enum:__anon3
-JKL_IR_AND	include/jackal/jackal_ir.h	/^  JKL_IR_AND      = 0x00df,         \/\/ [0x00df]: 0000 0000 1101 1111$/;"	e	enum:__anon3
+JKL_HASH_SIZE	lib/jackal_hash.c	3;"	d	file:
+JKL_HASH_TYPE_ARRAY	include/jackal/jackal_hash.h	/^  JKL_HASH_TYPE_ARRAY,$/;"	e	enum:__anon3
+JKL_HASH_TYPE_BOOL	include/jackal/jackal_hash.h	/^  JKL_HASH_TYPE_BOOL,$/;"	e	enum:__anon3
+JKL_HASH_TYPE_FLOAT	include/jackal/jackal_hash.h	/^  JKL_HASH_TYPE_FLOAT,$/;"	e	enum:__anon3
+JKL_HASH_TYPE_INT	include/jackal/jackal_hash.h	/^  JKL_HASH_TYPE_INT,$/;"	e	enum:__anon3
+JKL_HASH_TYPE_NIL	include/jackal/jackal_hash.h	/^  JKL_HASH_TYPE_NIL$/;"	e	enum:__anon3
+JKL_HASH_TYPE_NULL	include/jackal/jackal_hash.h	/^  JKL_HASH_TYPE_NULL,$/;"	e	enum:__anon3
+JKL_HASH_TYPE_OBJECT	include/jackal/jackal_hash.h	/^  JKL_HASH_TYPE_OBJECT,$/;"	e	enum:__anon3
+JKL_HASH_TYPE_STRING	include/jackal/jackal_hash.h	/^  JKL_HASH_TYPE_STRING,$/;"	e	enum:__anon3
+JKL_IR_ADD	include/jackal/jackal_ir.h	/^  JKL_IR_ADD      = 0x00d4,         \/\/ [0x00d4]: 0000 0000 1101 0100$/;"	e	enum:__anon6
+JKL_IR_ALLOC	include/jackal/jackal_ir.h	/^  JKL_IR_ALLOC    = 0x01cb,         \/\/ [0x01cb]: 0000 0001 1100 1011$/;"	e	enum:__anon6
+JKL_IR_AND	include/jackal/jackal_ir.h	/^  JKL_IR_AND      = 0x00df,         \/\/ [0x00df]: 0000 0000 1101 1111$/;"	e	enum:__anon6
 JKL_IR_ARG_COUNT	include/jackal/jackal_ir.h	53;"	d
 JKL_IR_ARG_SIZE	include/jackal/jackal_ir.h	52;"	d
-JKL_IR_CALL	include/jackal/jackal_ir.h	/^  JKL_IR_CALL     = 0x01e4,         \/\/ [0x01e4]: 0000 0001 1110 0100$/;"	e	enum:__anon3
+JKL_IR_CALL	include/jackal/jackal_ir.h	/^  JKL_IR_CALL     = 0x01e4,         \/\/ [0x01e4]: 0000 0001 1110 0100$/;"	e	enum:__anon6
 JKL_IR_CODE_ALLOC	include/jackal/jackal_ir.h	80;"	d
 JKL_IR_CODE_FREE	include/jackal/jackal_ir.h	83;"	d
 JKL_IR_CODE_INIT	include/jackal/jackal_ir.h	79;"	d
 JKL_IR_CODE_PUSH	include/jackal/jackal_ir.h	86;"	d
 JKL_IR_CODE_STORE	include/jackal/jackal_ir.h	93;"	d
-JKL_IR_DIV	include/jackal/jackal_ir.h	/^  JKL_IR_DIV      = 0x00d7,         \/\/ [0x00d7]: 0000 0000 1101 0111$/;"	e	enum:__anon3
-JKL_IR_EQL	include/jackal/jackal_ir.h	/^  JKL_IR_EQL      = 0x00d9,         \/\/ [0x00d9]: 0000 0000 1101 1001$/;"	e	enum:__anon3
-JKL_IR_GT	include/jackal/jackal_ir.h	/^  JKL_IR_GT       = 0x00db,         \/\/ [0x00db]: 0000 0000 1101 1011$/;"	e	enum:__anon3
-JKL_IR_GTE	include/jackal/jackal_ir.h	/^  JKL_IR_GTE      = 0x00dc,         \/\/ [0x00dc]: 0000 0000 1101 1100$/;"	e	enum:__anon3
-JKL_IR_HALT	include/jackal/jackal_ir.h	/^  JKL_IR_HALT     = 0x00e6,         \/\/ [0x00e6]: 0000 0000 1110 0110$/;"	e	enum:__anon3
-JKL_IR_JCP	include/jackal/jackal_ir.h	/^  JKL_IR_JCP      = 0x01e3,         \/\/ [0x01e3]: 0000 0001 1110 0011$/;"	e	enum:__anon3
-JKL_IR_JMP	include/jackal/jackal_ir.h	/^  JKL_IR_JMP      = 0x01e2,         \/\/ [0x01e2]: 0000 0001 1110 0010$/;"	e	enum:__anon3
-JKL_IR_LOAD	include/jackal/jackal_ir.h	/^  JKL_IR_LOAD     = 0x01cc,         \/\/ [0x01cc]: 0000 0001 1100 1100$/;"	e	enum:__anon3
-JKL_IR_LT	include/jackal/jackal_ir.h	/^  JKL_IR_LT       = 0x00dd,         \/\/ [0x00dd]: 0000 0000 1101 1101$/;"	e	enum:__anon3
-JKL_IR_LTE	include/jackal/jackal_ir.h	/^  JKL_IR_LTE      = 0x00de,         \/\/ [0x00de]: 0000 0000 1101 1110$/;"	e	enum:__anon3
-JKL_IR_MOD	include/jackal/jackal_ir.h	/^  JKL_IR_MOD      = 0x00d8,         \/\/ [0x00d8]: 0000 0000 1101 1000$/;"	e	enum:__anon3
-JKL_IR_MUL	include/jackal/jackal_ir.h	/^  JKL_IR_MUL      = 0x00d6,         \/\/ [0x00d6]: 0000 0000 1101 0110$/;"	e	enum:__anon3
-JKL_IR_NEQ	include/jackal/jackal_ir.h	/^  JKL_IR_NEQ      = 0x00da,         \/\/ [0x00da]: 0000 0000 1101 1010$/;"	e	enum:__anon3
-JKL_IR_NOPE	include/jackal/jackal_ir.h	/^  JKL_IR_NOPE     = 0x00ca,         \/\/ [0x00ca]: 0000 0000 1100 1010$/;"	e	enum:__anon3
-JKL_IR_NOT	include/jackal/jackal_ir.h	/^  JKL_IR_NOT      = 0x00e1,         \/\/ [0x00e1]: 0000 0000 1110 0001$/;"	e	enum:__anon3
-JKL_IR_OR	include/jackal/jackal_ir.h	/^  JKL_IR_OR       = 0x00e0,         \/\/ [0x00e0]: 0000 0000 1110 0000$/;"	e	enum:__anon3
-JKL_IR_POPF	include/jackal/jackal_ir.h	/^  JKL_IR_POPF     = 0x01d2,         \/\/ [0x01d2]: 0000 0001 1101 0010$/;"	e	enum:__anon3
-JKL_IR_POPI	include/jackal/jackal_ir.h	/^  JKL_IR_POPI     = 0x01d1,         \/\/ [0x01d1]: 0000 0001 1101 0001$/;"	e	enum:__anon3
-JKL_IR_POPS	include/jackal/jackal_ir.h	/^  JKL_IR_POPS     = 0x01d3,         \/\/ [0x01d3]: 0000 0001 1101 0011$/;"	e	enum:__anon3
-JKL_IR_PUSHF	include/jackal/jackal_ir.h	/^  JKL_IR_PUSHF    = 0x01cf,         \/\/ [0x01cf]: 0000 0001 1100 1111$/;"	e	enum:__anon3
-JKL_IR_PUSHI	include/jackal/jackal_ir.h	/^  JKL_IR_PUSHI    = 0x01ce,         \/\/ [0x01ce]: 0000 0001 1100 1110$/;"	e	enum:__anon3
-JKL_IR_PUSHS	include/jackal/jackal_ir.h	/^  JKL_IR_PUSHS    = 0x01d0,$/;"	e	enum:__anon3
-JKL_IR_RET	include/jackal/jackal_ir.h	/^  JKL_IR_RET      = 0x00e5,         \/\/ [0x00e5]: 0000 0000 1110 0101$/;"	e	enum:__anon3
+JKL_IR_DIV	include/jackal/jackal_ir.h	/^  JKL_IR_DIV      = 0x00d7,         \/\/ [0x00d7]: 0000 0000 1101 0111$/;"	e	enum:__anon6
+JKL_IR_EQL	include/jackal/jackal_ir.h	/^  JKL_IR_EQL      = 0x00d9,         \/\/ [0x00d9]: 0000 0000 1101 1001$/;"	e	enum:__anon6
+JKL_IR_GT	include/jackal/jackal_ir.h	/^  JKL_IR_GT       = 0x00db,         \/\/ [0x00db]: 0000 0000 1101 1011$/;"	e	enum:__anon6
+JKL_IR_GTE	include/jackal/jackal_ir.h	/^  JKL_IR_GTE      = 0x00dc,         \/\/ [0x00dc]: 0000 0000 1101 1100$/;"	e	enum:__anon6
+JKL_IR_HALT	include/jackal/jackal_ir.h	/^  JKL_IR_HALT     = 0x00e6,         \/\/ [0x00e6]: 0000 0000 1110 0110$/;"	e	enum:__anon6
+JKL_IR_JCP	include/jackal/jackal_ir.h	/^  JKL_IR_JCP      = 0x01e3,         \/\/ [0x01e3]: 0000 0001 1110 0011$/;"	e	enum:__anon6
+JKL_IR_JMP	include/jackal/jackal_ir.h	/^  JKL_IR_JMP      = 0x01e2,         \/\/ [0x01e2]: 0000 0001 1110 0010$/;"	e	enum:__anon6
+JKL_IR_LOAD	include/jackal/jackal_ir.h	/^  JKL_IR_LOAD     = 0x01cc,         \/\/ [0x01cc]: 0000 0001 1100 1100$/;"	e	enum:__anon6
+JKL_IR_LT	include/jackal/jackal_ir.h	/^  JKL_IR_LT       = 0x00dd,         \/\/ [0x00dd]: 0000 0000 1101 1101$/;"	e	enum:__anon6
+JKL_IR_LTE	include/jackal/jackal_ir.h	/^  JKL_IR_LTE      = 0x00de,         \/\/ [0x00de]: 0000 0000 1101 1110$/;"	e	enum:__anon6
+JKL_IR_MOD	include/jackal/jackal_ir.h	/^  JKL_IR_MOD      = 0x00d8,         \/\/ [0x00d8]: 0000 0000 1101 1000$/;"	e	enum:__anon6
+JKL_IR_MUL	include/jackal/jackal_ir.h	/^  JKL_IR_MUL      = 0x00d6,         \/\/ [0x00d6]: 0000 0000 1101 0110$/;"	e	enum:__anon6
+JKL_IR_NEQ	include/jackal/jackal_ir.h	/^  JKL_IR_NEQ      = 0x00da,         \/\/ [0x00da]: 0000 0000 1101 1010$/;"	e	enum:__anon6
+JKL_IR_NOPE	include/jackal/jackal_ir.h	/^  JKL_IR_NOPE     = 0x00ca,         \/\/ [0x00ca]: 0000 0000 1100 1010$/;"	e	enum:__anon6
+JKL_IR_NOT	include/jackal/jackal_ir.h	/^  JKL_IR_NOT      = 0x00e1,         \/\/ [0x00e1]: 0000 0000 1110 0001$/;"	e	enum:__anon6
+JKL_IR_OR	include/jackal/jackal_ir.h	/^  JKL_IR_OR       = 0x00e0,         \/\/ [0x00e0]: 0000 0000 1110 0000$/;"	e	enum:__anon6
+JKL_IR_POPF	include/jackal/jackal_ir.h	/^  JKL_IR_POPF     = 0x01d2,         \/\/ [0x01d2]: 0000 0001 1101 0010$/;"	e	enum:__anon6
+JKL_IR_POPI	include/jackal/jackal_ir.h	/^  JKL_IR_POPI     = 0x01d1,         \/\/ [0x01d1]: 0000 0001 1101 0001$/;"	e	enum:__anon6
+JKL_IR_POPS	include/jackal/jackal_ir.h	/^  JKL_IR_POPS     = 0x01d3,         \/\/ [0x01d3]: 0000 0001 1101 0011$/;"	e	enum:__anon6
+JKL_IR_PUSHF	include/jackal/jackal_ir.h	/^  JKL_IR_PUSHF    = 0x01cf,         \/\/ [0x01cf]: 0000 0001 1100 1111$/;"	e	enum:__anon6
+JKL_IR_PUSHI	include/jackal/jackal_ir.h	/^  JKL_IR_PUSHI    = 0x01ce,         \/\/ [0x01ce]: 0000 0001 1100 1110$/;"	e	enum:__anon6
+JKL_IR_PUSHS	include/jackal/jackal_ir.h	/^  JKL_IR_PUSHS    = 0x01d0,$/;"	e	enum:__anon6
+JKL_IR_RET	include/jackal/jackal_ir.h	/^  JKL_IR_RET      = 0x00e5,         \/\/ [0x00e5]: 0000 0000 1110 0101$/;"	e	enum:__anon6
 JKL_IR_SIZE	include/jackal/jackal_ir.h	60;"	d
-JKL_IR_STORE	include/jackal/jackal_ir.h	/^  JKL_IR_STORE    = 0x01cd,         \/\/ [0x01cd]: 0000 0001 1100 1101$/;"	e	enum:__anon3
-JKL_IR_SUB	include/jackal/jackal_ir.h	/^  JKL_IR_SUB      = 0x00d5,         \/\/ [0x00d5]: 0000 0000 1101 0101$/;"	e	enum:__anon3
+JKL_IR_STORE	include/jackal/jackal_ir.h	/^  JKL_IR_STORE    = 0x01cd,         \/\/ [0x01cd]: 0000 0001 1100 1101$/;"	e	enum:__anon6
+JKL_IR_SUB	include/jackal/jackal_ir.h	/^  JKL_IR_SUB      = 0x00d5,         \/\/ [0x00d5]: 0000 0000 1101 0101$/;"	e	enum:__anon6
 JKL_IR_TYPE_SIZE	include/jackal/jackal_ir.h	51;"	d
 JKL_IS_ARITY	include/jackal/jackal_ir.h	68;"	d
 JKL_IS_ARITY_0	include/jackal/jackal_ir.h	69;"	d
 JKL_IS_ARITY_1	include/jackal/jackal_ir.h	70;"	d
 JKL_IS_ARITY_2	include/jackal/jackal_ir.h	71;"	d
-JKL_METHOD_INSTANCE	include/jackal/jackal_class.h	/^  JKL_METHOD_INSTANCE,$/;"	e	enum:__anon6
-JKL_METHOD_INSTANCE_OVERRIDE	include/jackal/jackal_class.h	/^  JKL_METHOD_INSTANCE_OVERRIDE,$/;"	e	enum:__anon6
-JKL_METHOD_STATIC	include/jackal/jackal_class.h	/^  JKL_METHOD_STATIC,$/;"	e	enum:__anon6
-JKL_METHOD_STATIC_OVERRIDE	include/jackal/jackal_class.h	/^  JKL_METHOD_STATIC_OVERRIDE,$/;"	e	enum:__anon6
-JKL_NODE_ASSIGNMENT	include/jackal/jackal_types.h	/^  JKL_NODE_ASSIGNMENT,$/;"	e	enum:__anon9
-JKL_NODE_BINOP	include/jackal/jackal_types.h	/^  JKL_NODE_BINOP,$/;"	e	enum:__anon9
-JKL_NODE_BLOCK	include/jackal/jackal_types.h	/^  JKL_NODE_BLOCK,$/;"	e	enum:__anon9
-JKL_NODE_CALL	include/jackal/jackal_types.h	/^  JKL_NODE_CALL,$/;"	e	enum:__anon9
-JKL_NODE_FLOAT	include/jackal/jackal_types.h	/^  JKL_NODE_FLOAT,$/;"	e	enum:__anon9
-JKL_NODE_FUNC	include/jackal/jackal_types.h	/^  JKL_NODE_FUNC,$/;"	e	enum:__anon9
-JKL_NODE_ID	include/jackal/jackal_types.h	/^  JKL_NODE_ID,$/;"	e	enum:__anon9
-JKL_NODE_IF	include/jackal/jackal_types.h	/^  JKL_NODE_IF,$/;"	e	enum:__anon9
-JKL_NODE_INT	include/jackal/jackal_types.h	/^  JKL_NODE_INT,$/;"	e	enum:__anon9
-JKL_NODE_LET	include/jackal/jackal_types.h	/^  JKL_NODE_LET,$/;"	e	enum:__anon9
-JKL_NODE_LOOP	include/jackal/jackal_types.h	/^  JKL_NODE_LOOP,$/;"	e	enum:__anon9
-JKL_NODE_NONE	include/jackal/jackal_types.h	/^  JKL_NODE_NONE,$/;"	e	enum:__anon9
-JKL_NODE_PARAM	include/jackal/jackal_types.h	/^  JKL_NODE_PARAM,$/;"	e	enum:__anon9
-JKL_NODE_PARAMS	include/jackal/jackal_types.h	/^  JKL_NODE_PARAMS,$/;"	e	enum:__anon9
-JKL_NODE_RAISE	include/jackal/jackal_types.h	/^  JKL_NODE_RAISE,$/;"	e	enum:__anon9
-JKL_NODE_RETURN	include/jackal/jackal_types.h	/^  JKL_NODE_RETURN,$/;"	e	enum:__anon9
-JKL_NODE_STRING	include/jackal/jackal_types.h	/^  JKL_NODE_STRING,$/;"	e	enum:__anon9
-JKL_OP_AND	include/jackal/jackal_types.h	/^  JKL_OP_AND,$/;"	e	enum:__anon10
-JKL_OP_DIV	include/jackal/jackal_types.h	/^  JKL_OP_DIV,$/;"	e	enum:__anon10
-JKL_OP_EQL	include/jackal/jackal_types.h	/^  JKL_OP_EQL,$/;"	e	enum:__anon10
-JKL_OP_GT	include/jackal/jackal_types.h	/^  JKL_OP_GT,$/;"	e	enum:__anon10
-JKL_OP_GTE	include/jackal/jackal_types.h	/^  JKL_OP_GTE,$/;"	e	enum:__anon10
-JKL_OP_LT	include/jackal/jackal_types.h	/^  JKL_OP_LT,$/;"	e	enum:__anon10
-JKL_OP_LTE	include/jackal/jackal_types.h	/^  JKL_OP_LTE,$/;"	e	enum:__anon10
-JKL_OP_MINUS	include/jackal/jackal_types.h	/^  JKL_OP_MINUS,$/;"	e	enum:__anon10
-JKL_OP_MOD	include/jackal/jackal_types.h	/^  JKL_OP_MOD,$/;"	e	enum:__anon10
-JKL_OP_MUL	include/jackal/jackal_types.h	/^  JKL_OP_MUL,$/;"	e	enum:__anon10
-JKL_OP_NEQ	include/jackal/jackal_types.h	/^  JKL_OP_NEQ,$/;"	e	enum:__anon10
-JKL_OP_NONE	include/jackal/jackal_types.h	/^  JKL_OP_NONE = 0,$/;"	e	enum:__anon10
-JKL_OP_NOT	include/jackal/jackal_types.h	/^  JKL_OP_NOT,$/;"	e	enum:__anon10
-JKL_OP_OR	include/jackal/jackal_types.h	/^  JKL_OP_OR,$/;"	e	enum:__anon10
-JKL_OP_PLUS	include/jackal/jackal_types.h	/^  JKL_OP_PLUS,$/;"	e	enum:__anon10
-JKL_SYMBOL_CLASS	include/jackal/jackal_symbol_table.h	/^  JKL_SYMBOL_CLASS,$/;"	e	enum:__anon15
-JKL_SYMBOL_CLASS_METHOD	include/jackal/jackal_symbol_table.h	/^  JKL_SYMBOL_CLASS_METHOD,$/;"	e	enum:__anon15
-JKL_SYMBOL_FUNCTION	include/jackal/jackal_symbol_table.h	/^  JKL_SYMBOL_FUNCTION,$/;"	e	enum:__anon15
-JKL_SYMBOL_LET	include/jackal/jackal_symbol_table.h	/^  JKL_SYMBOL_LET,$/;"	e	enum:__anon15
-JKL_SYMBOL_NONE	include/jackal/jackal_symbol_table.h	/^  JKL_SYMBOL_NONE,$/;"	e	enum:__anon15
+JKL_METHOD_INSTANCE	include/jackal/jackal_class.h	/^  JKL_METHOD_INSTANCE,$/;"	e	enum:__anon11
+JKL_METHOD_INSTANCE_OVERRIDE	include/jackal/jackal_class.h	/^  JKL_METHOD_INSTANCE_OVERRIDE,$/;"	e	enum:__anon11
+JKL_METHOD_STATIC	include/jackal/jackal_class.h	/^  JKL_METHOD_STATIC,$/;"	e	enum:__anon11
+JKL_METHOD_STATIC_OVERRIDE	include/jackal/jackal_class.h	/^  JKL_METHOD_STATIC_OVERRIDE,$/;"	e	enum:__anon11
+JKL_NODE_ASSIGNMENT	include/jackal/jackal_types.h	/^  JKL_NODE_ASSIGNMENT,$/;"	e	enum:__anon15
+JKL_NODE_BINOP	include/jackal/jackal_types.h	/^  JKL_NODE_BINOP,$/;"	e	enum:__anon15
+JKL_NODE_BLOCK	include/jackal/jackal_types.h	/^  JKL_NODE_BLOCK,$/;"	e	enum:__anon15
+JKL_NODE_CALL	include/jackal/jackal_types.h	/^  JKL_NODE_CALL,$/;"	e	enum:__anon15
+JKL_NODE_FLOAT	include/jackal/jackal_types.h	/^  JKL_NODE_FLOAT,$/;"	e	enum:__anon15
+JKL_NODE_FUNC	include/jackal/jackal_types.h	/^  JKL_NODE_FUNC,$/;"	e	enum:__anon15
+JKL_NODE_ID	include/jackal/jackal_types.h	/^  JKL_NODE_ID,$/;"	e	enum:__anon15
+JKL_NODE_IF	include/jackal/jackal_types.h	/^  JKL_NODE_IF,$/;"	e	enum:__anon15
+JKL_NODE_INT	include/jackal/jackal_types.h	/^  JKL_NODE_INT,$/;"	e	enum:__anon15
+JKL_NODE_LET	include/jackal/jackal_types.h	/^  JKL_NODE_LET,$/;"	e	enum:__anon15
+JKL_NODE_LOOP	include/jackal/jackal_types.h	/^  JKL_NODE_LOOP,$/;"	e	enum:__anon15
+JKL_NODE_NONE	include/jackal/jackal_types.h	/^  JKL_NODE_NONE,$/;"	e	enum:__anon15
+JKL_NODE_PARAM	include/jackal/jackal_types.h	/^  JKL_NODE_PARAM,$/;"	e	enum:__anon15
+JKL_NODE_PARAMS	include/jackal/jackal_types.h	/^  JKL_NODE_PARAMS,$/;"	e	enum:__anon15
+JKL_NODE_RAISE	include/jackal/jackal_types.h	/^  JKL_NODE_RAISE,$/;"	e	enum:__anon15
+JKL_NODE_RETURN	include/jackal/jackal_types.h	/^  JKL_NODE_RETURN,$/;"	e	enum:__anon15
+JKL_NODE_STRING	include/jackal/jackal_types.h	/^  JKL_NODE_STRING,$/;"	e	enum:__anon15
+JKL_OP_AND	include/jackal/jackal_types.h	/^  JKL_OP_AND,$/;"	e	enum:__anon16
+JKL_OP_DIV	include/jackal/jackal_types.h	/^  JKL_OP_DIV,$/;"	e	enum:__anon16
+JKL_OP_EQL	include/jackal/jackal_types.h	/^  JKL_OP_EQL,$/;"	e	enum:__anon16
+JKL_OP_GT	include/jackal/jackal_types.h	/^  JKL_OP_GT,$/;"	e	enum:__anon16
+JKL_OP_GTE	include/jackal/jackal_types.h	/^  JKL_OP_GTE,$/;"	e	enum:__anon16
+JKL_OP_LT	include/jackal/jackal_types.h	/^  JKL_OP_LT,$/;"	e	enum:__anon16
+JKL_OP_LTE	include/jackal/jackal_types.h	/^  JKL_OP_LTE,$/;"	e	enum:__anon16
+JKL_OP_MINUS	include/jackal/jackal_types.h	/^  JKL_OP_MINUS,$/;"	e	enum:__anon16
+JKL_OP_MOD	include/jackal/jackal_types.h	/^  JKL_OP_MOD,$/;"	e	enum:__anon16
+JKL_OP_MUL	include/jackal/jackal_types.h	/^  JKL_OP_MUL,$/;"	e	enum:__anon16
+JKL_OP_NEQ	include/jackal/jackal_types.h	/^  JKL_OP_NEQ,$/;"	e	enum:__anon16
+JKL_OP_NONE	include/jackal/jackal_types.h	/^  JKL_OP_NONE = 0,$/;"	e	enum:__anon16
+JKL_OP_NOT	include/jackal/jackal_types.h	/^  JKL_OP_NOT,$/;"	e	enum:__anon16
+JKL_OP_OR	include/jackal/jackal_types.h	/^  JKL_OP_OR,$/;"	e	enum:__anon16
+JKL_OP_PLUS	include/jackal/jackal_types.h	/^  JKL_OP_PLUS,$/;"	e	enum:__anon16
+JKL_SYMBOL_CLASS	include/jackal/jackal_symbol_table.h	/^  JKL_SYMBOL_CLASS,$/;"	e	enum:__anon21
+JKL_SYMBOL_CLASS_METHOD	include/jackal/jackal_symbol_table.h	/^  JKL_SYMBOL_CLASS_METHOD,$/;"	e	enum:__anon21
+JKL_SYMBOL_FUNCTION	include/jackal/jackal_symbol_table.h	/^  JKL_SYMBOL_FUNCTION,$/;"	e	enum:__anon21
+JKL_SYMBOL_LET	include/jackal/jackal_symbol_table.h	/^  JKL_SYMBOL_LET,$/;"	e	enum:__anon21
+JKL_SYMBOL_NONE	include/jackal/jackal_symbol_table.h	/^  JKL_SYMBOL_NONE,$/;"	e	enum:__anon21
 JKL_SYMBOL_TABLE_SIZE	include/jackal/jackal_symbol_table.h	6;"	d
 JKL_TBL_CLASS	lib/jackal_class.c	/^static jkl_class_t **JKL_TBL_CLASS = NULL;$/;"	v	file:
 LBRACE	jackal_parser.tab.h	/^    LBRACE = 264,                  \/* "{"  *\/$/;"	e	enum:yytokentype
@@ -172,16 +223,29 @@ LOOP	jackal_parser.tab.h	/^    LOOP = 280,                    \/* "loop"  *\/$/;
 LPAREN	jackal_parser.tab.h	/^    LPAREN = 287,                  \/* "("  *\/$/;"	e	enum:yytokentype
 LT	jackal_parser.tab.h	/^    LT = 269,                      \/* "<"  *\/$/;"	e	enum:yytokentype
 LTE	jackal_parser.tab.h	/^    LTE = 271,                     \/* "<="  *\/$/;"	e	enum:yytokentype
+MAX_HASH_VALUE	include/jackal/jackal_keywords.h	/^  MAX_HASH_VALUE = 11$/;"	e	enum:__anon14
 MAX_NESTED_BLOCKS	lib/jackal_context.c	3;"	d	file:
+MAX_WORD_LENGTH	include/jackal/jackal_keywords.h	/^  MAX_WORD_LENGTH = 4,$/;"	e	enum:__anon14
 MINUS	jackal_parser.tab.h	/^    MINUS = 273,                   \/* "-"  *\/$/;"	e	enum:yytokentype
+MIN_HASH_VALUE	include/jackal/jackal_keywords.h	/^  MIN_HASH_VALUE = 4,$/;"	e	enum:__anon14
 MIN_IR_CODE_SIZE	lib/jackal_ir.c	4;"	d	file:
+MIN_WORD_LENGTH	include/jackal/jackal_keywords.h	/^  MIN_WORD_LENGTH = 2,$/;"	e	enum:__anon14
 MOD	jackal_parser.tab.h	/^    MOD = 276,                     \/* "%"  *\/$/;"	e	enum:yytokentype
+MONEY_H	share/doc/check/example/src/money.1.h	22;"	d
+MONEY_H	share/doc/check/example/src/money.2.h	22;"	d
+MONEY_H	share/doc/check/example/src/money.h	22;"	d
 MUL	jackal_parser.tab.h	/^    MUL = 274,                     \/* "*"  *\/$/;"	e	enum:yytokentype
+Money	share/doc/check/example/src/money.2.h	/^typedef struct Money Money;$/;"	t	typeref:struct:Money
+Money	share/doc/check/example/src/money.4.c	/^struct Money$/;"	s	file:
+Money	share/doc/check/example/src/money.5.c	/^struct Money$/;"	s	file:
+Money	share/doc/check/example/src/money.6.c	/^struct Money$/;"	s	file:
+Money	share/doc/check/example/src/money.c	/^struct Money$/;"	s	file:
+Money	share/doc/check/example/src/money.h	/^typedef struct Money Money;$/;"	t	typeref:struct:Money
 NEQ	jackal_parser.tab.h	/^    NEQ = 267,                     \/* "!="  *\/$/;"	e	enum:yytokentype
 NOT	jackal_parser.tab.h	/^    NOT = 279,                     \/* "!"  *\/$/;"	e	enum:yytokentype
+NULL	include/check.h	137;"	d
 OBJS	Makefile	/^OBJS=$(SRCS:.c=.o)$/;"	m
 OBJS	lib/Makefile	/^OBJS=$(SRCS:.c=.o)$/;"	m
-OBJS	tests/Makefile	/^OBJS=$(SRCS:.c=.o)$/;"	m
 OR	jackal_parser.tab.h	/^    OR = 278,                      \/* "||"  *\/$/;"	e	enum:yytokentype
 PLUS	jackal_parser.tab.h	/^    PLUS = 272,                    \/* "+"  *\/$/;"	e	enum:yytokentype
 RAISE	jackal_parser.tab.h	/^    RAISE = 281,                   \/* "raise"  *\/$/;"	e	enum:yytokentype
@@ -189,20 +253,44 @@ RBRACE	jackal_parser.tab.h	/^    RBRACE = 265,                  \/* "}"  *\/$/;"
 REJECT	jackal_lexer.yy.c	489;"	d	file:
 RETURN	jackal_parser.tab.h	/^    RETURN = 286,                  \/* "return"  *\/$/;"	e	enum:yytokentype
 RPAREN	jackal_parser.tab.h	/^    RPAREN = 288,                  \/* ")"  *\/$/;"	e	enum:yytokentype
-RUN_TEST	tests/test.h	13;"	d
+SFun	include/check.h	/^typedef void (*SFun) (void);$/;"	t
 SHARED_LIB	lib/Makefile	/^SHARED_LIB=libjackal.so$/;"	m
 SIZE_MAX	jackal_lexer.yy.c	88;"	d	file:
 SRCS	Makefile	/^SRCS=$(wildcard *.c)$/;"	m
 SRCS	lib/Makefile	/^SRCS=$(wildcard *.c)$/;"	m
-SRCS	tests/Makefile	/^SRCS=main.c$/;"	m
+SRunner	include/check.h	/^typedef struct SRunner SRunner;$/;"	t	typeref:struct:SRunner
+STACK_IT_CHAR	include/jackal/jackal_stack.h	/^    STACK_IT_CHAR,$/;"	e	enum:__anon9::__anon10
+STACK_IT_FLOAT	include/jackal/jackal_stack.h	/^    STACK_IT_FLOAT,$/;"	e	enum:__anon9::__anon10
+STACK_IT_INT	include/jackal/jackal_stack.h	/^    STACK_IT_INT,$/;"	e	enum:__anon9::__anon10
+STACK_IT_STRING	include/jackal/jackal_stack.h	/^    STACK_IT_STRING,$/;"	e	enum:__anon9::__anon10
+START_TEST	include/check.h	451;"	d
+START_TEST	share/doc/check/example/tests/check_money.2.c	/^START_TEST(test_money_create)$/;"	f
+START_TEST	share/doc/check/example/tests/check_money.3.c	/^START_TEST(test_money_create)$/;"	f
+START_TEST	share/doc/check/example/tests/check_money.6.c	/^START_TEST(test_money_create)$/;"	f
+START_TEST	share/doc/check/example/tests/check_money.6.c	/^START_TEST(test_money_create_neg)$/;"	f
+START_TEST	share/doc/check/example/tests/check_money.6.c	/^START_TEST(test_money_create_zero)$/;"	f
+START_TEST	share/doc/check/example/tests/check_money.7.c	/^START_TEST(test_money_create)$/;"	f
+START_TEST	share/doc/check/example/tests/check_money.7.c	/^START_TEST(test_money_create_neg)$/;"	f
+START_TEST	share/doc/check/example/tests/check_money.7.c	/^START_TEST(test_money_create_zero)$/;"	f
+START_TEST	share/doc/check/example/tests/check_money.c	/^START_TEST(test_money_create)$/;"	f
+START_TEST	share/doc/check/example/tests/check_money.c	/^START_TEST(test_money_create_neg)$/;"	f
+START_TEST	share/doc/check/example/tests/check_money.c	/^START_TEST(test_money_create_zero)$/;"	f
+START_TEST	tests/compiler.c	/^START_TEST(test_jkl_compile)$/;"	f
+START_TEST	tests/compiler.c	/^START_TEST(test_jkl_compile_check_ir)$/;"	f
+START_TEST	tests/compiler.c	/^START_TEST(test_jkl_program_new)$/;"	f
 STATIC_LIB	lib/Makefile	/^STATIC_LIB=libjackal.a$/;"	m
 STR	jackal_lexer.yy.c	503;"	d	file:
 STRING	include/jackal_parser.h	/^    STRING = 261                   \/* STRING  *\/$/;"	e	enum:yytokentype
-TABULATE	lib/jackal_ast.c	38;"	d	file:
+Suite	include/check.h	/^typedef struct Suite Suite;$/;"	t	typeref:struct:Suite
+TABULATE	lib/jackal_ast.c	40;"	d	file:
 TARGET	Makefile	/^TARGET=bin\/jackal$/;"	m
-TARGET	tests/Makefile	/^TARGET=test$/;"	m
-TEST	tests/test.h	6;"	d
-TEST_H	tests/test.h	2;"	d
+TARGET	tests/Makefile	/^TARGET=..\/bin\/jackaltest$/;"	m
+TCase	include/check.h	/^typedef struct TCase TCase;$/;"	t	typeref:struct:TCase
+TFun	include/check.h	/^typedef void (*TFun) (int);$/;"	t
+TOTAL_KEYWORDS	include/jackal/jackal_keywords.h	/^  TOTAL_KEYWORDS = 7,$/;"	e	enum:__anon14
+TTest	include/check.h	/^typedef struct TTest {$/;"	s
+TTest	include/check.h	/^} TTest;$/;"	t	typeref:struct:TTest
+TestResult	include/check.h	/^typedef struct TestResult TestResult;$/;"	t	typeref:struct:TestResult
 UINT16_MAX	jackal_lexer.yy.c	81;"	d	file:
 UINT32_MAX	jackal_lexer.yy.c	84;"	d	file:
 UINT8_MAX	jackal_lexer.yy.c	78;"	d	file:
@@ -210,8 +298,8 @@ UINT_LEAST16_MAX	jackal_parser.tab.c	218;"	d	file:
 UINT_LEAST16_MAX	jackal_parser.tab.c	220;"	d	file:
 UINT_LEAST8_MAX	jackal_parser.tab.c	217;"	d	file:
 UINT_LEAST8_MAX	jackal_parser.tab.c	219;"	d	file:
+USE_EVAL	jackal_parser.tab.c	81;"	d	file:
 USE_EVAL	jackal_parser.tab.c	82;"	d	file:
-USE_EVAL	jackal_parser.tab.c	83;"	d	file:
 YYABORT	jackal_parser.tab.c	729;"	d	file:
 YYACCEPT	jackal_parser.tab.c	728;"	d	file:
 YYBACKUP	jackal_parser.tab.c	736;"	d	file:
@@ -284,7 +372,8 @@ YYSTYPE_IS_TRIVIAL	include/jackal_parser.h	68;"	d
 YYSTYPE_IS_TRIVIAL	jackal_parser.tab.h	110;"	d
 YYSYMBOL_44_1	jackal_parser.tab.c	/^  YYSYMBOL_44_1 = 44,                      \/* $@1  *\/$/;"	e	enum:yysymbol_kind_t	file:
 YYSYMBOL_46_2	jackal_parser.tab.c	/^  YYSYMBOL_46_2 = 46,                      \/* $@2  *\/$/;"	e	enum:yysymbol_kind_t	file:
-YYSYMBOL_51_3	jackal_parser.tab.c	/^  YYSYMBOL_51_3 = 51,                      \/* $@3  *\/$/;"	e	enum:yysymbol_kind_t	file:
+YYSYMBOL_50_3	jackal_parser.tab.c	/^  YYSYMBOL_50_3 = 50,                      \/* $@3  *\/$/;"	e	enum:yysymbol_kind_t	file:
+YYSYMBOL_52_4	jackal_parser.tab.c	/^  YYSYMBOL_52_4 = 52,                      \/* $@4  *\/$/;"	e	enum:yysymbol_kind_t	file:
 YYSYMBOL_AND	jackal_parser.tab.c	/^  YYSYMBOL_AND = 22,                       \/* "&&"  *\/$/;"	e	enum:yysymbol_kind_t	file:
 YYSYMBOL_ASSIGN	jackal_parser.tab.c	/^  YYSYMBOL_ASSIGN = 8,                     \/* ":="  *\/$/;"	e	enum:yysymbol_kind_t	file:
 YYSYMBOL_CFLOAT	jackal_parser.tab.c	/^  YYSYMBOL_CFLOAT = 5,                     \/* CFLOAT  *\/$/;"	e	enum:yysymbol_kind_t	file:
@@ -326,13 +415,13 @@ YYSYMBOL_block_stmts	jackal_parser.tab.c	/^  YYSYMBOL_block_stmts = 47,         
 YYSYMBOL_call	jackal_parser.tab.c	/^  YYSYMBOL_call = 48,                      \/* call  *\/$/;"	e	enum:yysymbol_kind_t	file:
 YYSYMBOL_expr	jackal_parser.tab.c	/^  YYSYMBOL_expr = 39,                      \/* expr  *\/$/;"	e	enum:yysymbol_kind_t	file:
 YYSYMBOL_func	jackal_parser.tab.c	/^  YYSYMBOL_func = 49,                      \/* func  *\/$/;"	e	enum:yysymbol_kind_t	file:
-YYSYMBOL_func_params	jackal_parser.tab.c	/^  YYSYMBOL_func_params = 50,               \/* func_params  *\/$/;"	e	enum:yysymbol_kind_t	file:
+YYSYMBOL_func_params	jackal_parser.tab.c	/^  YYSYMBOL_func_params = 51,               \/* func_params  *\/$/;"	e	enum:yysymbol_kind_t	file:
 YYSYMBOL_ident	jackal_parser.tab.c	/^  YYSYMBOL_ident = 42,                     \/* ident  *\/$/;"	e	enum:yysymbol_kind_t	file:
 YYSYMBOL_if_stm	jackal_parser.tab.c	/^  YYSYMBOL_if_stm = 45,                    \/* if_stm  *\/$/;"	e	enum:yysymbol_kind_t	file:
 YYSYMBOL_loop	jackal_parser.tab.c	/^  YYSYMBOL_loop = 43,                      \/* loop  *\/$/;"	e	enum:yysymbol_kind_t	file:
 YYSYMBOL_op	jackal_parser.tab.c	/^  YYSYMBOL_op = 40,                        \/* op  *\/$/;"	e	enum:yysymbol_kind_t	file:
-YYSYMBOL_param	jackal_parser.tab.c	/^  YYSYMBOL_param = 53                      \/* param  *\/$/;"	e	enum:yysymbol_kind_t	file:
-YYSYMBOL_params	jackal_parser.tab.c	/^  YYSYMBOL_params = 52,                    \/* params  *\/$/;"	e	enum:yysymbol_kind_t	file:
+YYSYMBOL_param	jackal_parser.tab.c	/^  YYSYMBOL_param = 54                      \/* param  *\/$/;"	e	enum:yysymbol_kind_t	file:
+YYSYMBOL_params	jackal_parser.tab.c	/^  YYSYMBOL_params = 53,                    \/* params  *\/$/;"	e	enum:yysymbol_kind_t	file:
 YYSYMBOL_program	jackal_parser.tab.c	/^  YYSYMBOL_program = 36,                   \/* program  *\/$/;"	e	enum:yysymbol_kind_t	file:
 YYSYMBOL_statement	jackal_parser.tab.c	/^  YYSYMBOL_statement = 38,                 \/* statement  *\/$/;"	e	enum:yysymbol_kind_t	file:
 YYSYMBOL_statements	jackal_parser.tab.c	/^  YYSYMBOL_statements = 37,                \/* statements  *\/$/;"	e	enum:yysymbol_kind_t	file:
@@ -360,8 +449,8 @@ YY_BUFFER_NORMAL	jackal_lexer.yy.c	233;"	d	file:
 YY_BUFFER_STATE	jackal_lexer.yy.c	/^typedef struct yy_buffer_state *YY_BUFFER_STATE;$/;"	t	typeref:struct:yy_buffer_state	file:
 YY_BUF_SIZE	jackal_lexer.yy.c	138;"	d	file:
 YY_BUF_SIZE	jackal_lexer.yy.c	140;"	d	file:
-YY_CAST	jackal_parser.tab.c	90;"	d	file:
-YY_CAST	jackal_parser.tab.c	93;"	d	file:
+YY_CAST	jackal_parser.tab.c	89;"	d	file:
+YY_CAST	jackal_parser.tab.c	92;"	d	file:
 YY_CHAR	jackal_lexer.yy.c	/^typedef flex_uint8_t YY_CHAR;$/;"	t	file:
 YY_CURRENT_BUFFER	jackal_lexer.yy.c	260;"	d	file:
 YY_CURRENT_BUFFER_LVALUE	jackal_lexer.yy.c	266;"	d	file:
@@ -395,16 +484,16 @@ YY_LINENO_REWIND_TO	jackal_lexer.yy.c	167;"	d	file:
 YY_MORE_ADJ	jackal_lexer.yy.c	491;"	d	file:
 YY_NEW_FILE	jackal_lexer.yy.c	128;"	d	file:
 YY_NULL	jackal_lexer.yy.c	107;"	d	file:
-YY_NULLPTR	jackal_parser.tab.c	100;"	d	file:
-YY_NULLPTR	jackal_parser.tab.c	102;"	d	file:
-YY_NULLPTR	jackal_parser.tab.c	105;"	d	file:
+YY_NULLPTR	jackal_parser.tab.c	101;"	d	file:
+YY_NULLPTR	jackal_parser.tab.c	104;"	d	file:
+YY_NULLPTR	jackal_parser.tab.c	99;"	d	file:
 YY_NUM_RULES	jackal_lexer.yy.c	355;"	d	file:
 YY_READ_BUF_SIZE	jackal_lexer.yy.c	588;"	d	file:
 YY_READ_BUF_SIZE	jackal_lexer.yy.c	590;"	d	file:
 YY_REDUCE_PRINT	jackal_parser.tab.c	868;"	d	file:
 YY_REDUCE_PRINT	jackal_parser.tab.c	881;"	d	file:
-YY_REINTERPRET_CAST	jackal_parser.tab.c	91;"	d	file:
-YY_REINTERPRET_CAST	jackal_parser.tab.c	94;"	d	file:
+YY_REINTERPRET_CAST	jackal_parser.tab.c	90;"	d	file:
+YY_REINTERPRET_CAST	jackal_parser.tab.c	93;"	d	file:
 YY_RESTORE_YY_MORE_OFFSET	jackal_lexer.yy.c	492;"	d	file:
 YY_RULE_SETUP	jackal_lexer.yy.c	681;"	d	file:
 YY_SC_TO_UI	jackal_lexer.yy.c	112;"	d	file:
@@ -427,25 +516,140 @@ YY_YY_JACKAL_PARSER_TAB_H_INCLUDED	include/jackal_parser.h	39;"	d
 YY_YY_JACKAL_PARSER_TAB_H_INCLUDED	jackal_parser.tab.h	39;"	d
 YYerror	include/jackal_parser.h	/^    YYerror = 256,                 \/* error  *\/$/;"	e	enum:yytokentype
 YYerror	jackal_parser.tab.h	/^    YYerror = 256,                 \/* error  *\/$/;"	e	enum:yytokentype
+_CHECK_CHECK_STDINT_H	include/check_stdint.h	2;"	d
+_GENERATED_STDINT_H	include/check_stdint.h	4;"	d
+_STDINT_HAVE_STDINT_H	include/check_stdint.h	6;"	d
 __STDC_LIMIT_MACROS	jackal_lexer.yy.c	40;"	d	file:
+_ck_assert_floating	include/check.h	741;"	d
+_ck_assert_floating_absdiff_op_tol	include/check.h	813;"	d
+_ck_assert_floating_finite	include/check.h	753;"	d
+_ck_assert_floating_infinite	include/check.h	764;"	d
+_ck_assert_floating_nan	include/check.h	775;"	d
+_ck_assert_floating_nonnan	include/check.h	786;"	d
+_ck_assert_floating_op_tol	include/check.h	798;"	d
+_ck_assert_int	include/check.h	564;"	d
+_ck_assert_mem	include/check.h	1621;"	d
+_ck_assert_ptr	include/check.h	1728;"	d
+_ck_assert_ptr_null	include/check.h	1737;"	d
+_ck_assert_str	include/check.h	1452;"	d
+_ck_assert_uint	include/check.h	649;"	d
 alloca	jackal_parser.tab.c	379;"	d	file:
-args	include/jackal/jackal_ir.h	/^  jkl_qqword_t args[JKL_IR_ARG_COUNT];$/;"	m	struct:__anon4
-arity	include/jackal/jackal_class.h	/^  jkl_word_t arity;$/;"	m	struct:__anon7
+amount	share/doc/check/example/src/money.4.c	/^    int amount;$/;"	m	struct:Money	file:
+amount	share/doc/check/example/src/money.5.c	/^    int amount;$/;"	m	struct:Money	file:
+amount	share/doc/check/example/src/money.6.c	/^    int amount;$/;"	m	struct:Money	file:
+amount	share/doc/check/example/src/money.c	/^    int amount;$/;"	m	struct:Money	file:
+args	include/jackal/jackal_ir.h	/^  jkl_qqword_t args[JKL_IR_ARG_COUNT];$/;"	m	struct:__anon7
+arity	include/jackal/jackal_class.h	/^  jkl_word_t arity;$/;"	m	struct:__anon12
 assign	include/jackal/jackal_types.h	/^  jkl_node_t *assign;$/;"	m	struct:jkl_node
-ast_prog_root	include/jackal/jackal_types.h	/^  jkl_node_t *ast_prog_root;$/;"	m	struct:__anon14
+ast_prog_root	include/jackal/jackal_compiler.h	/^  jkl_node_t *ast_prog_root;$/;"	m	struct:__anon20
 base	include/jackal/jackal_class.h	/^  struct jkl_class *base;$/;"	m	struct:jkl_class	typeref:struct:jkl_class::jkl_class
-binop	include/jackal/jackal_types.h	/^  } binop;$/;"	m	struct:jkl_node	typeref:struct:jkl_node::__anon12
+binop	include/jackal/jackal_types.h	/^  } binop;$/;"	m	struct:jkl_node	typeref:struct:jkl_node::__anon18
 block	include/jackal/jackal_types.h	/^  jkl_node_t *block;$/;"	m	struct:jkl_node
 block_stmts	jackal_parser.y	/^block_stmts:$/;"	l
-bss	include/jackal/jackal_ir.h	/^  jkl_byte_t bss[(1 << (sizeof(jkl_word_t) * 8)) - 1];$/;"	m	struct:__anon5
+bp	include/jackal/jackal_stack.h	/^  unsigned int bp;$/;"	m	struct:stack
+bss	include/jackal/jackal_ir.h	/^  jkl_byte_t bss[(1 << (sizeof(jkl_word_t) * 8)) - 1];$/;"	m	struct:__anon8
 call	jackal_parser.y	/^call: ID CSTRING {$/;"	l
+capacity	include/jackal/jackal_hash.h	/^  unsigned int capacity;$/;"	m	struct:__anon5
+capacity	include/jackal/jackal_stack.h	/^  unsigned int capacity;$/;"	m	struct:stack
 cc	lib/jackal_context.c	/^jkl_node_t *cc;$/;"	v
-compound	include/jackal/jackal_types.h	/^  } compound;$/;"	m	struct:jkl_node	typeref:struct:jkl_node::__anon13
+ck_abort	include/check.h	550;"	d
+ck_abort_msg	include/check.h	560;"	d
+ck_assert	include/check.h	523;"	d
+ck_assert_double_eq	include/check.h	1049;"	d
+ck_assert_double_eq_tol	include/check.h	1134;"	d
+ck_assert_double_finite	include/check.h	1196;"	d
+ck_assert_double_ge	include/check.h	1118;"	d
+ck_assert_double_ge_tol	include/check.h	1166;"	d
+ck_assert_double_gt	include/check.h	1105;"	d
+ck_assert_double_infinite	include/check.h	1210;"	d
+ck_assert_double_le	include/check.h	1092;"	d
+ck_assert_double_le_tol	include/check.h	1182;"	d
+ck_assert_double_lt	include/check.h	1079;"	d
+ck_assert_double_nan	include/check.h	1224;"	d
+ck_assert_double_ne	include/check.h	1066;"	d
+ck_assert_double_ne_tol	include/check.h	1150;"	d
+ck_assert_double_nonnan	include/check.h	1238;"	d
+ck_assert_float_eq	include/check.h	842;"	d
+ck_assert_float_eq_tol	include/check.h	927;"	d
+ck_assert_float_finite	include/check.h	989;"	d
+ck_assert_float_ge	include/check.h	911;"	d
+ck_assert_float_ge_tol	include/check.h	959;"	d
+ck_assert_float_gt	include/check.h	898;"	d
+ck_assert_float_infinite	include/check.h	1003;"	d
+ck_assert_float_le	include/check.h	885;"	d
+ck_assert_float_le_tol	include/check.h	975;"	d
+ck_assert_float_lt	include/check.h	872;"	d
+ck_assert_float_nan	include/check.h	1017;"	d
+ck_assert_float_ne	include/check.h	859;"	d
+ck_assert_float_ne_tol	include/check.h	943;"	d
+ck_assert_float_nonnan	include/check.h	1031;"	d
+ck_assert_int_eq	include/check.h	582;"	d
+ck_assert_int_ge	include/check.h	647;"	d
+ck_assert_int_gt	include/check.h	634;"	d
+ck_assert_int_le	include/check.h	621;"	d
+ck_assert_int_lt	include/check.h	608;"	d
+ck_assert_int_ne	include/check.h	595;"	d
+ck_assert_ldouble_eq	include/check.h	1256;"	d
+ck_assert_ldouble_eq_tol	include/check.h	1341;"	d
+ck_assert_ldouble_finite	include/check.h	1403;"	d
+ck_assert_ldouble_ge	include/check.h	1325;"	d
+ck_assert_ldouble_ge_tol	include/check.h	1373;"	d
+ck_assert_ldouble_gt	include/check.h	1312;"	d
+ck_assert_ldouble_infinite	include/check.h	1417;"	d
+ck_assert_ldouble_le	include/check.h	1299;"	d
+ck_assert_ldouble_le_tol	include/check.h	1389;"	d
+ck_assert_ldouble_lt	include/check.h	1286;"	d
+ck_assert_ldouble_nan	include/check.h	1431;"	d
+ck_assert_ldouble_ne	include/check.h	1273;"	d
+ck_assert_ldouble_ne_tol	include/check.h	1357;"	d
+ck_assert_ldouble_nonnan	include/check.h	1445;"	d
+ck_assert_mem_eq	include/check.h	1659;"	d
+ck_assert_mem_ge	include/check.h	1724;"	d
+ck_assert_mem_gt	include/check.h	1711;"	d
+ck_assert_mem_le	include/check.h	1698;"	d
+ck_assert_mem_lt	include/check.h	1685;"	d
+ck_assert_mem_ne	include/check.h	1672;"	d
+ck_assert_msg	include/check.h	538;"	d
+ck_assert_pstr_eq	include/check.h	1587;"	d
+ck_assert_pstr_ne	include/check.h	1603;"	d
+ck_assert_ptr_eq	include/check.h	1758;"	d
+ck_assert_ptr_ne	include/check.h	1770;"	d
+ck_assert_ptr_nonnull	include/check.h	1796;"	d
+ck_assert_ptr_null	include/check.h	1783;"	d
+ck_assert_str_eq	include/check.h	1496;"	d
+ck_assert_str_ge	include/check.h	1571;"	d
+ck_assert_str_gt	include/check.h	1556;"	d
+ck_assert_str_le	include/check.h	1541;"	d
+ck_assert_str_lt	include/check.h	1526;"	d
+ck_assert_str_ne	include/check.h	1511;"	d
+ck_assert_uint_eq	include/check.h	666;"	d
+ck_assert_uint_ge	include/check.h	731;"	d
+ck_assert_uint_gt	include/check.h	718;"	d
+ck_assert_uint_le	include/check.h	705;"	d
+ck_assert_uint_lt	include/check.h	692;"	d
+ck_assert_uint_ne	include/check.h	679;"	d
+ck_result_ctx	include/check.h	/^enum ck_result_ctx$/;"	g
+compound	include/jackal/jackal_types.h	/^  } compound;$/;"	m	struct:jkl_node	typeref:struct:jkl_node::__anon19
 context	lib/jackal_context.c	/^} context;$/;"	v	typeref:struct:__anon2
+currency	share/doc/check/example/src/money.5.c	/^    char *currency;$/;"	m	struct:Money	file:
+currency	share/doc/check/example/src/money.6.c	/^    char *currency;$/;"	m	struct:Money	file:
+currency	share/doc/check/example/src/money.c	/^    char *currency;$/;"	m	struct:Money	file:
+data	include/jackal/jackal_hash.h	/^  void *data;$/;"	m	struct:__anon4
+data	include/jackal/jackal_stack.h	/^  void *data;$/;"	m	struct:__anon9
+duplicate_check	bin/checkmk	/^function duplicate_check()$/;"	f
+error	bin/checkmk	/^function error(err)$/;"	f
+error_with_line	bin/checkmk	/^function error_with_line(err)$/;"	f
 expr	include/jackal/jackal_types.h	/^  jkl_node_t *expr;$/;"	m	struct:jkl_node
 expr	jackal_parser.y	/^expr: term op term {$/;"	l
-f	include/jackal/jackal_types.h	/^    jkl_float_t f;$/;"	m	union:jkl_node::__anon11
-flags	include/jackal/jackal_class.h	/^  jkl_word_t flags;$/;"	m	struct:__anon7
+f	include/jackal/jackal_types.h	/^    jkl_float_t f;$/;"	m	union:jkl_node::__anon17
+fail	include/check.h	494;"	d
+fail_if	include/check.h	484;"	d
+fail_unless	include/check.h	469;"	d
+file	include/check.h	/^    const char *file;$/;"	m	struct:TTest
+finish_test	bin/checkmk	/^function finish_test()$/;"	f
+five_dollars	share/doc/check/example/tests/check_money.7.c	/^Money *five_dollars;$/;"	v
+five_dollars	share/doc/check/example/tests/check_money.c	/^Money *five_dollars;$/;"	v
+flags	include/jackal/jackal_class.h	/^  jkl_word_t flags;$/;"	m	struct:__anon12
 flags	include/jackal/jackal_class.h	/^  jkl_word_t flags;$/;"	m	struct:jkl_class
 flex_int16_t	jackal_lexer.yy.c	/^typedef int16_t flex_int16_t;$/;"	t	file:
 flex_int16_t	jackal_lexer.yy.c	/^typedef short int flex_int16_t;$/;"	t	file:
@@ -459,34 +663,42 @@ flex_uint32_t	jackal_lexer.yy.c	/^typedef uint32_t flex_uint32_t;$/;"	t	file:
 flex_uint32_t	jackal_lexer.yy.c	/^typedef unsigned int flex_uint32_t;$/;"	t	file:
 flex_uint8_t	jackal_lexer.yy.c	/^typedef uint8_t flex_uint8_t;$/;"	t	file:
 flex_uint8_t	jackal_lexer.yy.c	/^typedef unsigned char flex_uint8_t; $/;"	t	file:
-fn	include/jackal/jackal_class.h	/^  jkl_word_t (*fn)();$/;"	m	struct:__anon7
+fn	include/check.h	/^    TFun fn;$/;"	m	struct:TTest
+fn	include/jackal/jackal_class.h	/^  jkl_word_t (*fn)();$/;"	m	struct:__anon12
 fnumber	jackal_parser.tab.h	/^  float       fnumber;$/;"	m	union:YYSTYPE
-frames	lib/jackal_context.c	/^  jkl_node_t* frames[MAX_NESTED_BLOCKS];$/;"	m	struct:__anon2	file:
-func	jackal_parser.y	/^func: FUNC ident func_params LBRACE block_stmts RBRACE {$/;"	l
+fork_status	include/check.h	/^enum fork_status$/;"	g
+frames	lib/jackal_context.c	/^  jkl_node_t *frames[MAX_NESTED_BLOCKS];$/;"	m	struct:__anon2	file:
+func	jackal_parser.y	/^func: FUNC ident func_params LBRACE {$/;"	l
 func_params	jackal_parser.y	/^func_params: LPAREN {$/;"	l
-i	include/jackal/jackal_types.h	/^    jkl_qqword_t i;$/;"	m	union:jkl_node::__anon11
-id	include/jackal/jackal_class.h	/^  jkl_word_t id;$/;"	m	struct:__anon7
+has_block	include/jackal/jackal_keywords.h	/^  char *id, int has_block;$/;"	m	struct:jkl_keyword
+hash	include/jackal/jackal_keywords.h	/^hash(register const char *str, register size_t len)$/;"	f
+i	include/jackal/jackal_types.h	/^    jkl_qqword_t i;$/;"	m	union:jkl_node::__anon17
+id	include/jackal/jackal_class.h	/^  jkl_word_t id;$/;"	m	struct:__anon12
 id	include/jackal/jackal_class.h	/^  jkl_word_t id;$/;"	m	struct:jkl_class
-id	include/jackal/jackal_symbol_table.h	/^  jkl_string_t id;$/;"	m	struct:__anon16
+id	include/jackal/jackal_keywords.h	/^  char *id, int has_block;$/;"	m	struct:jkl_keyword
+id	include/jackal/jackal_symbol_table.h	/^  jkl_string_t id;$/;"	m	struct:__anon22
 id	include/jackal/jackal_types.h	/^  jkl_node_t *id;$/;"	m	struct:jkl_node
 id	jackal_parser.tab.h	/^  char        *id;$/;"	m	union:YYSTYPE
 ident	jackal_parser.y	/^ident: ID {$/;"	l
 if_stm	jackal_parser.y	/^if_stm: IF expr {$/;"	l
+in_main	bin/checkmk	/^function in_main()$/;"	f
+in_main_error	bin/checkmk	/^function in_main_error()$/;"	f
 includes	include/jackal/jackal_class.h	/^  struct jkl_class **includes;$/;"	m	struct:jkl_class	typeref:struct:jkl_class::jkl_class
 invariant	lib/jackal_compiler.c	3;"	d	file:
 invariant	lib/jackal_eval.c	3;"	d	file:
-ir	include/jackal/jackal_ir.h	/^  jkl_ir_t *ir;$/;"	m	struct:__anon5
-ir	lib/jackal_compiler.c	/^FILE* ir;$/;"	v
-ir_code	lib/jackal_compiler.c	/^jkl_ir_code_t ir_code;$/;"	v
+ir	include/jackal/jackal_ir.h	/^  jkl_ir_t *ir;$/;"	m	struct:__anon8
+ir_code	include/jackal/jackal_compiler.h	/^  jkl_ir_code_t *ir_code;$/;"	m	struct:__anon20
+items	include/jackal/jackal_stack.h	/^  stack_item_t *items;$/;"	m	struct:stack
+jkl_any_t	include/jackal/jackal_types.h	/^typedef void *jkl_any_t;$/;"	t
 jkl_bool_t	include/jackal/jackal_types.h	/^typedef char jkl_bool_t;$/;"	t
 jkl_byte_t	include/jackal/jackal_types.h	/^typedef char jkl_byte_t;$/;"	t
 jkl_char_t	include/jackal/jackal_types.h	/^typedef char jkl_char_t;$/;"	t
-jkl_class	include/jackal/jackal_class.h	/^struct jkl_class$/;"	s
+jkl_class	include/jackal/jackal_class.h	/^struct jkl_class {$/;"	s
 jkl_class_add_method	lib/jackal_class.c	/^jkl_word_t jkl_class_add_method(jkl_class_t *klass, jkl_method_t *method)$/;"	f
 jkl_class_destroy	lib/jackal_class.c	/^void jkl_class_destroy(jkl_class_t *klass)$/;"	f
 jkl_class_destroy_all	lib/jackal_class.c	/^void jkl_class_destroy_all()$/;"	f
-jkl_class_flag_t	include/jackal/jackal_class.h	/^} jkl_class_flag_t;$/;"	t	typeref:enum:__anon8
-jkl_class_get	lib/jackal_class.c	/^jkl_class_t* jkl_class_get(jkl_word_t id)$/;"	f
+jkl_class_flag_t	include/jackal/jackal_class.h	/^} jkl_class_flag_t;$/;"	t	typeref:enum:__anon13
+jkl_class_get	lib/jackal_class.c	/^jkl_class_t *jkl_class_get(jkl_word_t id)$/;"	f
 jkl_class_has_flag	lib/jackal_class.c	/^jkl_word_t jkl_class_has_flag(jkl_class_t *klass, jkl_class_flag_t flag)$/;"	f
 jkl_class_include	lib/jackal_class.c	/^void jkl_class_include(jkl_class_t *klass, jkl_class_t *include)$/;"	f
 jkl_class_init	lib/jackal_class.c	/^void jkl_class_init()$/;"	f
@@ -494,128 +706,220 @@ jkl_class_is_a	lib/jackal_class.c	/^jkl_word_t jkl_class_is_a(jkl_class_t *klass
 jkl_class_is_base_of	lib/jackal_class.c	/^jkl_word_t jkl_class_is_base_of(jkl_class_t *klass, jkl_class_t *base)$/;"	f
 jkl_class_is_included_in	lib/jackal_class.c	/^jkl_word_t jkl_class_is_included_in(jkl_class_t *klass, jkl_class_t *base)$/;"	f
 jkl_class_method_exists	lib/jackal_class.c	/^jkl_word_t jkl_class_method_exists(jkl_class_t *klass, jkl_string_t name)$/;"	f
-jkl_class_new	lib/jackal_class.c	/^jkl_class_t* jkl_class_new(jkl_string_t name)$/;"	f
+jkl_class_new	lib/jackal_class.c	/^jkl_class_t *jkl_class_new(jkl_string_t name)$/;"	f
 jkl_class_set_base	lib/jackal_class.c	/^jkl_word_t jkl_class_set_base(jkl_class_t *klass, jkl_class_t *base)$/;"	f
 jkl_class_set_flag	lib/jackal_class.c	/^jkl_word_t jkl_class_set_flag(jkl_class_t *klass, jkl_class_flag_t flag)$/;"	f
 jkl_class_t	include/jackal/jackal_class.h	/^typedef struct jkl_class jkl_class_t;$/;"	t	typeref:struct:jkl_class
-jkl_close_ir	lib/jackal_compiler.c	/^void __attribute__((destructor)) jkl_close_ir()$/;"	f
 jkl_compile	lib/jackal_compiler.c	/^jkl_word_t jkl_compile(jkl_program_t *program)$/;"	f
 jkl_compile_block	lib/jackal_compiler.c	/^jkl_word_t jkl_compile_block(jkl_program_t *program, jkl_node_t *block)$/;"	f
 jkl_compile_expr	lib/jackal_compiler.c	/^jkl_word_t jkl_compile_expr(jkl_program_t *program, jkl_node_t *expr)$/;"	f
+jkl_compiler_suite	tests/compiler.c	/^Suite *jkl_compiler_suite()$/;"	f
 jkl_debug	include/jackal/jackal_error.h	69;"	d
 jkl_double_t	include/jackal/jackal_types.h	/^typedef double jkl_double_t;$/;"	t
 jkl_dword_t	include/jackal/jackal_types.h	/^typedef int jkl_dword_t;$/;"	t
 jkl_emit_expr_op	lib/jackal_compiler.c	/^jkl_word_t jkl_emit_expr_op(jkl_program_t *program, jkl_op_t op)$/;"	f
-jkl_ensure_empty_contexts	lib/jackal_context.c	/^void jkl_ensure_empty_contexts() {$/;"	f
+jkl_ensure_empty_contexts	lib/jackal_context.c	/^void jkl_ensure_empty_contexts()$/;"	f
 jkl_error	include/jackal/jackal_error.h	36;"	d
 jkl_error	include/jackal/jackal_error.h	52;"	d
 jkl_error_name_t	include/jackal/jackal_types.h	/^typedef jkl_string_t jkl_error_name_t;$/;"	t
 jkl_error_t	include/jackal/jackal_types.h	/^typedef unsigned int jkl_error_t;$/;"	t
 jkl_eval	lib/jackal_eval.c	/^jkl_word_t jkl_eval(jkl_program_t *program)$/;"	f
 jkl_float_t	include/jackal/jackal_types.h	/^typedef float jkl_float_t;$/;"	t
+jkl_free_pair	lib/jackal_hash.c	/^void jkl_free_pair(jkl_hash_pair *pair)$/;"	f
 jkl_function_t	include/jackal/jackal_types.h	/^typedef void (*jkl_function_t)(void);$/;"	t
-jkl_get_context	lib/jackal_context.c	/^jkl_node_t* jkl_get_context(jkl_program_t *program) {$/;"	f
+jkl_get_context	lib/jackal_context.c	/^jkl_node_t *jkl_get_context(jkl_program_t *program)$/;"	f
 jkl_get_idx	lib/jackal_compiler.c	/^jkl_word_t jkl_get_idx(jkl_program_t *program)$/;"	f
+jkl_hash_del	lib/jackal_hash.c	/^void jkl_hash_del(jkl_hash_tbl *tbl, jkl_string_t key)$/;"	f
+jkl_hash_free	lib/jackal_hash.c	/^void jkl_hash_free(jkl_hash_tbl *tbl)$/;"	f
+jkl_hash_get	lib/jackal_hash.c	/^void *jkl_hash_get(jkl_hash_tbl *tbl, jkl_string_t key)$/;"	f
+jkl_hash_init	lib/jackal_hash.c	/^void jkl_hash_init(jkl_hash_tbl *tbl)$/;"	f
+jkl_hash_new	lib/jackal_hash.c	/^jkl_hash_tbl *jkl_hash_new()$/;"	f
+jkl_hash_pair	include/jackal/jackal_hash.h	/^} jkl_hash_pair;$/;"	t	typeref:struct:__anon4
+jkl_hash_set	lib/jackal_hash.c	/^void jkl_hash_set(jkl_hash_tbl *tbl, jkl_string_t key, jkl_any_t data,$/;"	f
+jkl_hash_tbl	include/jackal/jackal_hash.h	/^} jkl_hash_tbl;$/;"	t	typeref:struct:__anon5
+jkl_hash_to_json	lib/jackal_hash.c	/^void jkl_hash_to_json(jkl_hash_tbl *tbl, int depth, char *json)$/;"	f
+jkl_hash_type_t	include/jackal/jackal_hash.h	/^} jkl_hash_type_t;$/;"	t	typeref:enum:__anon3
 jkl_ir_code_free	lib/jackal_ir.c	/^void jkl_ir_code_free(jkl_ir_code_t *ir_code)$/;"	f
-jkl_ir_code_init	lib/jackal_ir.c	/^void jkl_ir_code_init(jkl_ir_code_t *ir_code, jkl_word_t size) $/;"	f
+jkl_ir_code_init	lib/jackal_ir.c	/^void jkl_ir_code_init(jkl_ir_code_t *ir_code, jkl_word_t size)$/;"	f
 jkl_ir_code_push	lib/jackal_ir.c	/^jkl_word_t jkl_ir_code_push(jkl_ir_code_t *ir_code, jkl_ir_t ir)$/;"	f
-jkl_ir_code_save	lib/jackal_ir.c	/^jkl_word_t jkl_ir_code_save(jkl_ir_code_t *ir_code, const char* filename)$/;"	f
-jkl_ir_code_t	include/jackal/jackal_ir.h	/^} jkl_ir_code_t;$/;"	t	typeref:struct:__anon5
+jkl_ir_code_save	lib/jackal_ir.c	/^jkl_word_t jkl_ir_code_save(jkl_ir_code_t *ir_code, const char *filename)$/;"	f
+jkl_ir_code_t	include/jackal/jackal_ir.h	/^} jkl_ir_code_t;$/;"	t	typeref:struct:__anon8
 jkl_ir_store_string	lib/jackal_ir.c	/^void jkl_ir_store_string(jkl_ir_code_t *ir_code, jkl_string_t *string)$/;"	f
-jkl_ir_t	include/jackal/jackal_ir.h	/^} jkl_ir_t;$/;"	t	typeref:struct:__anon4
-jkl_ir_type_t	include/jackal/jackal_ir.h	/^} jkl_ir_type_t;$/;"	t	typeref:enum:__anon3
+jkl_ir_t	include/jackal/jackal_ir.h	/^} jkl_ir_t;$/;"	t	typeref:struct:__anon7
+jkl_ir_type_t	include/jackal/jackal_ir.h	/^} jkl_ir_type_t;$/;"	t	typeref:enum:__anon6
 jkl_is_primitive	lib/jackal_optimizer.c	/^jkl_word_t jkl_is_primitive(jkl_node_t *node)$/;"	f
+jkl_keyword	include/jackal/jackal_keywords.h	/^struct jkl_keyword {$/;"	s
 jkl_ldouble_t	include/jackal/jackal_types.h	/^typedef long double jkl_ldouble_t;$/;"	t
 jkl_log	include/jackal/jackal_error.h	46;"	d
 jkl_log	include/jackal/jackal_error.h	62;"	d
-jkl_method_flag_t	include/jackal/jackal_class.h	/^} jkl_method_flag_t;$/;"	t	typeref:enum:__anon6
-jkl_method_free	lib/jackal_class.c	/^void jkl_method_free(jkl_method_t *method) {$/;"	f
-jkl_method_new	lib/jackal_class.c	/^jkl_method_t* jkl_method_new(jkl_string_t name, jkl_word_t arity, jkl_word_t flags, jkl_word_t (*fn)()) {$/;"	f
-jkl_method_t	include/jackal/jackal_class.h	/^} jkl_method_t;$/;"	t	typeref:struct:__anon7
-jkl_node	include/jackal/jackal_types.h	/^struct jkl_node$/;"	s
+jkl_method_flag_t	include/jackal/jackal_class.h	/^} jkl_method_flag_t;$/;"	t	typeref:enum:__anon11
+jkl_method_free	lib/jackal_class.c	/^void jkl_method_free(jkl_method_t *method)$/;"	f
+jkl_method_new	lib/jackal_class.c	/^jkl_method_t *jkl_method_new(jkl_string_t name, jkl_word_t arity,$/;"	f
+jkl_method_t	include/jackal/jackal_class.h	/^} jkl_method_t;$/;"	t	typeref:struct:__anon12
+jkl_node	include/jackal/jackal_types.h	/^struct jkl_node {$/;"	s
 jkl_node_append	lib/jackal_ast.c	/^jkl_word_t jkl_node_append(jkl_node_t *node, jkl_node_t *child)$/;"	f
 jkl_node_free	lib/jackal_ast.c	/^jkl_word_t jkl_node_free(jkl_node_t *node)$/;"	f
 jkl_node_new	lib/jackal_ast.c	/^jkl_node_t *jkl_node_new(jkl_node_type_t type)$/;"	f
 jkl_node_t	include/jackal/jackal_types.h	/^typedef struct jkl_node jkl_node_t;$/;"	t	typeref:struct:jkl_node
-jkl_node_type_t	include/jackal/jackal_types.h	/^} jkl_node_type_t;$/;"	t	typeref:enum:__anon9
+jkl_node_type_t	include/jackal/jackal_types.h	/^} jkl_node_type_t;$/;"	t	typeref:enum:__anon15
 jkl_not_implemented	lib/jackal_class.c	/^jkl_word_t jkl_not_implemented()$/;"	f
 jkl_note	include/jackal/jackal_error.h	49;"	d
 jkl_note	include/jackal/jackal_error.h	65;"	d
-jkl_op_t	include/jackal/jackal_types.h	/^} jkl_op_t;$/;"	t	typeref:enum:__anon10
-jkl_open_ir	lib/jackal_compiler.c	/^void __attribute__((constructor)) jkl_open_ir()$/;"	f
+jkl_op_t	include/jackal/jackal_types.h	/^} jkl_op_t;$/;"	t	typeref:enum:__anon16
 jkl_optimize_expr	lib/jackal_optimizer.c	/^void jkl_optimize_expr(jkl_node_t *node)$/;"	f
 jkl_pointer_t	include/jackal/jackal_types.h	/^typedef void *jkl_pointer_t;$/;"	t
-jkl_pop_context	lib/jackal_context.c	/^jkl_node_t* jkl_pop_context(jkl_program_t *program) {$/;"	f
+jkl_pop_context	lib/jackal_context.c	/^jkl_node_t *jkl_pop_context(jkl_program_t *program)$/;"	f
 jkl_print_ast_node	lib/jackal_ast.c	/^jkl_word_t jkl_print_ast_node(jkl_node_t *node, jkl_word_t depth)$/;"	f
 jkl_print_ast_type	lib/jackal_ast.c	/^void jkl_print_ast_type(jkl_node_t *node)$/;"	f
 jkl_printf_impl	include/jackal/jackal_error.h	26;"	d
 jkl_printf_impl	include/jackal/jackal_error.h	32;"	d
 jkl_program_init	lib/jackal_compiler.c	/^void jkl_program_init(jkl_program_t *program)$/;"	f
-jkl_program_t	include/jackal/jackal_types.h	/^} jkl_program_t;$/;"	t	typeref:struct:__anon14
-jkl_push_context	lib/jackal_context.c	/^void jkl_push_context(jkl_program_t *program, jkl_node_t *node) {$/;"	f
+jkl_program_new	lib/jackal_compiler.c	/^jkl_program_t *jkl_program_new()$/;"	f
+jkl_program_t	include/jackal/jackal_compiler.h	/^} jkl_program_t;$/;"	t	typeref:struct:__anon20
+jkl_push_context	lib/jackal_context.c	/^void jkl_push_context(jkl_program_t *program, jkl_node_t *node)$/;"	f
 jkl_qqword_t	include/jackal/jackal_types.h	/^typedef long long jkl_qqword_t;$/;"	t
 jkl_qword_t	include/jackal/jackal_types.h	/^typedef long jkl_qword_t;$/;"	t
 jkl_string_hash	lib/jackal_string.c	/^jkl_word_t jkl_string_hash(jkl_string_t str)$/;"	f
 jkl_string_len	lib/jackal_string.c	/^jkl_word_t jkl_string_len(jkl_string_t str)$/;"	f
 jkl_string_t	include/jackal/jackal_types.h	/^typedef char *jkl_string_t;$/;"	t
-jkl_symbol_t	include/jackal/jackal_symbol_table.h	/^} jkl_symbol_t;$/;"	t	typeref:struct:__anon16
-jkl_symbol_table_add	lib/jackal_symbol_table.c	/^jkl_word_t jkl_symbol_table_add(jkl_symbol_table_t *table, jkl_string_t id, jkl_symbol_type_t type)$/;"	f
+jkl_symbol_t	include/jackal/jackal_symbol_table.h	/^} jkl_symbol_t;$/;"	t	typeref:struct:__anon22
+jkl_symbol_table_add	lib/jackal_symbol_table.c	/^jkl_word_t jkl_symbol_table_add(jkl_symbol_table_t *table, jkl_string_t id,$/;"	f
 jkl_symbol_table_free	lib/jackal_symbol_table.c	/^void jkl_symbol_table_free(jkl_symbol_table_t *table)$/;"	f
 jkl_symbol_table_get	lib/jackal_symbol_table.c	/^jkl_symbol_t *jkl_symbol_table_get(jkl_symbol_table_t *table, jkl_string_t id)$/;"	f
 jkl_symbol_table_init	lib/jackal_symbol_table.c	/^void jkl_symbol_table_init(jkl_symbol_table_t *table)$/;"	f
-jkl_symbol_table_t	include/jackal/jackal_symbol_table.h	/^} jkl_symbol_table_t;$/;"	t	typeref:struct:__anon17
-jkl_symbol_type_t	include/jackal/jackal_symbol_table.h	/^} jkl_symbol_type_t;$/;"	t	typeref:enum:__anon15
-jkl_tbl_inst_types	tests/main.c	/^struct jkl_tbl_entry_t jkl_tbl_inst_types [] = {$/;"	v	typeref:struct:jkl_tbl_entry_t
-jkl_tbl_value_types	tests/main.c	/^struct jkl_tbl_entry_t jkl_tbl_value_types[] = {$/;"	v	typeref:struct:jkl_tbl_entry_t
+jkl_symbol_table_new	lib/jackal_symbol_table.c	/^jkl_symbol_table_t *jkl_symbol_table_new()$/;"	f
+jkl_symbol_table_t	include/jackal/jackal_symbol_table.h	/^} jkl_symbol_table_t;$/;"	t	typeref:struct:__anon23
+jkl_symbol_type_t	include/jackal/jackal_symbol_table.h	/^} jkl_symbol_type_t;$/;"	t	typeref:enum:__anon21
 jkl_void_t	include/jackal/jackal_types.h	/^typedef void jkl_void_t;$/;"	t
 jkl_warn	include/jackal/jackal_error.h	43;"	d
 jkl_warn	include/jackal/jackal_error.h	59;"	d
 jkl_word_t	include/jackal/jackal_types.h	/^typedef short jkl_word_t;$/;"	t
-left	include/jackal/jackal_types.h	/^    jkl_node_t *left;$/;"	m	struct:jkl_node::__anon12
+jsoncat	lib/jackal_hash.c	119;"	d	file:
+key	include/jackal/jackal_hash.h	/^  char *key;$/;"	m	struct:__anon4
+keys	include/jackal/jackal_hash.h	/^  jkl_hash_pair *keys;$/;"	m	struct:__anon5
+keyword_lookup	include/jackal/jackal_keywords.h	/^keyword_lookup(register const char *str, register size_t len)$/;"	f
+left	include/jackal/jackal_types.h	/^    jkl_node_t *left;$/;"	m	struct:jkl_node::__anon18
+line	include/check.h	/^    int line;$/;"	m	struct:TTest
 loop	jackal_parser.y	/^loop: LOOP LBRACE {$/;"	l
 main	jackal.c	/^int main(int argv, char **argc)$/;"	f
+main	share/doc/check/example/src/main.c	/^int main(void)$/;"	f
+main	share/doc/check/example/tests/check_money.1.c	/^int main(void)$/;"	f
+main	share/doc/check/example/tests/check_money.2.c	/^int main(void)$/;"	f
+main	share/doc/check/example/tests/check_money.3.c	/^int main(void)$/;"	f
+main	share/doc/check/example/tests/check_money.6.c	/^int main(void)$/;"	f
+main	share/doc/check/example/tests/check_money.7.c	/^int main(void)$/;"	f
+main	share/doc/check/example/tests/check_money.c	/^int main(void)$/;"	f
 main	tests/main.c	/^int main()$/;"	f
+main_post	bin/checkmk	/^function main_post()$/;"	f
+main_pre	bin/checkmk	/^function main_pre()$/;"	f
+mark_point	include/check.h	1808;"	d
 methods	include/jackal/jackal_class.h	/^  jkl_method_t **methods;$/;"	m	struct:jkl_class
-n_errors	include/jackal/jackal_types.h	/^  jkl_error_t n_errors;$/;"	m	struct:__anon14
-n_ids	include/jackal/jackal_types.h	/^  jkl_word_t n_ids;$/;"	m	struct:__anon14
+money_amount	share/doc/check/example/src/money.3.c	/^int money_amount(Money * m)$/;"	f
+money_amount	share/doc/check/example/src/money.4.c	/^int money_amount(Money * m)$/;"	f
+money_amount	share/doc/check/example/src/money.5.c	/^int money_amount(Money * m)$/;"	f
+money_amount	share/doc/check/example/src/money.6.c	/^int money_amount(Money * m)$/;"	f
+money_amount	share/doc/check/example/src/money.c	/^int money_amount(Money * m)$/;"	f
+money_create	share/doc/check/example/src/money.3.c	/^Money *money_create(int amount, char *currency)$/;"	f
+money_create	share/doc/check/example/src/money.4.c	/^Money *money_create(int amount, char *currency)$/;"	f
+money_create	share/doc/check/example/src/money.5.c	/^Money *money_create(int amount, char *currency)$/;"	f
+money_create	share/doc/check/example/src/money.6.c	/^Money *money_create(int amount, char *currency)$/;"	f
+money_create	share/doc/check/example/src/money.c	/^Money *money_create(int amount, char *currency)$/;"	f
+money_currency	share/doc/check/example/src/money.3.c	/^char *money_currency(Money * m)$/;"	f
+money_currency	share/doc/check/example/src/money.4.c	/^char *money_currency(Money * m)$/;"	f
+money_currency	share/doc/check/example/src/money.5.c	/^char *money_currency(Money * m)$/;"	f
+money_currency	share/doc/check/example/src/money.6.c	/^char *money_currency(Money * m)$/;"	f
+money_currency	share/doc/check/example/src/money.c	/^char *money_currency(Money * m)$/;"	f
+money_free	share/doc/check/example/src/money.3.c	/^void money_free(Money * m)$/;"	f
+money_free	share/doc/check/example/src/money.4.c	/^void money_free(Money * m)$/;"	f
+money_free	share/doc/check/example/src/money.5.c	/^void money_free(Money * m)$/;"	f
+money_free	share/doc/check/example/src/money.6.c	/^void money_free(Money * m)$/;"	f
+money_free	share/doc/check/example/src/money.c	/^void money_free(Money * m)$/;"	f
+money_suite	share/doc/check/example/tests/check_money.3.c	/^Suite * money_suite(void)$/;"	f
+money_suite	share/doc/check/example/tests/check_money.6.c	/^Suite * money_suite(void)$/;"	f
+money_suite	share/doc/check/example/tests/check_money.7.c	/^Suite * money_suite(void)$/;"	f
+money_suite	share/doc/check/example/tests/check_money.c	/^Suite * money_suite(void)$/;"	f
+n_errors	include/jackal/jackal_compiler.h	/^  jkl_error_t n_errors;$/;"	m	struct:__anon20
+n_funcs	include/jackal/jackal_compiler.h	/^  jkl_word_t n_funcs;$/;"	m	struct:__anon20
+n_ids	include/jackal/jackal_compiler.h	/^  jkl_word_t n_ids;$/;"	m	struct:__anon20
 n_includes	include/jackal/jackal_class.h	/^  jkl_word_t n_includes;$/;"	m	struct:jkl_class
-n_irs	include/jackal/jackal_ir.h	/^  jkl_qqword_t n_irs;$/;"	m	struct:__anon5
+n_irs	include/jackal/jackal_ir.h	/^  jkl_qqword_t n_irs;$/;"	m	struct:__anon8
 n_methods	include/jackal/jackal_class.h	/^  jkl_word_t n_methods;$/;"	m	struct:jkl_class
-n_nodes	include/jackal/jackal_types.h	/^    jkl_word_t n_nodes;$/;"	m	struct:jkl_node::__anon13
-n_notes	include/jackal/jackal_types.h	/^  jkl_word_t n_notes;$/;"	m	struct:__anon14
-n_symbols	include/jackal/jackal_symbol_table.h	/^  size_t n_symbols;$/;"	m	struct:__anon17
-n_warnings	include/jackal/jackal_types.h	/^  jkl_word_t n_warnings;$/;"	m	struct:__anon14
-name	include/jackal/jackal_class.h	/^  jkl_string_t name;$/;"	m	struct:__anon7
+n_nodes	include/jackal/jackal_types.h	/^    jkl_word_t n_nodes;$/;"	m	struct:jkl_node::__anon19
+n_notes	include/jackal/jackal_compiler.h	/^  jkl_word_t n_notes;$/;"	m	struct:__anon20
+n_symbols	include/jackal/jackal_symbol_table.h	/^  size_t n_symbols;$/;"	m	struct:__anon23
+n_warnings	include/jackal/jackal_compiler.h	/^  jkl_word_t n_warnings;$/;"	m	struct:__anon20
+name	include/check.h	/^    const char *name;$/;"	m	struct:TTest
+name	include/jackal/jackal_class.h	/^  jkl_string_t name;$/;"	m	struct:__anon12
 name	include/jackal/jackal_class.h	/^  jkl_string_t name;$/;"	m	struct:jkl_class
 node	include/jackal/jackal_types.h	/^  jkl_node_t *node;$/;"	m	struct:jkl_node
 node	jackal_parser.tab.h	/^  jkl_node_t  *node;$/;"	m	union:YYSTYPE
-nodes	include/jackal/jackal_types.h	/^    jkl_node_t **nodes;$/;"	m	struct:jkl_node::__anon13
+nodes	include/jackal/jackal_types.h	/^    jkl_node_t **nodes;$/;"	m	struct:jkl_node::__anon19
 number	jackal_parser.tab.h	/^  int         number;$/;"	m	union:YYSTYPE
-op	include/jackal/jackal_types.h	/^    jkl_op_t op;$/;"	m	struct:jkl_node::__anon12
+op	include/jackal/jackal_types.h	/^    jkl_op_t op;$/;"	m	struct:jkl_node::__anon18
 op	jackal_parser.tab.h	/^  jkl_op_t    op;$/;"	m	union:YYSTYPE
 op	jackal_parser.y	/^op: EQL   { $$ = JKL_OP_EQL; }$/;"	l
 param	jackal_parser.y	/^param: ident {$/;"	l
 params	include/jackal/jackal_types.h	/^  jkl_node_t *params;$/;"	m	struct:jkl_node
 params	jackal_parser.y	/^params:$/;"	l
 parent	include/jackal/jackal_types.h	/^  jkl_node_t *parent;$/;"	m	struct:jkl_node
+pid_t	include/check.h	99;"	d
 pos	lib/jackal_context.c	/^  int pos;$/;"	m	struct:__anon2	file:
-program	jackal_parser.tab.c	/^jkl_program_t program;$/;"	v
+print_boilerplate	bin/checkmk	/^function print_boilerplate()$/;"	f
+print_main_declarations	bin/checkmk	/^function print_main_declarations()$/;"	f
+print_output	include/check.h	/^enum print_output$/;"	g
+print_runner_bindings	bin/checkmk	/^function print_runner_bindings()$/;"	f
+program	jackal_parser.tab.c	/^jkl_program_t *program;$/;"	v
 program	jackal_parser.y	/^program: { $/;"	l
-program	tests/main.c	/^static jkl_program_t program;$/;"	v	file:
-right	include/jackal/jackal_types.h	/^    jkl_node_t *right;$/;"	m	struct:jkl_node::__anon12
-s	include/jackal/jackal_types.h	/^    jkl_string_t s;$/;"	m	union:jkl_node::__anon11
+register_test	bin/checkmk	/^function register_test()$/;"	f
+right	include/jackal/jackal_types.h	/^    jkl_node_t *right;$/;"	m	struct:jkl_node::__anon18
+s	include/jackal/jackal_types.h	/^    jkl_string_t s;$/;"	m	union:jkl_node::__anon17
+setup	share/doc/check/example/tests/check_money.7.c	/^void setup(void)$/;"	f
+setup	share/doc/check/example/tests/check_money.c	/^void setup(void)$/;"	f
 short	jackal_parser.tab.c	175;"	d	file:
+size	include/jackal/jackal_hash.h	/^  unsigned int size;$/;"	m	struct:__anon5
+size	include/jackal/jackal_stack.h	/^  unsigned int size;$/;"	m	struct:__anon9
+sp	include/jackal/jackal_stack.h	/^  unsigned int sp;$/;"	m	struct:stack
+stack	include/jackal/jackal_stack.h	/^typedef struct stack {$/;"	s
+stack_free	lib/jackal_stack.c	/^void stack_free(stack_t *stack)$/;"	f
+stack_init	lib/jackal_stack.c	/^void stack_init(stack_t *stack, unsigned int capacity)$/;"	f
+stack_item_t	include/jackal/jackal_stack.h	/^} stack_item_t;$/;"	t	typeref:struct:__anon9
+stack_peek	lib/jackal_stack.c	/^stack_item_t stack_peek(stack_t *stack)$/;"	f
+stack_pop	lib/jackal_stack.c	/^stack_item_t stack_pop(stack_t *stack)$/;"	f
+stack_push	lib/jackal_stack.c	/^void stack_push(stack_t *stack, stack_item_t item)$/;"	f
+stack_pushc	include/jackal/jackal_stack.h	26;"	d
+stack_pushf	include/jackal/jackal_stack.h	28;"	d
+stack_pushi	include/jackal/jackal_stack.h	27;"	d
+stack_pushs	include/jackal/jackal_stack.h	29;"	d
+stack_size	lib/jackal_stack.c	/^unsigned int stack_size(stack_t *stack)$/;"	f
+stack_t	include/jackal/jackal_stack.h	/^} stack_t;$/;"	t	typeref:struct:stack
 statement	jackal_parser.y	/^statement: LET ident ASSIGN expr {$/;"	l
 statements	jackal_parser.y	/^statements:$/;"	l
 string	jackal_parser.tab.h	/^  char        *string;$/;"	m	union:YYSTYPE
-symbol_table	jackal_parser.tab.c	/^jkl_symbol_table_t symbol_table;$/;"	v
-symbols	include/jackal/jackal_symbol_table.h	/^  jkl_symbol_t symbols[JKL_SYMBOL_TABLE_SIZE];$/;"	m	struct:__anon17
+string_encode	bin/checkmk	/^function string_encode(raw)$/;"	f
+suite_var_name	bin/checkmk	/^function suite_var_name(num)$/;"	f
+symbol_table	include/jackal/jackal_compiler.h	/^  jkl_hash_tbl *symbol_table;$/;"	m	struct:__anon20
+symbols	include/jackal/jackal_symbol_table.h	/^  jkl_symbol_t symbols[JKL_SYMBOL_TABLE_SIZE];$/;"	m	struct:__anon23
+tcase_add_exit_test	include/check.h	282;"	d
+tcase_add_loop_exit_test	include/check.h	341;"	d
+tcase_add_loop_test	include/check.h	299;"	d
+tcase_add_loop_test_raise_signal	include/check.h	320;"	d
+tcase_add_test	include/check.h	253;"	d
+tcase_add_test_raise_signal	include/check.h	267;"	d
+tcase_var_name	bin/checkmk	/^function tcase_var_name(snum, tcnum)$/;"	f
+teardown	share/doc/check/example/tests/check_money.7.c	/^void teardown(void)$/;"	f
+teardown	share/doc/check/example/tests/check_money.c	/^void teardown(void)$/;"	f
 term	jackal_parser.y	/^term: ident$/;"	l
-type	include/jackal/jackal_ir.h	/^  jkl_ir_type_t type;$/;"	m	struct:__anon4
-type	include/jackal/jackal_symbol_table.h	/^  jkl_symbol_type_t type;$/;"	m	struct:__anon16
+test_post	bin/checkmk	/^function test_post()$/;"	f
+test_pre	bin/checkmk	/^function test_pre()$/;"	f
+test_result	include/check.h	/^enum test_result$/;"	g
+type	include/jackal/jackal_hash.h	/^  jkl_hash_type_t type;$/;"	m	struct:__anon4
+type	include/jackal/jackal_ir.h	/^  jkl_ir_type_t type;$/;"	m	struct:__anon7
+type	include/jackal/jackal_stack.h	/^  } type;$/;"	m	struct:__anon9	typeref:enum:__anon9::__anon10
+type	include/jackal/jackal_symbol_table.h	/^  jkl_symbol_type_t type;$/;"	m	struct:__anon22
 type	include/jackal/jackal_types.h	/^  jkl_node_type_t type;$/;"	m	struct:jkl_node
 unput	jackal_lexer.yy.c	182;"	d	file:
-value	include/jackal/jackal_types.h	/^  } value;$/;"	m	struct:jkl_node	typeref:union:jkl_node::__anon11
+value	include/jackal/jackal_types.h	/^  } value;$/;"	m	struct:jkl_node	typeref:union:jkl_node::__anon17
+wordlist	include/jackal/jackal_keywords.h	/^static const struct jkl_keyword wordlist[] = {$/;"	v	typeref:struct:jkl_keyword
 yy_accept	jackal_lexer.yy.c	/^static const flex_int16_t yy_accept[80] =$/;"	v	file:
 yy_at_bol	jackal_lexer.yy.c	/^	int yy_at_bol;$/;"	m	struct:yy_buffer_state	file:
 yy_base	jackal_lexer.yy.c	/^static const flex_int16_t yy_base[84] =$/;"	v	file:
