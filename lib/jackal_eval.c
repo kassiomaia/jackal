@@ -8,7 +8,8 @@ jkl_word_t jkl_eval(jkl_program_t *program)
 {
   invariant(program == NULL, "program is NULL");
   invariant(program->ast_prog_root == NULL, "ast root is NULL");
-  invariant(program->ast_prog_root->type != JKL_NODE_BLOCK, "ast root is not block");
+  invariant(program->ast_prog_root->type != JKL_NODE_BLOCK,
+            "ast root is not block");
 
   jkl_log("jkl_eval", "evaluating program");
 

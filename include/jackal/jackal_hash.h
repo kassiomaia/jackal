@@ -26,12 +26,13 @@ typedef struct {
   unsigned int capacity;
 } jkl_hash_tbl;
 
-jkl_hash_tbl* jkl_hash_new();
+jkl_hash_tbl *jkl_hash_new();
 void jkl_hash_init(jkl_hash_tbl *tbl);
 void jkl_hash_free(jkl_hash_tbl *tbl);
-void jkl_hash_set(jkl_hash_tbl *tbl, jkl_string_t key, jkl_any_t data, jkl_word_t type);
+void jkl_hash_set(jkl_hash_tbl *tbl, jkl_string_t key, jkl_any_t data,
+                  jkl_word_t type);
 void *jkl_hash_get(jkl_hash_tbl *tbl, jkl_string_t key);
 void jkl_hash_del(jkl_hash_tbl *tbl, jkl_string_t key);
-void jkl_hash_to_json(jkl_hash_tbl *tbl, int depth, char* json);
+void jkl_hash_to_json(jkl_hash_tbl *tbl, int depth, char *json);
 
 #endif

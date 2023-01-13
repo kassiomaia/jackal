@@ -98,7 +98,7 @@ typedef struct {
 void jkl_ir_code_init(jkl_ir_code_t *ir_code, jkl_word_t size);
 jkl_word_t jkl_ir_code_push(jkl_ir_code_t *ir_code, jkl_ir_t ir);
 void jkl_ir_code_free(jkl_ir_code_t *ir_code);
-jkl_word_t jkl_ir_code_save(jkl_ir_code_t *ir_code, const char* filename);
+jkl_word_t jkl_ir_code_save(jkl_ir_code_t *ir_code, const char *filename);
 void jkl_ir_store_string(jkl_ir_code_t *ir_code, jkl_string_t *string);
 
 #endif

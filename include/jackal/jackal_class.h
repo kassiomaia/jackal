@@ -7,16 +7,14 @@
  * Methods
  */
 
-typedef enum
-{
+typedef enum {
   JKL_METHOD_STATIC,
   JKL_METHOD_STATIC_OVERRIDE,
   JKL_METHOD_INSTANCE,
   JKL_METHOD_INSTANCE_OVERRIDE,
 } jkl_method_flag_t;
 
-typedef struct
-{
+typedef struct {
   jkl_word_t id;
   jkl_string_t name;
   jkl_word_t arity;
@@ -24,23 +22,22 @@ typedef struct
   jkl_word_t (*fn)();
 } jkl_method_t;
 
-jkl_method_t *jkl_method_new(jkl_string_t name, jkl_word_t arity, jkl_word_t flags, jkl_word_t (*fn)(void *));
+jkl_method_t *jkl_method_new(jkl_string_t name, jkl_word_t arity,
+                             jkl_word_t flags, jkl_word_t (*fn)(void *));
 void jkl_method_free(jkl_method_t *method);
 
 /*
  * Class
  */
 
-typedef enum
-{
+typedef enum {
   JKL_CLASS_STANDARD = 0x00,
   JKL_CLASS_ABSTRACT = 0x01,
   JKL_CLASS_FINAL = 0x02,
   JKL_CLASS_NATIVE = 0x04,
 } jkl_class_flag_t;
 
-struct jkl_class
-{
+struct jkl_class {
   jkl_word_t id;
   jkl_string_t name;
   struct jkl_class *base;

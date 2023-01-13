@@ -3,8 +3,7 @@
 
 #include <jackal.h>
 
-typedef struct
-{
+typedef struct {
   jkl_node_t *ast_prog_root;
   jkl_error_t n_errors;
   jkl_word_t n_warnings;

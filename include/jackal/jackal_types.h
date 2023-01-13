@@ -23,7 +23,7 @@ typedef void (*jkl_function_t)(void);
 typedef char jkl_bool_t;
 typedef char jkl_char_t;
 typedef void jkl_void_t;
-typedef void* jkl_any_t;
+typedef void *jkl_any_t;
 
 /*
  * Error
@@ -37,8 +37,7 @@ typedef jkl_string_t jkl_error_name_t;
  */
 
 typedef struct jkl_node jkl_node_t;
-typedef enum
-{
+typedef enum {
   JKL_NODE_NONE,
   JKL_NODE_INT,
   JKL_NODE_FLOAT,
@@ -58,8 +57,7 @@ typedef enum
   JKL_NODE_PARAMS,
 } jkl_node_type_t;
 
-typedef enum
-{
+typedef enum {
   JKL_OP_NONE = 0,
   JKL_OP_EQL,
   JKL_OP_NEQ,
@@ -77,23 +75,19 @@ typedef enum
   JKL_OP_NOT,
 } jkl_op_t;
 
-struct jkl_node
-{
+struct jkl_node {
   jkl_node_type_t type;
-  union
-  {
+  union {
     jkl_qqword_t i;
     jkl_string_t s;
     jkl_float_t f;
   } value;
-  struct
-  {
+  struct {
     jkl_node_t *left;
     jkl_op_t op;
     jkl_node_t *right;
   } binop;
-  struct
-  {
+  struct {
     jkl_node_t **nodes;
     jkl_word_t n_nodes;
   } compound;
