@@ -5,6 +5,7 @@ OBJS=$(SRCS:.c=.o)
 DEBUG=-fsanitize=address -fsanitize=undefined -g -DVERBOSE -DENABLE_COLOR
 CFLAGS=-Iinclude -Llib -lm -ljackal -Wl,-rpath=lib
 GDB=gdb --args
+ASTYLE=/home/kassio/projects/astyle/build/gcc/bin/astyle
 
 all: jackal clean parser lexer $(OBJS)
 	$(CC) -o $(TARGET) $(OBJS) $(CFLAGS)
@@ -34,5 +35,8 @@ run: all
 test:
 	$(MAKE) -C tests
 
-.PHONY: all clean run gdb jackal run
+format:
+	$(ASTYLE) --style=linux --indent=spaces=2 --indent-switches --indent-preproc-define --indent-preproc-cond --indent-col1-comments --pad-oper --pad-header --unpad-paren --align-pointer=name --align-reference=name --add-brackets --convert-tabs --close-templates --max-code-length=80 --suffix=none --mode=c lib/*.c include/**/*.h
+
+.PHONY: all clean run gdb jackal run test format
 
