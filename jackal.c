@@ -1,5 +1,4 @@
 #include <jackal.h>
-#include <jackal/jackal_class.h>
 
 extern FILE *yyin;
 extern int yyparse();

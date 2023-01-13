@@ -27,7 +27,7 @@ gdb: all
 jackal:
 	$(MAKE) -e DEBUG="-DVERBOSE -DENABLE_COLOR" -C lib
 
-run: CFLAGS += -DVERBOSE -DENABLE_COLOR
+run: CFLAGS += -DVERBOSE -DENABLE_COLOR -fsanitize=address -fsanitize=undefined -g
 run: all
 	$(TARGET) ./samples/main.jkl
 
