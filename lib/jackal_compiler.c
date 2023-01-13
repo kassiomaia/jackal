@@ -33,6 +33,18 @@ void __attribute__((destructor)) jkl_close_ir()
   jkl_ir_code_free(&ir_code);
 }
 
+jkl_program_t *jkl_program_new()
+{
+  jkl_program_t *program = malloc(sizeof(jkl_program_t));
+  if (program == NULL) {
+    jkl_error("jkl_compiler", "cannot allocate memory for program");
+  }
+  memset(program, 0, sizeof(jkl_program_t));
+
+  jkl_program_init(program);
+  return program;
+}
+
 void jkl_program_init(jkl_program_t *program)
 {
   invariant(program == NULL, "program is NULL");

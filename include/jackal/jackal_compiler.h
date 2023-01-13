@@ -17,6 +17,7 @@ typedef struct {
  * Compiler
  */
 
+jkl_program_t *jkl_program_new();
 void jkl_program_init(jkl_program_t *program);
 
 /*
