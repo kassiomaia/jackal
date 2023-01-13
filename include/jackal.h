@@ -18,5 +18,7 @@
 #include <jackal/jackal_symbol_table.h>
 #include <jackal/jackal_optimizer.h>
 #include <jackal/jackal_ir.h>
+#include <jackal/jackal_stack.h>
+#include <jackal/jackal_hash.h>
 
 #endif

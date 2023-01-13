@@ -51,13 +51,19 @@ jkl_symbol_table_t symbol_table;
 %token IF     "if"
 %token ELIF   "elif"
 %token ELSE   "else"
+%token FUNC   "func"
+%token RETURN "return"
 %token LPAREN "("
 %token RPAREN ")"
+%token COMMA  ","
 
 %type <node> expr
 %type <node> ident
 %type <node> call
+%type <node> func
 %type <node> term
+%type <node> param 
+%type <node> func_params
 %type <op>   op
 
 %type statement
@@ -140,6 +146,18 @@ statement: LET ident ASSIGN expr {
             jkl_node_append(jkl_get_context(&program), call);
           }
          | if_stm
+         | RETURN expr {
+            jkl_node_t* ret = jkl_node_new(JKL_NODE_RETURN);
+            ret->expr = $2;
+
+            if (jkl_get_context(&program) == NULL)
+              jkl_error("jkl_parser", "no current context");
+
+            jkl_log("jkl_parser", "return: %p", ret);
+
+            jkl_node_append(jkl_get_context(&program), ret);
+         }
+         | func
          ;
 
 expr: term op term {
@@ -279,6 +297,54 @@ call: ID CSTRING {
       jkl_log("jkl_parser", "emit ast call: %s", $2);
 
       $$ = call;
+    }
+    ;
+
+func: FUNC ident func_params LBRACE {
+        jkl_node_t* block = jkl_node_new(JKL_NODE_BLOCK);
+        jkl_push_context(&program, block);
+      } block_stmts RBRACE {
+      jkl_node_t* block = jkl_pop_context(&program);
+      jkl_node_t* func = jkl_node_new(JKL_NODE_FUNC);
+
+      func->id = $2;
+      func->params = $3;
+      func->block = block;
+
+      jkl_log("jkl_parser", "emit ast func: %s", $2);
+
+      $$ = func;
+    }
+    ;
+
+func_params: LPAREN {
+            jkl_node_t* params = jkl_node_new(JKL_NODE_PARAMS);
+            jkl_push_context(&program, params);
+           } params RPAREN {
+            $$ = jkl_pop_context(&program);
+           }
+           ;
+
+params:
+      | params COMMA param {
+        jkl_node_t* params = jkl_pop_context(&program);
+        jkl_node_append(params, $3);
+        jkl_push_context(&program, params);
+      }
+      | param {
+        jkl_node_t* params = jkl_pop_context(&program);
+        jkl_node_append(params, $1);
+        jkl_push_context(&program, params);
+      }
+      ;
+
+param: ident {
+      jkl_node_t* param = jkl_node_new(JKL_NODE_PARAM);
+      param->id = $1;
+
+      jkl_log("jkl_parser", "emit ast param: %s", $1);
+
+      $$ = param;
     }
     ;
 

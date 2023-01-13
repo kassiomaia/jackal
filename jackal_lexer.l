@@ -8,6 +8,7 @@ string ["].+["]
 float [+|-]?{int}?[.]{int}
 
 %x STR
+%x CMT
 
 %%
 
@@ -19,6 +20,8 @@ float [+|-]?{int}?[.]{int}
 "if"                                    { return IF;     }
 "elif"                                  { return ELIF;   }
 "else"                                  { return ELSE;   }
+"func"                                  { return FUNC;   }
+"return"                                { return RETURN; }
 ":="                                    { return ASSIGN; }
 "{"                                     { return LBRACE; }
 "}"                                     { return RBRACE; }
@@ -38,6 +41,7 @@ float [+|-]?{int}?[.]{int}
 "!"                                     { return NOT;    }
 "("                                     { return LPAREN; }
 ")"                                     { return RPAREN; }
+","                                     { return COMMA;  }
 
 [a-zA-Z_][a-zA-Z0-9_]*                  {
   yylval.id = malloc(strlen(yytext) + 1);
@@ -45,27 +49,30 @@ float [+|-]?{int}?[.]{int}
   return ID;
 }
 
-{int}                                   {
+{int} {
   yylval.number = atoi(yytext);
   return CINT;
 }
 
-{float}                                 {
+{float} {
   yylval.fnumber = atof(yytext);
   return CFLOAT;
 }
 
-["]                                  {
+"/*"      { BEGIN(CMT); }
+<CMT>"*/" { BEGIN(INITIAL); }
+
+["] {
   BEGIN(STR);
   yytext[0] = '\0';
 }
 
-<STR>[^"]+                            {
+<STR>[^"]+ {
   yylval.string = malloc(strlen(yytext) + 1);
   strncpy(yylval.string, yytext, strlen(yytext) + 1);
 }
 
-<STR>["]                           {
+<STR>["] {
   BEGIN(INITIAL);
   for (jkl_char_t *p = yylval.string; *p; p++) {
     if (*p == '\\') {
@@ -112,6 +119,8 @@ float [+|-]?{int}?[.]{int}
   return CSTRING;
 }
 
-. { jkl_error("jkl_lexer", "unknow char code %s\n", yytext); }
+. {
+  jkl_error("jkl_lexer", "unknow char code %s\n", yytext);
+}
 
 %%
