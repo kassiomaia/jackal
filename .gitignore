@@ -17,3 +17,4 @@ jackal_parser.tab.c
 jackal_parser.tab.h
 ir.bin
 ir.code
+.nvimrc
