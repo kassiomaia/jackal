@@ -5,10 +5,10 @@ void stack_init(stack_t *stack, unsigned int capacity)
   stack->capacity = capacity;
   stack->bp = 0;
   stack->sp = 0;
-  stack->items = (int *)malloc(sizeof(stack_item_t) * capacity);
+  stack->items = malloc(sizeof(stack_item_t) * capacity);
 
   if (stack->items == NULL) {
-    jkl_error("jkl_stack", "stack_init", "malloc failed");
+    jkl_error("jkl_stack", "stack_init: malloc failed");
   }
 
   memset(stack->items, 0, sizeof(stack_item_t) * capacity);
@@ -17,7 +17,7 @@ void stack_init(stack_t *stack, unsigned int capacity)
 void stack_push(stack_t *stack, stack_item_t item)
 {
   if (stack->sp == stack->capacity) {
-    jkl_error("jkl_stack", "stack_push", "stack overflow");
+    jkl_error("jkl_stack", "stack_push: stack overflow");
   }
 
   stack->items[stack->sp++] = item;
@@ -26,7 +26,7 @@ void stack_push(stack_t *stack, stack_item_t item)
 stack_item_t stack_pop(stack_t *stack)
 {
   if (stack->sp == stack->bp) {
-    jkl_error("jkl_stack", "stack_pop", "stack underflow");
+    jkl_error("jkl_stack", "stack_pop: stack underflow");
   }
 
   return stack->items[--stack->sp];
@@ -35,7 +35,7 @@ stack_item_t stack_pop(stack_t *stack)
 stack_item_t stack_peek(stack_t *stack)
 {
   if (stack->sp == stack->bp) {
-    jkl_error("jkl_stack", "stack_peek", "stack underflow");
+    jkl_error("jkl_stack", "stack_peek: stack underflow");
   }
 
   return stack->items[stack->sp - 1];

@@ -124,11 +124,8 @@ void jkl_hash_del(jkl_hash_tbl *tbl, jkl_string_t key)
 
 void jkl_hash_to_json(jkl_hash_tbl *tbl, int depth, char *json)
 {
-  if (tbl == NULL) {
-    return NULL;
-  }
-  if (tbl->size == 0) {
-    return NULL;
+  if (tbl == NULL || tbl->size == 0) {
+    return;
   }
 
   jsoncat(json, depth, "{\n");
@@ -149,13 +146,13 @@ void jkl_hash_to_json(jkl_hash_tbl *tbl, int depth, char *json)
         jsoncat(json, 0, "\"");
         break;
       case JKL_HASH_TYPE_INT:
-        jsoncat(json, 0, (int *)tbl->keys[i].data);
+        jsoncat(json, 0, tbl->keys[i].data);
         break;
       case JKL_HASH_TYPE_FLOAT:
-        jsoncat(json, 0, (float *)tbl->keys[i].data);
+        jsoncat(json, 0, tbl->keys[i].data);
         break;
       case JKL_HASH_TYPE_BOOL:
-        jsoncat(json, 0, (bool *)tbl->keys[i].data);
+        jsoncat(json, 0, tbl->keys[i].data);
         break;
       case JKL_HASH_TYPE_NIL:
         jsoncat(json, 0, "null");
