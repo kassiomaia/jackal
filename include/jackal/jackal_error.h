@@ -1,7 +1,7 @@
 #ifndef JACKAL_ERROR_H
 #define JACKAL_ERROR_H
 
-#include <jackal.h>
+#include <jackal/jackal_types.h>
 
 // normal colors
 #define $R "\x1b[31m"

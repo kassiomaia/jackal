@@ -131,14 +131,14 @@ jkl_word_t jkl_compile_expr(jkl_program_t *program, jkl_node_t *expr)
     }
     case JKL_NODE_STRING: {
       jkl_word_t hash = jkl_string_hash(expr->value.s);
-      jkl_ir_store_string(program->ir_code, (jkl_string_t*)expr->value.s);
+      jkl_ir_store_string(program->ir_code, (jkl_string_t *)expr->value.s);
       jkl_ir_code_push(program->ir_code, JKL_EMIT_IR(JKL_IR_LOAD, hash,
                        hash + jkl_string_len(expr->value.s), 0));
       break;
     }
     case JKL_NODE_ID: {
       jkl_qword_t hash = jkl_string_hash(expr->value.s);
-      jkl_ir_store_string(program->ir_code, (jkl_string_t*)expr->value.s);
+      jkl_ir_store_string(program->ir_code, (jkl_string_t *)expr->value.s);
       jkl_ir_code_push(program->ir_code, JKL_EMIT_IR(JKL_IR_LOAD, hash, 0, 0));
       break;
     }
