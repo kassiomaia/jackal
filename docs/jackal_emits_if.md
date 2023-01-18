@@ -15,7 +15,7 @@ LOAD b      `load variable b to the stack`
 OP   EQ     `compare both and add the result to the stack`
 JNE IFEB    `jump to the block of code when the value on the stack is > 0`
 ...         `list of block instructions`
-IFEB        `end of block`
+IFEB        `end of blocks`
 
 # Example 2
 

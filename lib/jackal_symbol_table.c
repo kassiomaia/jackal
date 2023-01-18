@@ -52,5 +52,3 @@ void jkl_symbol_table_free(jkl_symbol_table_t *table)
   free(table->symbols);
   table->n_symbols = 0;
 }
-
-

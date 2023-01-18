@@ -1,7 +1,7 @@
 #ifndef JACKAL_HASHOBJ_H
 #define JACKAL_HASHOBJ_H
 
-#include <jackal.h>
+#include <jackal/jackal_types.h>
 
 typedef enum {
   JKL_HASH_TYPE_STRING,

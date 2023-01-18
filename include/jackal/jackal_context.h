@@ -1,7 +1,7 @@
 #ifndef JACKAL_CONTEXT_H
 #define JACKAL_CONTEXT_H
 
-#include <jackal.h>
+#include <jackal/jackal_compiler.h>
 
 jkl_node_t *jkl_get_context(jkl_program_t *program);
 void jkl_push_context(jkl_program_t *program, jkl_node_t *node);

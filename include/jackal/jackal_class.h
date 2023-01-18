@@ -1,7 +1,7 @@
 #ifndef JACKAL_CLASS_H
 #define JACKAL_CLASS_H
 
-#include <jackal.h>
+#include <jackal/jackal_types.h>
 
 /*
  * Methods
