@@ -1,7 +1,7 @@
 #ifndef JACKAL_SYMBOL_TABLE_H
 #define JACKAL_SYMBOL_TABLE_H
 
-#include <jackal.h>
+#include <jackal/jackal_types.h>
 
 #define JKL_SYMBOL_TABLE_SIZE 1024
 

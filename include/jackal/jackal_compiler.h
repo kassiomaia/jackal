@@ -1,7 +1,9 @@
 #ifndef JACKAL_COMPILER_H
 #define JACKAL_COMPILER_H
 
-#include <jackal.h>
+#include <jackal/jackal_types.h>
+#include <jackal/jackal_hash.h>
+#include <jackal/jackal_ir.h>
 
 typedef struct {
   jkl_node_t *ast_prog_root;

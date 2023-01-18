@@ -1,7 +1,7 @@
 #ifndef JACKAL_AST_H
 #define JACKAL_AST_H
 
-#include <jackal.h>
+#include <jackal/jackal_types.h>
 
 /*
  * AST
