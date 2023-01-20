@@ -20,6 +20,7 @@ ir.bin
 ir.code
 .nvimrc
 configure~
+jackal
 
 # http://www.gnu.org/software/automake
 
