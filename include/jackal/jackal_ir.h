@@ -1,6 +1,8 @@
 #ifndef JACKAL_IR_H
 #define JACKAL_IR_H
 
+#include <jackal/jackal_types.h>
+
 /*
  * Jackal Intermediate Representation
  */
