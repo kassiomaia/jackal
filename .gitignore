@@ -11,6 +11,7 @@
 *.h~
 *.c~
 *.so.*
+/tools/*
 
 #files
 jackal_parser.tab.c
