@@ -1,6 +1,6 @@
 %{
 #include <jackal.h>
-#include "jackal_parser.tab.h"
+#include <jackal_parser.h>
 %}
 
 int [0-9]+
