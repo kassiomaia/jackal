@@ -19,6 +19,7 @@ jackal_parser.tab.h
 ir.bin
 ir.code
 .nvimrc
+configure~
 
 # http://www.gnu.org/software/automake
 
