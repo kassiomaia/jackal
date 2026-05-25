@@ -92,6 +92,11 @@ jkl_word_t jkl_node_free(jkl_node_t *node)
       jkl_node_free(node->id);
       jkl_node_free(node->node);
       break;
+    case JKL_NODE_METHOD_CALL:
+      jkl_node_free(node->node);   /* receiver */
+      jkl_node_free(node->id);     /* method name */
+      jkl_node_free(node->params); /* args */
+      break;
     case JKL_NODE_RETURN:
       jkl_node_free(node->expr);
       break;

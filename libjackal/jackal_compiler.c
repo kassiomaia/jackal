@@ -140,6 +140,19 @@ jkl_word_t jkl_emit_expr_op(jkl_program_t *program, jkl_op_t op)
   return 0;
 }
 
+/* Write a NUL-terminated name into the data section and return its offset.
+ * Shared by external CALL resolution and SEND lowering. */
+static jkl_word_t jkl_bss_intern(jkl_program_t *program, jkl_string_t name)
+{
+  jkl_word_t len = jkl_string_len(name);
+  jkl_word_t off = jkl_string_hash(name) % ((1 << (sizeof(jkl_word_t) * 8)) - 1);
+  jkl_ir_store_string(program->ir_code, (jkl_string_t *)name);
+  if ((jkl_word_t)(off + len) < ((1 << (sizeof(jkl_word_t) * 8)) - 1)) {
+    program->ir_code->bss[off + len] = 0;
+  }
+  return off;
+}
+
 jkl_word_t jkl_compile_expr(jkl_program_t *program, jkl_node_t *expr)
 {
   invariant(program == NULL, "program is NULL");
@@ -180,6 +193,25 @@ jkl_word_t jkl_compile_expr(jkl_program_t *program, jkl_node_t *expr)
       jkl_compile_expr(program, lhs);
       jkl_compile_expr(program, rhs);
       jkl_emit_expr_op(program, expr->binop.op);
+      break;
+    }
+    case JKL_NODE_BOOL: {
+      jkl_ir_code_push(program->ir_code,
+                       JKL_EMIT_IR(JKL_IR_PUSHB, expr->value.i ? 1 : 0, 0, 0));
+      break;
+    }
+    case JKL_NODE_METHOD_CALL: {
+      /* receiver, then args left-to-right, then SEND name_off, argc */
+      jkl_compile_expr(program, expr->node);
+      jkl_word_t argc = 0;
+      if (expr->params != NULL) {
+        for (jkl_word_t i = 0; i < expr->params->compound.n_nodes; i++) {
+          jkl_compile_expr(program, expr->params->compound.nodes[i]);
+          argc++;
+        }
+      }
+      jkl_word_t off = jkl_bss_intern(program, expr->id->value.s);
+      jkl_ir_code_push(program->ir_code, JKL_EMIT_IR(JKL_IR_SEND, off, argc, 0));
       break;
     }
     default: {
@@ -356,12 +388,7 @@ static void jkl_resolve_call_fixups(jkl_program_t *program)
     if (sym != NULL && sym->type == JKL_SYMBOL_FUNCTION) {
       jkl_ir_code_patch(program->ir_code, idx, 0, sym->addr);
     } else {
-      jkl_word_t len = jkl_string_len((char *)name);
-      jkl_word_t off = jkl_string_hash(name) % ((1 << (sizeof(jkl_word_t) * 8)) - 1);
-      jkl_ir_store_string(program->ir_code, (jkl_string_t *)name);
-      if ((jkl_word_t)(off + len) < ((1 << (sizeof(jkl_word_t) * 8)) - 1)) {
-        program->ir_code->bss[off + len] = 0;
-      }
+      jkl_word_t off = jkl_bss_intern(program, name);
       jkl_ir_code_patch(program->ir_code, idx, 0, off);
       jkl_ir_code_patch(program->ir_code, idx, 1, 1);
     }

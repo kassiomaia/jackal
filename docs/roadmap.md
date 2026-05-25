@@ -55,7 +55,8 @@ Legend: ✅ works · 🟡 partial / buggy · 🟥 stub / unwired · ⬛ planned-
 | hash | 🟡 | works for non-colliding keys; `free` fixed; no longer used by the compiler |
 | symbol_table | ✅ | wired: `program->symbol_table` resolves `let`/`ID` to slots |
 | stack | ✅/🟥 | correct, but unused |
-| class (OOP runtime) | 🟥 | full model + built-ins declared; all methods `jkl_not_implemented`; `jkl_class_init` never called |
+| class (OOP runtime) | 🟡 | wired as the **type registry**: tagged `jkl_value_t`, `jkl_send` dispatch, real `int`/`bool`/`string` methods; user classes/instances still TODO. See [`types.md`](./types.md) |
+| primitive types + methods | 🟡 | `int`/`bool`/`string` methods via `.`-calls → `SEND`; runtime-tested via `jkl_send` (no VM to execute end-to-end yet) |
 
 ## Consolidated known bugs
 

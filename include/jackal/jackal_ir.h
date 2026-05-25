@@ -48,6 +48,10 @@ typedef enum {
   JKL_IR_CALL     = 0x01e4,         // [0x01e4]: 0000 0001 1110 0100
   JKL_IR_RET      = 0x00e5,         // [0x00e5]: 0000 0000 1110 0101
   JKL_IR_HALT     = 0x00e6,         // [0x00e6]: 0000 0000 1110 0110
+
+  /* TYPES */
+  JKL_IR_SEND     = 0x01e7,         // method dispatch: args = [name_off, argc]
+  JKL_IR_PUSHB    = 0x01e8,         // push a boolean (arg0 = 0/1)
 } jkl_ir_type_t;
 
 #define JKL_IR_TYPE_SIZE sizeof(jkl_ir_type_t)

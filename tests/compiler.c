@@ -473,6 +473,80 @@ START_TEST(test_jkl_compile_external_call)
 END_TEST
 
 /*
+ * Type system (behavioral): dispatch native methods via jkl_send, with no VM.
+ * jkl_class_init must run exactly once (it registers an atexit cleanup).
+ */
+static void ensure_types(void)
+{
+  static int done = 0;
+  if (!done) {
+    jkl_class_init();
+    done = 1;
+  }
+}
+
+START_TEST(test_jkl_send_string)
+{
+  ensure_types();
+
+  jkl_value_t len = jkl_send(jkl_string("hello"), "length", NULL, 0);
+  ck_assert_int_eq(len.tag, JKL_T_INT);
+  ck_assert_int_eq(len.as.i, 5);
+
+  jkl_value_t up = jkl_send(jkl_string("abc"), "upcase", NULL, 0);
+  ck_assert_int_eq(up.tag, JKL_T_STRING);
+  ck_assert_int_eq(strcmp(up.as.s, "ABC"), 0);
+  jkl_value_free(up);
+
+  jkl_value_t rev = jkl_send(jkl_string("abc"), "reverse", NULL, 0);
+  ck_assert_int_eq(strcmp(rev.as.s, "cba"), 0);
+  jkl_value_free(rev);
+
+  jkl_value_t arg = jkl_string("cd");
+  jkl_value_t cat = jkl_send(jkl_string("ab"), "concat", &arg, 1);
+  ck_assert_int_eq(strcmp(cat.as.s, "abcd"), 0);
+  jkl_value_free(cat);
+
+  jkl_value_t empty = jkl_send(jkl_string(""), "empty?", NULL, 0);
+  ck_assert_int_eq(empty.tag, JKL_T_BOOL);
+  ck_assert_int_eq(empty.as.i, 1);
+}
+END_TEST
+
+START_TEST(test_jkl_send_integer)
+{
+  ensure_types();
+
+  jkl_value_t a = jkl_send(jkl_int(-3), "abs", NULL, 0);
+  ck_assert_int_eq(a.tag, JKL_T_INT);
+  ck_assert_int_eq(a.as.i, 3);
+
+  ck_assert_int_eq(jkl_send(jkl_int(4), "even?", NULL, 0).as.i, 1);
+  ck_assert_int_eq(jkl_send(jkl_int(4), "odd?", NULL, 0).as.i, 0);
+  ck_assert_int_eq(jkl_send(jkl_int(4), "succ", NULL, 0).as.i, 5);
+
+  jkl_value_t s = jkl_send(jkl_int(-3), "to_s", NULL, 0);
+  ck_assert_int_eq(s.tag, JKL_T_STRING);
+  ck_assert_int_eq(strcmp(s.as.s, "-3"), 0);
+  jkl_value_free(s);
+}
+END_TEST
+
+START_TEST(test_jkl_send_boolean)
+{
+  ensure_types();
+
+  jkl_value_t n = jkl_send(jkl_bool(1), "not", NULL, 0);
+  ck_assert_int_eq(n.tag, JKL_T_BOOL);
+  ck_assert_int_eq(n.as.i, 0);
+
+  jkl_value_t s = jkl_send(jkl_bool(0), "to_s", NULL, 0);
+  ck_assert_int_eq(strcmp(s.as.s, "false"), 0);
+  jkl_value_free(s);
+}
+END_TEST
+
+/*
  * Compiler test suite
  */
 
@@ -489,6 +563,9 @@ Suite *jkl_compiler_suite()
   tcase_add_test(tc_core, test_jkl_compile_id_resolves_to_slot);
   tcase_add_test(tc_core, test_jkl_compile_call_func_return);
   tcase_add_test(tc_core, test_jkl_compile_external_call);
+  tcase_add_test(tc_core, test_jkl_send_string);
+  tcase_add_test(tc_core, test_jkl_send_integer);
+  tcase_add_test(tc_core, test_jkl_send_boolean);
   tcase_add_test(tc_core, test_jkl_compile_check_with_loop);
   tcase_add_test(tc_core, test_jkl_compile_if_without_else);
   tcase_add_test(tc_core, test_jkl_compile_if_with_else);

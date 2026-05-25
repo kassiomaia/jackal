@@ -90,9 +90,16 @@ library (`libcheck`) for tests (optional — there's a shim). Optional:
   undefined callees like `puts`); `return`→`RET`. Single-arg calls, flat slot table
   (no recursion/per-function scopes yet), calls are statements. `raise` is still a
   stub (hits the `default` error path).
-- The **stack, class system, optimizer, and evaluator are built-but-unused** (or
-  stubs). Don't assume they participate in compilation. (The symbol table is now
-  wired; the `hash` module is no longer used by the compiler.)
+- **Types are Ruby-like objects** (see `docs/types.md`): a tagged `jkl_value_t`
+  (`jackal_value.h` — include it before `jackal_class.h`), `jkl_class` is the
+  type/method registry, and `jkl_send(self, name, argv, argc)` is dynamic dispatch.
+  `int`/`bool`/`string` have real native-C methods; `recv.method(args)` lowers to
+  `SEND name_off,argc` and `true/false` to `PUSHB`. No VM runs `SEND` yet, so test
+  in two tiers: **behavioral** via `jkl_send` (the non-ASan `compiler` target —
+  `jkl_class_init` leaks its method tables, so keep it off ASan) and **structural**
+  IR-shape via the ASan `precedence` target.
+- The **stack, optimizer, and evaluator are still built-but-unused** (or stubs);
+  the `hash` module is no longer used by the compiler.
 - **Parser regen trap**: if you edit `jackal_parser.y`, regenerate with `bison`
   AND copy the fresh `jackal_parser.h` over `include/jackal_parser.h` (the path
   the lexer's `#include <jackal_parser.h>` resolves to). The committed copies must
@@ -109,5 +116,6 @@ library (`libcheck`) for tests (optional — there's a shim). Optional:
 ## Where to read more
 
 `docs/README.md` (index) · `architecture.md` (pipeline) · `language.md` (the
-`.jkl` language) · `ir.md` (bytecode) · `modules.md` (per-file API + status) ·
-`build.md` (setup) · `roadmap.md` (what works / known bugs / next steps).
+`.jkl` language) · `ir.md` (bytecode) · `types.md` (type system + methods) ·
+`modules.md` (per-file API + status) · `build.md` (setup) · `roadmap.md` (what
+works / known bugs / next steps).

@@ -45,6 +45,8 @@ operands from the value stack.
 | `JKL_IR_CALL`  | `0x01e4` | 1 | Call |
 | `JKL_IR_RET`   | `0x00e5` | 0 | Return |
 | `JKL_IR_HALT`  | `0x00e6` | 0 | Halt execution |
+| `JKL_IR_SEND`  | `0x01e7` | 2 | Method dispatch: `args = [name_off, argc]` |
+| `JKL_IR_PUSHB` | `0x01e8` | 1 | Push a boolean (`arg0` = 0/1) |
 
 ## Opcode encoding
 
@@ -177,6 +179,8 @@ operator:
 | `JKL_NODE_STRING` | store string in `bss`, then `LOAD hash, hash+len` |
 | `JKL_NODE_ID` | `LOAD slot` — the name is resolved through the symbol table; a read of an **undeclared** name is a compile error |
 | `JKL_NODE_BINOP` | `<left>`, `<right>`, then the operator opcode |
+| `JKL_NODE_BOOL` | `PUSHB 0/1` |
+| `JKL_NODE_METHOD_CALL` | `<receiver>`, args left-to-right, then `SEND name_off, argc` (see [`types.md`](./types.md)) |
 
 Statement lowering (`jkl_compile_block`):
 
@@ -272,6 +276,23 @@ only the first — compile-time warning); a **flat** slot table shared by global
 params, and locals, so there is **no recursion / no per-function scopes** yet;
 calls are statements (the return value is left on the stack but not consumed);
 external callee names share `bss` with string literals (no collision handling).
+
+## Method dispatch — `SEND` (the contract)
+
+Method calls (`recv.m(args)`) are **dynamically dispatched** on the receiver's
+runtime type, distinct from function `CALL`:
+
+- Lowering: compile the **receiver**, then each **arg left-to-right**, then emit
+  `SEND name_off, argc`. `name_off` is the `bss` offset of the NUL-terminated
+  method name (interned via the same helper as external `CALL`); `argc` is the
+  argument count.
+- Stack at `SEND` (top on the right): `… receiver arg0 … arg_{argc-1}`.
+- VM contract: pop `argc` args (restoring left-to-right order) and the receiver,
+  call `jkl_send(receiver, bss+name_off, argv, argc)`, and push the result. See
+  [`types.md`](./types.md) for the registry/dispatch model and the method tables.
+
+`PUSHB 0|1` pushes a boolean literal. (Like the rest of the backend, `SEND`/`PUSHB`
+are emitted but executed only once a VM exists.)
 
 ## Jump semantics (the contract)
 

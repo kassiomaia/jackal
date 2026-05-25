@@ -22,6 +22,8 @@ float [+|-]?{int}?[.]{int}
 "else"                                  { return ELSE;   }
 "func"                                  { return FUNC;   }
 "return"                                { return RETURN; }
+"true"                                  { return TRUE;   }
+"false"                                 { return FALSE;  }
 ":="                                    { return ASSIGN; }
 "{"                                     { return LBRACE; }
 "}"                                     { return RBRACE; }
@@ -42,6 +44,7 @@ float [+|-]?{int}?[.]{int}
 "("                                     { return LPAREN; }
 ")"                                     { return RPAREN; }
 ","                                     { return COMMA;  }
+"."                                     { return DOT;    }
 
 [a-zA-Z_][a-zA-Z0-9_]*                  {
   yylval.id = malloc(strlen(yytext) + 1);

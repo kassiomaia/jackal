@@ -55,6 +55,8 @@ typedef enum {
   JKL_NODE_FUNC,
   JKL_NODE_PARAM,
   JKL_NODE_PARAMS,
+  JKL_NODE_BOOL,
+  JKL_NODE_METHOD_CALL,
 } jkl_node_type_t;
 
 typedef enum {

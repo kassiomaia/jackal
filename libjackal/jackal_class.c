@@ -1,11 +1,12 @@
 #include <jackal.h>
+#include <jackal/jackal_methods.h>
 
 /*
  * Methods
  */
 
 jkl_method_t *jkl_method_new(jkl_string_t name, jkl_word_t arity,
-                             jkl_word_t flags, jkl_word_t (*fn)())
+                             jkl_word_t flags, jkl_native_fn_t fn)
 {
   jkl_method_t *method = malloc(sizeof(jkl_method_t));
   if (method == NULL) {
@@ -209,6 +210,30 @@ jkl_word_t jkl_class_method_exists(jkl_class_t *klass, jkl_string_t name)
   return 0;
 }
 
+/* Resolve a method by name, walking the receiver's own methods, then any
+ * included mixins, then the base class. Returns NULL if unresolved. */
+jkl_method_t *jkl_class_method_lookup(jkl_class_t *klass, jkl_string_t name)
+{
+  if (klass == NULL) {
+    return NULL;
+  }
+
+  for (jkl_word_t i = 0; i < klass->n_methods; i++) {
+    if (strcmp(klass->methods[i]->name, name) == 0) {
+      return klass->methods[i];
+    }
+  }
+
+  for (jkl_word_t i = 0; i < klass->n_includes; i++) {
+    jkl_method_t *m = jkl_class_method_lookup(klass->includes[i], name);
+    if (m != NULL) {
+      return m;
+    }
+  }
+
+  return jkl_class_method_lookup(klass->base, name);
+}
+
 jkl_word_t jkl_class_add_method(jkl_class_t *klass, jkl_method_t *method)
 {
   if (klass == NULL) {
@@ -280,9 +305,36 @@ jkl_class_t *jkl_class_get(jkl_word_t id)
   return JKL_TBL_CLASS[id - 1];
 }
 
-jkl_word_t jkl_not_implemented()
+jkl_value_t jkl_not_implemented(jkl_value_t self, jkl_value_t *argv,
+                                jkl_word_t argc)
 {
+  (void)self;
+  (void)argv;
+  (void)argc;
   jkl_error("jkl_class", "method not implemented");
+  return jkl_nil();
+}
+
+/* tag -> class, populated at the end of jkl_class_init. */
+static jkl_class_t *JKL_TAG_CLASS[JKL_T_OBJECT + 1] = { 0 };
+
+jkl_class_t *jkl_class_for_tag(jkl_type_tag_t tag)
+{
+  if (tag > JKL_T_OBJECT || JKL_TAG_CLASS[tag] == NULL) {
+    jkl_error("jkl_class", "no class registered for value tag %d", tag);
+  }
+  return JKL_TAG_CLASS[tag];
+}
+
+jkl_value_t jkl_send(jkl_value_t self, jkl_string_t name, jkl_value_t *argv,
+                     jkl_word_t argc)
+{
+  jkl_class_t *klass = jkl_class_for_tag(self.tag);
+  jkl_method_t *method = jkl_class_method_lookup(klass, name);
+  if (method == NULL) {
+    jkl_error("jkl_send", "undefined method '%s' for %s", name, klass->name);
+  }
+  return method->fn(self, argv, argc);
 }
 
 void jkl_class_init()
@@ -315,17 +367,25 @@ void jkl_class_init()
 
   jkl_class_add_method(String, jkl_method_new("new", 1,
                        JKL_METHOD_STATIC_OVERRIDE, jkl_not_implemented));
-  jkl_class_add_method(String, jkl_method_new("length", 0, JKL_METHOD_STATIC,
+  jkl_class_add_method(String, jkl_method_new("length", 0, JKL_METHOD_INSTANCE,
+                       jkl_str_length));
+  jkl_class_add_method(String, jkl_method_new("upcase", 0, JKL_METHOD_INSTANCE,
+                       jkl_str_upcase));
+  jkl_class_add_method(String, jkl_method_new("downcase", 0, JKL_METHOD_INSTANCE,
+                       jkl_str_downcase));
+  jkl_class_add_method(String, jkl_method_new("reverse", 0, JKL_METHOD_INSTANCE,
+                       jkl_str_reverse));
+  jkl_class_add_method(String, jkl_method_new("concat", 1, JKL_METHOD_INSTANCE,
+                       jkl_str_concat));
+  jkl_class_add_method(String, jkl_method_new("empty?", 0, JKL_METHOD_INSTANCE,
+                       jkl_str_empty_p));
+  jkl_class_add_method(String, jkl_method_new("to_i", 0, JKL_METHOD_INSTANCE,
+                       jkl_str_to_i));
+  jkl_class_add_method(String, jkl_method_new("split", 1, JKL_METHOD_INSTANCE,
                        jkl_not_implemented));
-  jkl_class_add_method(String, jkl_method_new("concat", 1, JKL_METHOD_STATIC,
+  jkl_class_add_method(String, jkl_method_new("replace", 2, JKL_METHOD_INSTANCE,
                        jkl_not_implemented));
-  jkl_class_add_method(String, jkl_method_new("split", 1, JKL_METHOD_STATIC,
-                       jkl_not_implemented));
-  jkl_class_add_method(String, jkl_method_new("replace", 2, JKL_METHOD_STATIC,
-                       jkl_not_implemented));
-  jkl_class_add_method(String, jkl_method_new("reverse", 0, JKL_METHOD_STATIC,
-                       jkl_not_implemented));
-  jkl_class_add_method(String, jkl_method_new("at", 0, JKL_METHOD_STATIC,
+  jkl_class_add_method(String, jkl_method_new("at", 1, JKL_METHOD_INSTANCE,
                        jkl_not_implemented));
 
   // Define the integer class
@@ -336,6 +396,18 @@ void jkl_class_init()
 
   jkl_class_add_method(Integer, jkl_method_new("new", 1,
                        JKL_METHOD_STATIC_OVERRIDE, jkl_not_implemented));
+  jkl_class_add_method(Integer, jkl_method_new("to_s", 0, JKL_METHOD_INSTANCE,
+                       jkl_int_to_s));
+  jkl_class_add_method(Integer, jkl_method_new("abs", 0, JKL_METHOD_INSTANCE,
+                       jkl_int_abs));
+  jkl_class_add_method(Integer, jkl_method_new("succ", 0, JKL_METHOD_INSTANCE,
+                       jkl_int_succ));
+  jkl_class_add_method(Integer, jkl_method_new("pred", 0, JKL_METHOD_INSTANCE,
+                       jkl_int_pred));
+  jkl_class_add_method(Integer, jkl_method_new("even?", 0, JKL_METHOD_INSTANCE,
+                       jkl_int_even_p));
+  jkl_class_add_method(Integer, jkl_method_new("odd?", 0, JKL_METHOD_INSTANCE,
+                       jkl_int_odd_p));
 
   // Define the float class
   jkl_class_t *Float = jkl_class_new("Float");
@@ -354,6 +426,10 @@ void jkl_class_init()
 
   jkl_class_add_method(Boolean, jkl_method_new("new", 1,
                        JKL_METHOD_STATIC_OVERRIDE, jkl_not_implemented));
+  jkl_class_add_method(Boolean, jkl_method_new("to_s", 0, JKL_METHOD_INSTANCE,
+                       jkl_bool_to_s));
+  jkl_class_add_method(Boolean, jkl_method_new("not", 0, JKL_METHOD_INSTANCE,
+                       jkl_bool_not));
 
   // Define the array class
   jkl_class_t *Array = jkl_class_new("Array");
@@ -422,6 +498,15 @@ void jkl_class_init()
                                           jkl_not_implemented));
   jkl_class_add_method(IO, jkl_method_new("gets", 0, JKL_METHOD_STATIC,
                                           jkl_not_implemented));
+
+  /* Map primitive value tags to their classes for dynamic dispatch. */
+  JKL_TAG_CLASS[JKL_T_NIL] = Base;
+  JKL_TAG_CLASS[JKL_T_INT] = Integer;
+  JKL_TAG_CLASS[JKL_T_FLOAT] = Float;
+  JKL_TAG_CLASS[JKL_T_BOOL] = Boolean;
+  JKL_TAG_CLASS[JKL_T_STRING] = String;
+  JKL_TAG_CLASS[JKL_T_ARRAY] = Array;
+  JKL_TAG_CLASS[JKL_T_OBJECT] = Base;
 
   atexit(jkl_class_destroy_all);
 }

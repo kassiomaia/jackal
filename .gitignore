@@ -20,7 +20,7 @@ ir.bin
 ir.code
 .nvimrc
 configure~
-jackal
+/jackal
 tests/jackaltest
 tests/jackalinteg
 tests/*.bin

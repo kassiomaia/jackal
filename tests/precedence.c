@@ -188,6 +188,41 @@ static void test_external_call(void)
   free_program(p);
 }
 
+/* A method call lowers to: receiver, args left-to-right, then SEND name,argc.
+ * (SEND never executes here — no VM — so this asserts shape; behavior is covered
+ * by the jkl_send unit tests.) */
+static void test_method_call_send(void)
+{
+  printf("test: method call lowers to SEND\n");
+  jkl_program_t *p = compile_snippet("let n := \"hi\".length\n");
+  jkl_ir_type_t want[] = {
+    JKL_IR_ALLOC, JKL_IR_LOAD, JKL_IR_SEND, JKL_IR_STORE, JKL_IR_HALT
+  };
+  CHECK(ir_seq_eq(p, want, 5), "\"hi\".length => ALLOC LOAD SEND STORE HALT");
+  int send = first_op(p, JKL_IR_SEND);
+  if (send >= 0) {
+    CHECK(p->ir_code->ir[send].args[1] == 0, "SEND argc == 0 (no-arg method)");
+  }
+  free_program(p);
+
+  jkl_program_t *q = compile_snippet("let r := \"ab\".concat(\"cd\")\n");
+  int qsend = first_op(q, JKL_IR_SEND);
+  CHECK(qsend >= 0 && q->ir_code->ir[qsend].args[1] == 1,
+        "concat(\"cd\") => SEND argc == 1");
+  free_program(q);
+}
+
+/* Boolean literals lower to PUSHB 1/0. */
+static void test_bool_literal(void)
+{
+  printf("test: bool literal lowers to PUSHB\n");
+  jkl_program_t *p = compile_snippet("let b := true\n");
+  jkl_ir_type_t want[] = { JKL_IR_ALLOC, JKL_IR_PUSHB, JKL_IR_STORE, JKL_IR_HALT };
+  CHECK(ir_seq_eq(p, want, 4), "true => ALLOC PUSHB STORE HALT");
+  CHECK(p->ir_code->ir[1].args[0] == 1, "PUSHB true => 1");
+  free_program(p);
+}
+
 /* Parse a tree spanning many node types, then free it (ASan proves #11). */
 static void test_recursive_free_real_ast(void)
 {
@@ -226,6 +261,8 @@ int main(void)
   test_id_resolves_to_slot();
   test_internal_call();
   test_external_call();
+  test_method_call_send();
+  test_bool_literal();
   test_recursive_free_real_ast();
   test_container_frees();
   printf("==============================================================\n");

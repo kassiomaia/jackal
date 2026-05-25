@@ -63,6 +63,8 @@ Defined in `jackal_lexer.l`.
 - **String** — double-quoted, handled via the `STR` start-condition
   (`jackal_lexer.l:65-120`). Supported escapes: `\n \t \r \v \b \f \a \\ \' \"`.
   An unknown escape is a fatal lexer error.
+- **Boolean** — the keywords `true` / `false` (`JKL_NODE_BOOL`), lowered to
+  `PUSHB 1/0`.
 
 ### Identifiers (`jackal_lexer.l:46`)
 
@@ -232,6 +234,24 @@ expression, so a return value cannot be consumed yet (it is left on the stack).
 The compiler resolves the callee to an **internal** `CALL` (into a user `func`)
 or, if the name has no definition, an **external/builtin** call (e.g. `puts`).
 See the calling convention in [`ir.md`](./ir.md).
+
+### Method calls — `recv.method(args)`
+
+Unlike `call`, method calls are **expressions** with Ruby-style `.` syntax, used to
+invoke methods on primitive values:
+
+```jackal
+let s := "hello"
+let n := s.length            # no-arg
+let u := s.upcase
+let c := "ab".concat("cd")   # with args
+```
+
+Produces `JKL_NODE_METHOD_CALL { node=receiver, id=method-name, params=args }` and
+lowers to `SEND` (dynamic dispatch on the receiver's type). Method calls are
+postfix on `term`, so they bind tighter than every operator (`s.length + 1` is
+`(s.length) + 1`) and chain (`a.b.c`). The available primitive methods and how to
+add more are documented in [`types.md`](./types.md).
 
 ### Functions — `func`
 

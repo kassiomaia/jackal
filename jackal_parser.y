@@ -52,11 +52,15 @@ jkl_program_t *program;
 %token ELSE   "else"
 %token FUNC   "func"
 %token RETURN "return"
+%token TRUE   "true"
+%token FALSE  "false"
 %token LPAREN "("
 %token RPAREN ")"
 %token COMMA  ","
+%token DOT    "."
 
 %type <node> expr
+%type <node> arglist
 %type <node> ident
 %type <node> call
 %type <node> func
@@ -198,7 +202,52 @@ term: ident
 
       $$ = cfloat;
     }
+    | TRUE {
+      jkl_node_t* b = jkl_node_new(JKL_NODE_BOOL);
+      b->value.i = 1;
+      $$ = b;
+    }
+    | FALSE {
+      jkl_node_t* b = jkl_node_new(JKL_NODE_BOOL);
+      b->value.i = 0;
+      $$ = b;
+    }
+    | term DOT ID {
+      jkl_node_t* m = jkl_node_new(JKL_NODE_METHOD_CALL);
+      m->node = $1;
+      m->id = jkl_node_new(JKL_NODE_ID);
+      m->id->value.s = $3;
+      m->params = NULL;
+      $$ = m;
+    }
+    | term DOT ID LPAREN RPAREN {
+      jkl_node_t* m = jkl_node_new(JKL_NODE_METHOD_CALL);
+      m->node = $1;
+      m->id = jkl_node_new(JKL_NODE_ID);
+      m->id->value.s = $3;
+      m->params = jkl_node_new(JKL_NODE_PARAMS);
+      $$ = m;
+    }
+    | term DOT ID LPAREN arglist RPAREN {
+      jkl_node_t* m = jkl_node_new(JKL_NODE_METHOD_CALL);
+      m->node = $1;
+      m->id = jkl_node_new(JKL_NODE_ID);
+      m->id->value.s = $3;
+      m->params = $5;
+      $$ = m;
+    }
     ;
+
+arglist: expr {
+       jkl_node_t* params = jkl_node_new(JKL_NODE_PARAMS);
+       jkl_node_append(params, $1);
+       $$ = params;
+     }
+     | arglist COMMA expr {
+       jkl_node_append($1, $3);
+       $$ = $1;
+     }
+     ;
 
 ident: ID {
         jkl_node_t* ident = jkl_node_new(JKL_NODE_ID);
