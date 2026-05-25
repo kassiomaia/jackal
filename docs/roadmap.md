@@ -26,7 +26,7 @@ Legend: ✅ works · 🟡 partial / buggy · 🟥 stub / unwired · ⬛ planned-
 | `raise "msg"` | ✅ (parse) | string only |
 | Unary `!` | 🟥 | tokenized, in `jkl_op_t`, but no grammar rule |
 | Assignment statement (`x := 5`) | ⬛ | `JKL_NODE_ASSIGNMENT` enum only |
-| gperf keyword table | 🟥 | generated but not used by the lexer |
+| gperf keyword table | ✅ | removed (was dead code; lexer hardcodes keywords) |
 
 ### Back end (compiler → IR)
 
@@ -91,14 +91,16 @@ Correctness bugs that would bite if the relevant path were exercised:
 
 Build/tooling issues (see [`build.md`](./build.md)):
 
-13. No `configure` checked in (need `autoreconf -i`); no `autogen.sh`.
-14. Tests still not wired into `make check`, but `tests/Makefile` now uses the
-    correct `libjackal/` path, compiles the library sources directly, and falls
-    back to a Check-free harness (`-DJKL_NO_CHECK`, `tests/no_check.h`) when
-    `libcheck` is absent. (`tools.mk` still has the old `lib/` glob.)
-15. gperf keyword generation not integrated into the autotools build.
-16. `LICENSE.txt` still has the template copyright line; `AUTHORS`/`README`/
-    `ChangeLog`/`NEWS` are empty.
+13. ✅ *Fixed.* `autogen.sh` bootstraps the build (`autoreconf -i`); the generated
+    build files (`Makefile`/`config.h`/`libjackal/Makefile`) are no longer
+    committed.
+14. ✅ *Fixed.* `make check` runs the suite (a `check-local` hook drives the
+    standalone `tests/Makefile`); `tools.mk` paths corrected to `libjackal/` and the
+    `.PHONE`→`.PHONY` typo fixed.
+15. ✅ *Fixed.* The dead gperf keyword table (`jackal_keywords.h`,
+    `defs/keywords.gperf`) was deleted along with the `tools.mk` `defs` target.
+16. ✅ *Fixed.* `LICENSE.txt` copyright filled (`2026 Kassio Maia`); `README` and
+    `AUTHORS` written. (`ChangeLog`/`NEWS` left empty — automake `foreign` mode.)
 
 ## Where the project is heading
 
@@ -130,8 +132,9 @@ A pragmatic order for making the compiler end-to-end useful:
    and resolved (internal/external `CALL`), params bound, `RET` emitted, with a
    documented calling convention (see [`ir.md`](./ir.md)). Single-arg, flat slots,
    no recursion yet; `raise` still pending.
-5. **Repair the build glue** — `autogen.sh`, integrate tests into `make check`,
-   fix the stale `lib/` paths, and (optionally) wire gperf in or delete it.
+5. ✅ *Done.* Build glue repaired: `autogen.sh` bootstrap, tests wired into
+   `make check`, `tools.mk` paths fixed, dead gperf deleted, generated build files
+   untracked, and `README`/`AUTHORS`/`LICENSE` filled in.
 6. ✅ *Done.* Memory bugs (#6 hash free, #7 symbol-table free, #11 recursive
    AST free + teardown) fixed and operator precedence (#9) enforced; covered by
    the ASan integration tests (`tests/precedence.c`, `cd tests && make precedence`).

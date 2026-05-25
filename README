@@ -1,0 +1,56 @@
+Jackal
+======
+
+Jackal is a compiler for a small custom language (`.jkl` files), written in C.
+It lexes (flex) -> parses (bison) -> builds an AST -> compiles to a linear,
+stack-based IR bytecode intended for a separate VM, *jackalvm*. The VM is not in
+this repo; this is the compiler plus its support library, libjackal.
+
+Pipeline:
+
+    source.jkl -> lexer -> parser -> AST -> jkl_compile() -> jkl_ir_t[] -> .bin
+
+Status: a working but incomplete prototype. The front end and the back end for
+literals, arithmetic (with precedence), variables (resolved to symbol-table
+slots), control flow (if/else/loop), and call/func/return are implemented and
+tested; the class system, optimizer, and evaluator are scaffolding. See
+docs/roadmap.md for the honest feature matrix.
+
+Build
+-----
+
+Prereqs: a C toolchain plus `autoconf automake bison flex pkg-config`. The
+`Check` unit-test library is optional (the test harness falls back to a
+dependency-free shim when it is absent).
+
+    ./autogen.sh        # bootstrap autotools (runs autoreconf -i)
+    ./configure
+    make                # builds libjackal.a and the `jackal` binary
+
+Run
+---
+
+    ./jackal samples/main.jkl          # writes main.bin (versioned "JKLB" bytecode)
+    ./jackal samples/main.jkl out.bin  # explicit output path
+
+Test
+----
+
+    make check          # runs the unit + integration test suites
+
+The tests can also be run directly without autotools:
+
+    cd tests && make compiler          # unit tests
+    cd tests && make precedence        # integration tests (built under ASan)
+
+Documentation
+-------------
+
+Start with docs/README.md (index) and CLAUDE.md (orientation for working in this
+repo). Deeper references: architecture.md, language.md, ir.md, modules.md,
+build.md, roadmap.md.
+
+License
+-------
+
+MIT. See LICENSE.txt.

@@ -15,7 +15,6 @@ clean build.
 | `autoconf`/`automake`/`autoreconf` | generate `configure` & `Makefile`s | **fresh build** (no `configure` is checked in) |
 | `bison` (yacc) | parser generator | regenerating `jackal_parser.c` |
 | `flex` (lex) | lexer generator | regenerating `jackal_lexer.c` |
-| `gperf` | keyword table generator | only the (currently unused) keyword header |
 | `pkg-config` | finds libraries | tests (locating `check`) |
 | **Check** (`libcheck`) | C unit-test framework | building/running the tests |
 | `clang-format` *or* `astyle` | formatting | optional |
@@ -31,23 +30,23 @@ clean build.
 Debian/Ubuntu:
 
 ```sh
-sudo apt-get install build-essential autoconf automake flex bison gperf pkg-config check clang-format
+sudo apt-get install build-essential autoconf automake flex bison pkg-config check clang-format
 ```
 
 `tools.mk` also has `make install_deps` (→ `install_astyle`, `install_cppcheck`)
 which downloads and builds **astyle** and **cppcheck** from source into `./tools`.
 These targets are for the formatting/lint tooling only and are unrelated to the
-autotools build. (They predate the `lib/` → `libjackal/` rename and may need a
-look — see [legacy `tools.mk`](#legacy-toolsmk).)
+autotools build. (`tools.mk`'s paths now point at `libjackal/` — see
+[Formatting & linting](#formatting--linting-toolsmk).)
 
 ## Fresh build
 
-No `configure` script is committed (it's git-ignored), so you must bootstrap
-autotools first:
+The generated build files (`configure`, `Makefile`, `config.h`, …) are **not**
+committed, so bootstrap autotools first with the `autogen.sh` helper:
 
 ```sh
-autoreconf -i          # generate configure, Makefile.in, config.h.in, aux scripts
-./configure
+./autogen.sh           # runs autoreconf -i (configure, Makefile.in, config.h.in, ...)
+./configure            # generates Makefile + config.h
 make
 ```
 
@@ -92,11 +91,15 @@ defined in `compiler.c`). They construct ASTs directly and assert the emitted IR
 opcode sequence (e.g. `let x := 42` → `ALLOC, PUSHI, STORE, HALT`). Six tests
 cover program init, empty compile, and `let`(int/string) / `loop` codegen.
 
-The tests are **not** integrated with `make`/`make check` (there is no `TESTS`
-variable and `tests/` is not in `SUBDIRS`). They have their own `tests/Makefile`:
+`make check` runs the suite (the top-level `Makefile.am` has a `check-local`
+hook that invokes the standalone `tests/Makefile`). The tests are deliberately
+**not** converted to automake (`tests/` is kept out of `SUBDIRS`), so they also
+run directly without an autotools build:
 
 ```sh
-cd tests
+make check           # from the top level: runs `compiler` + `precedence`
+
+cd tests             # or run them standalone
 make compiler        # unit tests: build the lib sources + tests, then run them
 make precedence      # integration tests: drive the real front end, under ASan
 ```
@@ -105,8 +108,8 @@ make precedence      # integration tests: drive the real front end, under ASan
 needed) and auto-detects `libcheck` via `pkg-config`: if present it links
 `-lcheck`; otherwise it builds with `-DJKL_NO_CHECK` and uses the dependency-free
 shim in `tests/no_check.h`. So the suite runs even without `libcheck` installed.
-The unit tests assert emitted IR opcode **sequences and jump targets**, plus a
-save→load round-trip. They are not yet wired into `make check`.
+The unit tests assert emitted IR opcode **sequences and jump targets**, slot
+operands, call/func/return shape, plus a save→load round-trip.
 
 The `precedence` target (`tests/precedence.c`) links the committed generated
 parser/lexer (`jackal_parser.c`, `jackal_lexer.c`) and parses real source under
@@ -118,12 +121,11 @@ changed the grammar (the generated sources are committed); `flex` is not require
 ## Formatting & linting (`tools.mk`)
 
 - **Format**: `make -f tools.mk format` runs **astyle** with a Linux-style,
-  2-space config over `lib/*.c` and `include/**/*.h`. The committed code is
-  formatted this way (2-space indent, braces, `--max-code-length=80`). Note the
-  `lib/*.c` glob is stale (now `libjackal/`). `clang-format` is also available as
-  an alternative, though there is no `.clang-format` in the repo.
-- **Lint**: `make -f tools.mk check` runs **cppcheck** over `lib/*.c` (same stale
-  glob).
+  2-space config over `libjackal/*.c` and `include/**/*.h`. The committed code is
+  formatted this way (2-space indent, braces, `--max-code-length=80`).
+  `clang-format` is also available as an alternative, though there is no
+  `.clang-format` in the repo.
+- **Lint**: `make -f tools.mk check` runs **cppcheck** over `libjackal/*.c`.
 - These are convenience targets, separate from the autotools build.
 
 ## Editor tooling
@@ -139,15 +141,15 @@ changed the grammar (the generated sources are committed); `flex` is not require
 ## Project metadata
 
 - **Package**: `jackal` **1.0** (`configure.ac`, `config.h`).
-- **License**: MIT (`LICENSE.txt`) — note the copyright line is still the
-  template `Copyright (c) [year] [fullname]`.
-- `AUTHORS`, `README`, `ChangeLog`, `NEWS` exist but are **empty**.
+- **License**: MIT (`LICENSE.txt`), `Copyright (c) 2026 Kassio Maia`. `README` and
+  `AUTHORS` are filled in; `ChangeLog`/`NEWS` are empty (automake runs `foreign`,
+  so they're not required).
 - `COPYING`/`INSTALL` are symlinks into the system automake install.
 
-## Known fresh-build blockers (summary)
+## Known fresh-build notes (summary)
 
-1. **No `configure` checked in** — must run `autoreconf -i` first. There is no
-   `autogen.sh`/`bootstrap.sh` helper.
+1. **Generated build files are not committed** — run `./autogen.sh` (then
+   `./configure`) first; `Makefile`/`config.h` are produced by `configure`.
 2. **`flex` only needed to regenerate the lexer** — the committed `jackal_lexer.c`
    lets `make` build without `flex`. `bison` is needed only if you change
    `jackal_parser.y`. The tests no longer require `libcheck` (see above).
@@ -155,8 +157,6 @@ changed the grammar (the generated sources are committed); `flex` is not require
    the fresh `jackal_parser.h` must also overwrite `include/jackal_parser.h`
    (the path the lexer's `#include <jackal_parser.h>` resolves to via
    `-Iinclude`); otherwise the old token set shadows it. See [`roadmap.md`](./roadmap.md).
-4. **`gperf` keyword generation is not in the autotools build** (it's an orphaned
-   `tools.mk` rule); harmless because the generated header is unused.
 
 See [`roadmap.md`](./roadmap.md) for the consolidated issue list and suggested
 fixes.

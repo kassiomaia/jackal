@@ -36,21 +36,22 @@ feature works.
 ## Build / run / test
 
 ```sh
-# Fresh build (NO configure is checked in — bootstrap autotools first):
-autoreconf -i && ./configure && make          # builds libjackal.a and the `jackal` binary
+# Fresh build (generated files are NOT committed — bootstrap autotools first):
+./autogen.sh && ./configure && make           # builds libjackal.a and the `jackal` binary
 make CFLAGS="-g -DVERBOSE -DENABLE_COLOR"      # ...with diagnostic logging + colors
 
 # Run the compiler on a sample (writes <basename>.bin, or a named output):
 ./jackal samples/main.jkl                      # -> main.bin (versioned bytecode; magic "JKLB")
 ./jackal samples/main.jkl out.bin
 
-# Tests (auto-uses Check if present, else a -DJKL_NO_CHECK shim; NOT in `make check`):
-cd tests && make compiler
+# Tests (auto-uses Check if present, else a -DJKL_NO_CHECK shim):
+make check                                     # runs the unit + ASan integration suites
+cd tests && make compiler                      # ...or run them standalone (no autotools)
 ```
 
 Prereqs: `gcc make autoconf automake bison flex pkg-config` + the **Check**
-library (`libcheck`) for tests. Optional: `gperf` (for the unused keyword
-header), `clang-format`/`astyle` (formatting). See [`docs/build.md`](./docs/build.md).
+library (`libcheck`) for tests (optional — there's a shim). Optional:
+`clang-format`/`astyle` (formatting). See [`docs/build.md`](./docs/build.md).
 
 ## Conventions
 
@@ -96,10 +97,14 @@ header), `clang-format`/`astyle` (formatting). See [`docs/build.md`](./docs/buil
   AND copy the fresh `jackal_parser.h` over `include/jackal_parser.h` (the path
   the lexer's `#include <jackal_parser.h>` resolves to). The committed copies must
   match, or the old token set silently shadows the new one.
-- `tools.mk` still references the old `lib/` directory (renamed to `libjackal/`);
-  the gperf keyword header is dead code. (`tests/Makefile` is fixed.)
-- Generated files (`jackal_lexer.c`, `jackal_parser.c`), `config.h`, `tags`, and
-  the vendored `include/check.h` are committed — don't hand-edit them.
+- Build is bootstrapped via `./autogen.sh`; `make check` runs the tests (a
+  `check-local` hook drives the standalone `tests/Makefile`, which still works on
+  its own). `tools.mk` paths now point at `libjackal/`; the gperf keyword table is
+  deleted (was dead code).
+- Generated **source** is committed (`jackal_lexer.c`, `jackal_parser.c`,
+  `include/jackal_parser.h`) — don't hand-edit them. Generated **build** files
+  (`Makefile`, `config.h`, `libjackal/Makefile`) are NOT committed (gitignored;
+  produced by `configure`), so a fresh clone must run `./autogen.sh`.
 
 ## Where to read more
 
