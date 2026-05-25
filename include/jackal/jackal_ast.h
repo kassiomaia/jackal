@@ -8,6 +8,7 @@
  */
 
 jkl_node_t *jkl_node_new(jkl_node_type_t type);
+jkl_node_t *jkl_node_binop(jkl_node_t *left, jkl_op_t op, jkl_node_t *right);
 jkl_word_t jkl_node_free(jkl_node_t *node);
 jkl_word_t jkl_node_append(jkl_node_t *node, jkl_node_t *child);
 jkl_word_t jkl_print_ast_node(jkl_node_t *node, jkl_word_t depth);

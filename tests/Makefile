@@ -10,6 +10,13 @@ LIBSRC   = $(wildcard ../libjackal/*.c)
 TESTSRC  = main.c compiler.c
 TARGET   = jackaltest
 
+# Integration tests drive the real flex/bison front end (committed generated
+# sources) and run under AddressSanitizer to catch leaks / invalid frees.
+PARSERSRC = ../jackal_parser.c ../jackal_lexer.c
+INTEGSRC  = precedence.c
+INTEGTGT  = jackalinteg
+ASANFLAGS = -fsanitize=address
+
 HAVE_CHECK := $(shell pkg-config --exists check 2>/dev/null && echo yes)
 
 ifeq ($(HAVE_CHECK),yes)
@@ -35,7 +42,22 @@ compiler:
 		echo "Jackal compiler tests passed!"; \
 	fi
 
-clean:
-	rm -f $(TARGET)
+precedence:
+	@echo "Building jackal integration tests (ASan)..."
+	$(CC) $(CFLAGS) $(ASANFLAGS) -I.. -o $(INTEGTGT) $(INTEGSRC) $(PARSERSRC) $(LIBSRC) -lm
+	@echo "Running jackal integration tests..."
+	@echo "=============================================================="
+	./$(INTEGTGT)
+	@if [ $$? -ne 0 ]; then \
+		echo "=============================================================="; \
+		echo "Jackal integration tests failed!"; \
+		exit 1; \
+	else \
+		echo "=============================================================="; \
+		echo "Jackal integration tests passed!"; \
+	fi
 
-.PHONY: compiler clean
+clean:
+	rm -f $(TARGET) $(INTEGTGT)
+
+.PHONY: compiler precedence clean

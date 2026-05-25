@@ -75,7 +75,11 @@ codegen and the data section. Complete and correct.
 ### ast — `include/jackal/jackal_ast.h`, `libjackal/jackal_ast.c`
 
 - `jkl_node_new(type)` — allocate and zero a node.
-- `jkl_node_free(node)` — free a single node (**non-recursive**; the tree leaks).
+- `jkl_node_binop(left, op, right)` — build a `BINOP` node (used by the grammar's
+  inlined operator rules).
+- `jkl_node_free(node)` — **recursive, type-aware** free: releases owned children,
+  the `compound.nodes` array, and lexer-allocated `value.s` strings (`STRING`/`ID`/
+  `RAISE`); never follows the `parent` back-pointer.
 - `jkl_node_append(parent, child)` — append to a `BLOCK`/`PARAMS` node
   (`realloc` one slot at a time); calls `exit(1)` for other node types.
 - `jkl_print_ast_node/type` — debug printers (only `ID`/`STRING`/`BINOP` print
@@ -133,9 +137,8 @@ OBJECT/NIL`) and a `jkl_hash_to_json` serializer. The parser allocates one as
 
 - **Direct-index, no collision resolution**: `set`/`get` index `hash % capacity`
   with no probing/chaining — colliding keys overwrite.
-- **Bug**: `jkl_hash_free` zeroes `capacity` *before* its cleanup loop
-  (`jackal_hash.c:35`), so the loop body never runs and nested `OBJECT` values
-  leak.
+- **Fixed**: `jkl_hash_free` now runs its cleanup loop before zeroing `capacity`,
+  then frees the bucket array (`jackal_hash.c`).
 
 ### symbol_table — `include/jackal/jackal_symbol_table.h`, `libjackal/jackal_symbol_table.c`
 
@@ -143,8 +146,8 @@ A fixed `jkl_symbol_t[1024]` with symbol kinds (`LET/FUNCTION/CLASS/
 CLASS_METHOD`), `add` (linear, rejects duplicates) and `get` (linear search).
 Never instantiated by the pipeline.
 
-- **Bug**: `jkl_symbol_table_free` calls `free(table->symbols)` on an array that
-  is embedded in the struct, not separately allocated (`jackal_symbol_table.c:52`).
+- **Fixed**: `jkl_symbol_table_free` frees the whole heap block (struct + embedded
+  array) in one `free`, instead of `free`ing the embedded array (`jackal_symbol_table.c`).
 
 ### stack — `include/jackal/jackal_stack.h`, `libjackal/jackal_stack.c`
 

@@ -97,15 +97,23 @@ variable and `tests/` is not in `SUBDIRS`). They have their own `tests/Makefile`
 
 ```sh
 cd tests
-make compiler        # compiles the lib sources + tests, then runs them
+make compiler        # unit tests: build the lib sources + tests, then run them
+make precedence      # integration tests: drive the real front end, under ASan
 ```
 
 `tests/Makefile` compiles the `libjackal/` sources directly (no autotools build
 needed) and auto-detects `libcheck` via `pkg-config`: if present it links
 `-lcheck`; otherwise it builds with `-DJKL_NO_CHECK` and uses the dependency-free
 shim in `tests/no_check.h`. So the suite runs even without `libcheck` installed.
-The tests assert emitted IR opcode **sequences and jump targets**, plus a
+The unit tests assert emitted IR opcode **sequences and jump targets**, plus a
 save→load round-trip. They are not yet wired into `make check`.
+
+The `precedence` target (`tests/precedence.c`) links the committed generated
+parser/lexer (`jackal_parser.c`, `jackal_lexer.c`) and parses real source under
+**AddressSanitizer** (`-fsanitize=address`): it verifies operator precedence /
+associativity end-to-end and frees each parsed AST, so leaks or invalid frees in
+`jkl_node_free` / the container frees fail the run. Needs `bison` only if you
+changed the grammar (the generated sources are committed); `flex` is not required.
 
 ## Formatting & linting (`tools.mk`)
 

@@ -15,6 +15,10 @@ jkl_node_t *jkl_node_new(jkl_node_type_t type)
   node->block = NULL;
   node->block_else = NULL;
   node->parent = NULL;
+  node->expr = NULL;
+  node->id = NULL;
+  node->assign = NULL;
+  node->params = NULL;
   node->value.i = 0;
   node->value.s = NULL;
   node->value.f = 0.0;
@@ -26,10 +30,72 @@ jkl_node_t *jkl_node_new(jkl_node_type_t type)
   return node;
 }
 
+jkl_node_t *jkl_node_binop(jkl_node_t *left, jkl_op_t op, jkl_node_t *right)
+{
+  jkl_node_t *binop = jkl_node_new(JKL_NODE_BINOP);
+  binop->binop.left = left;
+  binop->binop.op = op;
+  binop->binop.right = right;
+  return binop;
+}
+
+/*
+ * Recursively free a node and every child it owns. `parent` is a back-pointer
+ * and is never followed. Heap strings (lexer-malloc'd) live only on STRING/ID/
+ * RAISE nodes. jkl_node_free(NULL) is a harmless no-op so optional children may
+ * be passed unconditionally.
+ */
 jkl_word_t jkl_node_free(jkl_node_t *node)
 {
   if (node == NULL) {
     return -1;
+  }
+
+  switch (node->type) {
+    case JKL_NODE_STRING:
+    case JKL_NODE_ID:
+    case JKL_NODE_RAISE:
+      free(node->value.s);
+      break;
+    case JKL_NODE_BINOP:
+      jkl_node_free(node->binop.left);
+      jkl_node_free(node->binop.right);
+      break;
+    case JKL_NODE_LET:
+      jkl_node_free(node->id);
+      jkl_node_free(node->expr);
+      break;
+    case JKL_NODE_LOOP:
+      jkl_node_free(node->block);
+      break;
+    case JKL_NODE_IF:
+      jkl_node_free(node->expr);
+      jkl_node_free(node->block);
+      jkl_node_free(node->block_else);
+      break;
+    case JKL_NODE_BLOCK:
+    case JKL_NODE_PARAMS:
+      for (jkl_word_t i = 0; i < node->compound.n_nodes; i++) {
+        jkl_node_free(node->compound.nodes[i]);
+      }
+      free(node->compound.nodes);
+      break;
+    case JKL_NODE_PARAM:
+      jkl_node_free(node->id);
+      break;
+    case JKL_NODE_FUNC:
+      jkl_node_free(node->id);
+      jkl_node_free(node->params);
+      jkl_node_free(node->block);
+      break;
+    case JKL_NODE_CALL:
+      jkl_node_free(node->node);
+      break;
+    case JKL_NODE_RETURN:
+      jkl_node_free(node->expr);
+      break;
+    default:
+      break;
   }
 
   free(node);

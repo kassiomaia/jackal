@@ -64,14 +64,17 @@ jkl_program_t *program;
 %type <node> param
 %type <node> func_params
 %type <node> if_then
-%type <op>   op
 
 %type statement
 %type statements
 
-%left PLUS MINUS
-%left MUL DIV MOD
-%left AND OR
+/* Lowest to highest precedence (bison: later declarations bind tighter). */
+%left  OR
+%left  AND
+%left  EQL NEQ
+%nonassoc GT GTE LT LTE
+%left  PLUS MINUS
+%left  MUL DIV MOD
 
 %%
 
@@ -149,42 +152,22 @@ statement: LET ident ASSIGN expr {
          | func
          ;
 
-expr: term op term {
-      jkl_node_t* binop = jkl_node_new(JKL_NODE_BINOP);
-      binop->binop.op = $2;
-      binop->binop.left = $1;
-      binop->binop.right = $3;
-      $$ = binop;
-    }
-    | expr op expr {
-      jkl_node_t* binop = jkl_node_new(JKL_NODE_BINOP);
-      binop->binop.op = $2;
-      binop->binop.left = $1;
-      binop->binop.right = $3;
-      $$ = binop;
-    }
-    | LPAREN expr RPAREN {
-      $$ = $2;
-    }
-    | term {
-      $$ = $1;
-    }
+expr: expr PLUS  expr { $$ = jkl_node_binop($1, JKL_OP_PLUS,  $3); }
+    | expr MINUS expr { $$ = jkl_node_binop($1, JKL_OP_MINUS, $3); }
+    | expr MUL   expr { $$ = jkl_node_binop($1, JKL_OP_MUL,   $3); }
+    | expr DIV   expr { $$ = jkl_node_binop($1, JKL_OP_DIV,   $3); }
+    | expr MOD   expr { $$ = jkl_node_binop($1, JKL_OP_MOD,   $3); }
+    | expr EQL   expr { $$ = jkl_node_binop($1, JKL_OP_EQL,   $3); }
+    | expr NEQ   expr { $$ = jkl_node_binop($1, JKL_OP_NEQ,   $3); }
+    | expr GT    expr { $$ = jkl_node_binop($1, JKL_OP_GT,    $3); }
+    | expr GTE   expr { $$ = jkl_node_binop($1, JKL_OP_GTE,   $3); }
+    | expr LT    expr { $$ = jkl_node_binop($1, JKL_OP_LT,    $3); }
+    | expr LTE   expr { $$ = jkl_node_binop($1, JKL_OP_LTE,   $3); }
+    | expr AND   expr { $$ = jkl_node_binop($1, JKL_OP_AND,   $3); }
+    | expr OR    expr { $$ = jkl_node_binop($1, JKL_OP_OR,    $3); }
+    | LPAREN expr RPAREN { $$ = $2; }
+    | term               { $$ = $1; }
     ;
-
-op: EQL   { $$ = JKL_OP_EQL; }
-  | NEQ   { $$ = JKL_OP_NEQ; }
-  | GT    { $$ = JKL_OP_GT; }
-  | LT    { $$ = JKL_OP_LT; }
-  | GTE   { $$ = JKL_OP_GTE; }
-  | LTE   { $$ = JKL_OP_LTE; }
-  | PLUS  { $$ = JKL_OP_PLUS; }
-  | MINUS { $$ = JKL_OP_MINUS; }
-  | MUL   { $$ = JKL_OP_MUL; }
-  | DIV   { $$ = JKL_OP_DIV; }
-  | MOD   { $$ = JKL_OP_MOD; }
-  | AND   { $$ = JKL_OP_AND; }
-  | OR    { $$ = JKL_OP_OR; }
-  ;
 
 term: ident
     | CINT {

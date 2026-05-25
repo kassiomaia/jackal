@@ -72,11 +72,17 @@ header), `clang-format`/`astyle` (formatting). See [`docs/build.md`](./docs/buil
   a `JKLB` header + ABI guard; `jkl_ir_code_load` is the inverse). `if`/`else`/
   `loop` jump targets are **correct** (backpatched; `JCP` = jump-if-false to an
   absolute instruction index, `JMP` = unconditional). See `docs/ir.md`.
-- **Operator precedence is not enforced** (the grammar's `op` is a non-terminal,
-  so `%left` doesn't apply). Parenthesize.
+- **Operator precedence is enforced** — operators are inlined into `expr` as
+  terminals with a `%left`/`%nonassoc` ladder (`*` `/` `%` > `+` `-` > relational
+  > `==` `!=` > `&&` > `||`; relational is non-associative). See `docs/language.md`.
+- The AST is freed at exit: `jkl_node_free` is **recursive/type-aware** (frees
+  owned children + lexer strings); `main()` also frees the symbol table. Build the
+  ASan integration tests with `cd tests && make precedence`.
 - Still incomplete: `call`/`func`/`return`/`raise` codegen is stubbed or wrong,
   and **variable reads don't resolve to their storage** (`ID` is hashed into the
-  data section like a string, not looked up in the symbol table).
+  data section like a string, not looked up in the symbol table). Because of the
+  `call`/`func` stubs, `./jackal samples/main.jkl` still leaks a few token strings
+  (the discarded callee + dropped top-level `func`) — not a regression.
 - The **symbol table, stack, class system, optimizer, and evaluator are
   built-but-unused** (or stubs). Don't assume they participate in compilation.
 - **Parser regen trap**: if you edit `jackal_parser.y`, regenerate with `bison`

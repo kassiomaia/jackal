@@ -153,25 +153,27 @@ and it can re-declare. The right-hand side is any `expr`. Produces
 
 ### Expressions and operators
 
-Binary expressions only: `term op term`, `expr op expr`, or a parenthesized
-`( expr )`. A bare `term` is also an expression. There are **no unary
-expressions** (see below). Produces `JKL_NODE_BINOP { left, op, right }`.
+Binary expressions: `expr op expr`, a parenthesized `( expr )`, or a bare
+`term`. There are **no unary expressions** (see below). Produces
+`JKL_NODE_BINOP { left, op, right }`.
 
-**Operator precedence is effectively NOT enforced.** The grammar declares
-`%left` precedence for `PLUS MINUS`, then `MUL DIV MOD`, then `AND OR`
-(`jackal_parser.y:71-73`), but the expression rule is `expr op expr` where `op`
-is a *non-terminal*. Yacc/bison precedence only applies when the operator is a
-terminal in the rule, so these declarations do not disambiguate `expr op expr`.
-The grammar is therefore ambiguous and bison resolves the shift/reduce conflicts
-with its default (shift). In practice:
+**Operator precedence is enforced.** The operators are inlined into the `expr`
+rule as terminals, each carrying the precedence/associativity of its `%left` /
+`%nonassoc` declaration (`jackal_parser.y`). From lowest to highest binding:
 
-- Comparison operators have no precedence at all.
-- `a + b * c` is not guaranteed to parse as `a + (b * c)`.
+| Precedence (low → high) | Operators | Associativity |
+|-------------------------|-----------|---------------|
+| 1 | `\|\|` | left |
+| 2 | `&&` | left |
+| 3 | `==` `!=` | left |
+| 4 | `<` `<=` `>` `>=` | non-associative |
+| 5 | `+` `-` | left |
+| 6 | `*` `/` `%` | left |
 
-Treat precedence as unspecified and **parenthesize** to be safe:
-`a + (b * c)`. Fixing this (e.g. inlining the operators as terminals with
-`%prec`, or adding a precedence-climbing rule layer) is a known to-do — see
-[`roadmap.md`](./roadmap.md).
+So `1 + 2 * 3` groups as `1 + (2 * 3)`, `1 - 2 - 3` as `(1 - 2) - 3`, and
+`1 + 2 == 3` as `(1 + 2) == 3`. Relational operators are non-associative, so
+`a < b < c` is a syntax error — parenthesize it. Use `( … )` to override the
+default grouping anywhere.
 
 ### Conditionals — `if` / `elif` / `else`
 

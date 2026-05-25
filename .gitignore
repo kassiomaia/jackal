@@ -21,6 +21,9 @@ ir.code
 .nvimrc
 configure~
 jackal
+tests/jackaltest
+tests/jackalinteg
+tests/*.bin
 
 # http://www.gnu.org/software/automake
 

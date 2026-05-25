@@ -16,7 +16,7 @@ Legend: ✅ works · 🟡 partial / buggy · 🟥 stub / unwired · ⬛ planned-
 | Block comments `/* */` | 🟡 | no line comments, no nesting, no EOF-in-comment guard; comment chars may ECHO |
 | Identifiers | ✅ | ASCII only |
 | `let` declaration | ✅ | only binding form |
-| Binary expressions | 🟡 | parse fine, but **precedence is not enforced** (operator is a non-terminal) |
+| Binary expressions | ✅ | precedence + associativity enforced (operators inlined as terminals with a `%left`/`%nonassoc` ladder) |
 | Parenthesized expressions | ✅ | use to force grouping |
 | `if` / `elif` / `else` | ✅ | full conditional; `elif` desugars to `else { if … }` |
 | `loop` | ✅ (parse) | infinite loop only; no `break`/`while`/`for` |
@@ -52,8 +52,8 @@ Legend: ✅ works · 🟡 partial / buggy · 🟥 stub / unwired · ⬛ planned-
 | Module | Status | Notes |
 |--------|:------:|-------|
 | types, error, string, ast, context, ir | ✅ | the working core |
-| hash | 🟡/🟥 | works for non-colliding keys; **`free` bug**; allocated as `symbol_table` but never read |
-| symbol_table | 🟥 | not wired; **invalid `free` of embedded array** |
+| hash | 🟡 | works for non-colliding keys; `free` fixed; allocated as `symbol_table` but never read |
+| symbol_table | 🟥 | not wired (`free` fixed); the `program` "symbol_table" is actually a `jkl_hash_tbl` |
 | stack | ✅/🟥 | correct, but unused |
 | class (OOP runtime) | 🟥 | full model + built-ins declared; all methods `jkl_not_implemented`; `jkl_class_init` never called |
 
@@ -73,19 +73,20 @@ Correctness bugs that would bite if the relevant path were exercised:
 5. **Variable reads don't reference their storage.** `ID` lowering hashes the name
    into `bss` and `LOAD`s that, instead of resolving the `ALLOC`/`STORE` slot.
    `libjackal/jackal_compiler.c:139`.
-6. **`jkl_hash_free` never frees nested data.** `capacity` is zeroed before the
-   cleanup loop, so the loop never runs → leak. `libjackal/jackal_hash.c:35`.
-7. **`jkl_symbol_table_free` invalid free.** `free(table->symbols)` on an embedded
-   array. `libjackal/jackal_symbol_table.c:52`.
+6. ✅ *Fixed.* `jkl_hash_free` now runs the cleanup loop before zeroing
+   `capacity`, then frees the buckets. `libjackal/jackal_hash.c`.
+7. ✅ *Fixed.* `jkl_symbol_table_free` frees the whole heap block (struct +
+   embedded array) instead of the embedded array. `libjackal/jackal_symbol_table.c`.
 8. **Hash map / `bss` string store have no collision handling** — colliding keys
    overwrite. `libjackal/jackal_hash.c:55`, `libjackal/jackal_ir.c:82`.
-9. **Operator precedence not enforced** — `op` is a non-terminal so `%left`
-   declarations don't apply to `expr op expr`; the grammar is ambiguous.
-   `jackal_parser.y:71`/`:161`.
+9. ✅ *Fixed.* Operators are inlined into `expr` as terminals with a `%left`/
+   `%nonassoc` precedence ladder, so `1 + 2 * 3` groups as `1 + (2*3)` and same-
+   precedence operators are left-associative. `jackal_parser.y`.
 10. **`JKL_ARITY` macros read the wrong byte** (low instead of high) and are
     unused. `include/jackal/jackal_ir.h:69`.
-11. **AST is never freed** — `jkl_node_free` is non-recursive and the tree is
-    leaked at exit. `libjackal/jackal_ast.c:28`.
+11. ✅ *Fixed.* `jkl_node_free` is now recursive and type-aware (frees owned
+    children, the `compound.nodes` array, and lexer-allocated strings); `main()`
+    tears down the AST + symbol table. `libjackal/jackal_ast.c`, `jackal.c`.
 12. **Comment scanner can ECHO** comment bytes (exclusive `CMT` state has no
     catch-all rule). `jackal_lexer.l:62`.
 
@@ -130,4 +131,6 @@ A pragmatic order for making the compiler end-to-end useful:
    functions linkage, and emit `RET`.
 5. **Repair the build glue** — `autogen.sh`, integrate tests into `make check`,
    fix the stale `lib/` paths, and (optionally) wire gperf in or delete it.
-6. **Address the memory bugs** (#6, #7, #11) and grammar precedence (#9).
+6. ✅ *Done.* Memory bugs (#6 hash free, #7 symbol-table free, #11 recursive
+   AST free + teardown) fixed and operator precedence (#9) enforced; covered by
+   the ASan integration tests (`tests/precedence.c`, `cd tests && make precedence`).

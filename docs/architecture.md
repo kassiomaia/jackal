@@ -129,9 +129,11 @@ Only `JKL_NODE_BLOCK` and `JKL_NODE_PARAMS` accept children via
 `exit(1)`. The child array is grown with `realloc` one element at a time (O(n²)),
 which is fine at these sizes.
 
-`JKL_NODE_ASSIGNMENT` exists in the enum but is never produced by the parser, and
-`jkl_node_free` does not recurse — the whole AST is leaked at process exit (the
-OS reclaims it). See [`roadmap.md`](./roadmap.md).
+`JKL_NODE_ASSIGNMENT` exists in the enum but is never produced by the parser.
+`jkl_node_free` is recursive and type-aware, and `main()` tears down the AST and
+symbol table after the bytecode is saved, so a well-formed program frees cleanly
+(the residual `call`/`func` stubs still leak a few token strings — see
+[`roadmap.md`](./roadmap.md)).
 
 ## Module dependency overview
 

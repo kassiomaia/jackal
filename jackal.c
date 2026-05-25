@@ -52,6 +52,9 @@ int main(int argv, char **argc)
 
   jkl_ir_code_free(program->ir_code);
   free(program->ir_code);
+  jkl_node_free(program->ast_prog_root);
+  jkl_hash_free(program->symbol_table);
+  free(program->symbol_table);
   free(program);
 
   return 0;

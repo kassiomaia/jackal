@@ -32,10 +32,11 @@ void jkl_hash_init(jkl_hash_tbl *tbl)
 
 void jkl_hash_free(jkl_hash_tbl *tbl)
 {
-  tbl->capacity = 0;
-  tbl->size = 0;
+  if (tbl == NULL) {
+    return;
+  }
 
-  for (int i = 0; i < tbl->capacity; i++) {
+  for (unsigned int i = 0; i < tbl->capacity; i++) {
     jkl_hash_pair *child = &tbl->keys[i];
     if (child->key != NULL) {
       jkl_free_pair(child);
@@ -43,6 +44,9 @@ void jkl_hash_free(jkl_hash_tbl *tbl)
   }
 
   free(tbl->keys);
+  tbl->keys = NULL;
+  tbl->size = 0;
+  tbl->capacity = 0;
 }
 
 void jkl_hash_set(jkl_hash_tbl *tbl, jkl_string_t key, jkl_any_t data,
