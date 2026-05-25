@@ -13,6 +13,7 @@ jkl_node_t *jkl_node_new(jkl_node_type_t type)
   node->type = type;
   node->node = NULL;
   node->block = NULL;
+  node->block_else = NULL;
   node->parent = NULL;
   node->value.i = 0;
   node->value.s = NULL;

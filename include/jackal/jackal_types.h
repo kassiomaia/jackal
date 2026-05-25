@@ -93,6 +93,7 @@ struct jkl_node {
   } compound;
   jkl_node_t *expr;
   jkl_node_t *block;
+  jkl_node_t *block_else;
   jkl_node_t *node;
   jkl_node_t *parent;
   jkl_node_t *id;

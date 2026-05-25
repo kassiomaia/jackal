@@ -39,17 +39,19 @@ per-module API reference see [`modules.md`](./modules.md).
 
 ## Entry point and control flow
 
-The CLI is tiny (`jackal.c:7`):
+The CLI (`jackal.c`) drives the pipeline:
 
 ```c
-yyin = fopen(argc[1], "r");   // open the .jkl file
-yyparse();                    // run lexer+parser; this drives EVERYTHING
+yyin = fopen(in, "r");
+yyparse();                    // lexer+parser build the AST (sets the global `program`)
 fclose(yyin);
+jkl_compile(program);         // AST ──► IR
+jkl_ir_code_save(program->ir_code, out);   // IR ──► versioned .bin file
 ```
 
-All real work happens **inside the parser**. The grammar's top-level `program`
-rule (`jackal_parser.y:77`) is where the program object is created and where, at
-end of input, compilation is kicked off:
+The AST is built **inside the parser**. The grammar's top-level `program` rule
+(`jackal_parser.y`) creates the program object up front and finalizes the AST at
+end of input:
 
 ```c
 program: { /* prologue action */
@@ -61,25 +63,23 @@ program: { /* prologue action */
        | program statements { /* epilogue action, runs at EOF */
             jkl_pop_context(program);
             jkl_ensure_empty_contexts();
-            jkl_word_t n = jkl_compile(program);         // AST ──► IR
-            free(program);
          }
        ;
 ```
 
-So the **parser→compiler hand-off** is: build the AST during parsing, then call
-`jkl_compile(program)` once parsing finishes (`jackal_parser.y:90`).
+So the **parser→compiler hand-off** is: the parser builds the AST and leaves it
+on the global `program`; `main()` then calls `jkl_compile(program)` (AST → IR)
+and `jkl_ir_code_save()` (IR → file). (Compilation used to be invoked from inside
+the grammar epilogue, which also `free`d `program`; it now lives in `main` so the
+emitted `ir_code` can be saved and freed cleanly.)
 
-> Note: `jkl_compile` fills `program->ir_code` but `jackal.c`/the grammar never
-> call `jkl_ir_code_save(...)`, so the standalone `jackal` binary currently
-> produces **no output file** — it only logs (and only when built with
-> `-DVERBOSE`). Serialization is exercised only via the API/tests. See
-> [`ir.md`](./ir.md#serialization) and [`roadmap.md`](./roadmap.md).
+> The output file uses a versioned format (`JKLB` header). See
+> [`ir.md`](./ir.md#serialization-file-format-v1). An alternative interpreter
+> path (`USE_EVAL` → `jkl_eval`) remains a disabled stub.
 
-There is an alternative interpreter path guarded by `USE_EVAL`
-(`jackal_parser.y:11-12`), which would call `jkl_eval(program)` instead of
-`jkl_compile`. It is **disabled** (`#undef USE_EVAL`) and `jkl_eval` is a stub
-(`libjackal/jackal_eval.c`).
+`jkl_eval(program)` (`libjackal/jackal_eval.c`) is an alternative
+tree-walking-interpreter entry point, but it is an unimplemented stub and is not
+wired into the CLI.
 
 ## The parse-time context stack
 

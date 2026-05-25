@@ -97,10 +97,41 @@ typedef struct {
   fwrite(code.ir, JKL_IR_SIZE, code.n_irs, out); \
   fclose(out);
 
+/*
+ * On-disk bytecode file format
+ *
+ * Layout: a packed 32-byte header, then n_irs instructions (jkl_ir_t[]),
+ * then bss_len bytes of data section. See docs/ir.md.
+ */
+
+#define JKL_IR_MAGIC0 'J'
+#define JKL_IR_MAGIC1 'K'
+#define JKL_IR_MAGIC2 'L'
+#define JKL_IR_MAGIC3 'B'
+#define JKL_IR_FORMAT_VERSION 1
+
+#define JKL_IR_ENDIAN_LITTLE 0
+#define JKL_IR_ENDIAN_BIG 1
+
+#pragma pack(push, 1)
+typedef struct {
+  jkl_byte_t magic[4];          /* "JKLB" */
+  jkl_word_t version;           /* JKL_IR_FORMAT_VERSION */
+  jkl_byte_t endianness;        /* JKL_IR_ENDIAN_* of the writing host */
+  jkl_byte_t ir_struct_size;    /* sizeof(jkl_ir_t): ABI guard */
+  jkl_qqword_t n_irs;           /* number of instructions */
+  jkl_qqword_t bss_len;         /* size of the data section in bytes */
+  jkl_qqword_t reserved;        /* future use (entry point/flags); 0 */
+} jkl_ir_file_header_t;
+#pragma pack(pop)
+
 void jkl_ir_code_init(jkl_ir_code_t *ir_code, jkl_word_t size);
 jkl_word_t jkl_ir_code_push(jkl_ir_code_t *ir_code, jkl_ir_t ir);
+void jkl_ir_code_patch(jkl_ir_code_t *ir_code, jkl_word_t idx,
+                       jkl_byte_t argn, jkl_qqword_t value);
 void jkl_ir_code_free(jkl_ir_code_t *ir_code);
 jkl_word_t jkl_ir_code_save(jkl_ir_code_t *ir_code, const char *filename);
+jkl_word_t jkl_ir_code_load(jkl_ir_code_t *ir_code, const char *filename);
 void jkl_ir_store_string(jkl_ir_code_t *ir_code, jkl_string_t *string);
 
 #endif

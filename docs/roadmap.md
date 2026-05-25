@@ -18,7 +18,7 @@ Legend: ✅ works · 🟡 partial / buggy · 🟥 stub / unwired · ⬛ planned-
 | `let` declaration | ✅ | only binding form |
 | Binary expressions | 🟡 | parse fine, but **precedence is not enforced** (operator is a non-terminal) |
 | Parenthesized expressions | ✅ | use to force grouping |
-| `if` | 🟡 | single-branch only; **no `else`/`elif`** |
+| `if` / `elif` / `else` | ✅ | full conditional; `elif` desugars to `else { if … }` |
 | `loop` | ✅ (parse) | infinite loop only; no `break`/`while`/`for` |
 | `call` (`puts "x"`, `f x`) | 🟡 | one arg, no parens; **callee name discarded** in AST |
 | `func` definition | 🟡 | parsed, but **top-level `func` is not appended to the program block** |
@@ -35,14 +35,15 @@ Legend: ✅ works · 🟡 partial / buggy · 🟥 stub / unwired · ⬛ planned-
 | AST → IR for literals | ✅ | `PUSHI`/`PUSHF`/`LOAD` |
 | Binary operators → IR | ✅ | post-order, all ops mapped |
 | `let` → `ALLOC/…/STORE` | ✅ | unit-tested |
-| `loop` lowering | 🟡 | back-edge target off-by-one; no exit |
-| `if` lowering | 🟥 | `JCP` target is wrong (can't skip body); no else/merge |
+| `loop` lowering | ✅ | back-edge backpatched to first body instruction; unit-tested |
+| `if` / `if-else` lowering | ✅ | `JCP`/`JMP` backpatched; defined contract; unit-tested |
 | `call` lowering | 🟥 | emits `CALL 0`; callee/args ignored |
 | `func` lowering | 🟥 | body inlined; no prologue/epilogue/linkage/params |
 | `return` lowering | 🟥 | no-op (warning only) |
 | `raise` lowering | 🟥 | hits the `default` error path |
 | Variable *reads* resolve to slots | 🟥 | `ID` is hashed+`LOAD`ed like a string, not via symbol table |
-| IR serialization to file | 🟡 | works, but ABI-specific (no header/endianness) and the CLI never calls it |
+| IR serialization to file | ✅ | versioned format (header + ABI guard); save **and** load; round-trip tested |
+| CLI emits a bytecode file | ✅ | `./jackal in.jkl [out.bin]` writes the `.bin` |
 | Optimizer | 🟥 | type-check only, never invoked |
 | Evaluator / interpreter (`USE_EVAL`) | 🟥 | stub; disabled |
 
@@ -60,10 +61,10 @@ Legend: ✅ works · 🟡 partial / buggy · 🟥 stub / unwired · ⬛ planned-
 
 Correctness bugs that would bite if the relevant path were exercised:
 
-1. **`if` cannot skip its body.** `JCP` is emitted with `n_irs - 1` instead of a
-   forward target past the block. `libjackal/jackal_compiler.c:183`.
-2. **`loop` back-edge off-by-one** and unconditionally infinite.
-   `libjackal/jackal_compiler.c:191`.
+1. ✅ *Fixed.* `if`/`if-else` now backpatch `JCP`/`JMP` to correct forward
+   targets (with a defined jump contract). `libjackal/jackal_compiler.c`.
+2. ✅ *Fixed.* `loop` back-edge now targets the first body instruction
+   (still infinite by design — no `break`). `libjackal/jackal_compiler.c`.
 3. **`func` definitions are dropped.** The `statement: func` rule has no action to
    append the node, so top-level functions never enter the AST.
    `jackal_parser.y:158` / `:301`.
@@ -91,8 +92,10 @@ Correctness bugs that would bite if the relevant path were exercised:
 Build/tooling issues (see [`build.md`](./build.md)):
 
 13. No `configure` checked in (need `autoreconf -i`); no `autogen.sh`.
-14. Tests not wired into autotools; `tests/Makefile` and `tools.mk` reference the
-    old `lib/`/`bin/` paths (renamed to `libjackal/`).
+14. Tests still not wired into `make check`, but `tests/Makefile` now uses the
+    correct `libjackal/` path, compiles the library sources directly, and falls
+    back to a Check-free harness (`-DJKL_NO_CHECK`, `tests/no_check.h`) when
+    `libcheck` is absent. (`tools.mk` still has the old `lib/` glob.)
 15. gperf keyword generation not integrated into the autotools build.
 16. `LICENSE.txt` still has the template copyright line; `AUTHORS`/`README`/
     `ChangeLog`/`NEWS` are empty.
@@ -117,11 +120,10 @@ emitted bytecode.
 
 A pragmatic order for making the compiler end-to-end useful:
 
-1. **Make the CLI emit a file** — call `jkl_ir_code_save()` from `jackal.c` (and
-   define a stable on-disk format with a header/length, see [`ir.md`](./ir.md)).
-2. **Fix control-flow targets** — correct the `if` `JCP` forward target (add an
-   else/merge label) and the `loop` back-edge; this is the biggest correctness
-   win and is currently untested.
+1. ✅ *Done.* The CLI emits a versioned bytecode file (`jkl_ir_code_save` +
+   `jkl_ir_code_load`, header/ABI guard — see [`ir.md`](./ir.md)).
+2. ✅ *Done.* Control-flow targets corrected (`if`/`else` + `loop` backpatching),
+   with a documented `JCP`/`JMP` contract and unit tests.
 3. **Wire up the symbol table** — resolve `ID` reads/writes to allocated slots
    instead of hashing names into `bss`; this unlocks real variables.
 4. **Finish `call`/`func`/`return`** — keep the callee, pass arguments, give

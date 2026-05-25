@@ -1,5 +1,10 @@
 #include <jackal.h>
-#include <check.h>
+#ifdef JKL_NO_CHECK
+#  define JKL_NO_CHECK_MAIN
+#  include "no_check.h"
+#else
+#  include <check.h>
+#endif
 
 extern Suite *jkl_compiler_suite();
 

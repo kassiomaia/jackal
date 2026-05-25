@@ -89,43 +89,6 @@ extern int yydebug;
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
-/* Token kinds.  */
-#define YYEMPTY -2
-#define YYEOF 0
-#define YYerror 256
-#define YYUNDEF 257
-#define ID 258
-#define CINT 259
-#define CFLOAT 260
-#define CSTRING 261
-#define LET 262
-#define ASSIGN 263
-#define LBRACE 264
-#define RBRACE 265
-#define EQL 266
-#define NEQ 267
-#define GT 268
-#define LT 269
-#define GTE 270
-#define LTE 271
-#define PLUS 272
-#define MINUS 273
-#define MUL 274
-#define DIV 275
-#define MOD 276
-#define AND 277
-#define OR 278
-#define NOT 279
-#define LOOP 280
-#define RAISE 281
-#define IF 282
-#define ELIF 283
-#define ELSE 284
-#define FUNC 285
-#define RETURN 286
-#define LPAREN 287
-#define RPAREN 288
-#define COMMA 289
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
@@ -140,7 +103,7 @@ union YYSTYPE
   jkl_node_t  *node;
   jkl_op_t    op;
 
-#line 144 "jackal_parser.h"
+#line 107 "jackal_parser.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

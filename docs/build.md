@@ -72,19 +72,18 @@ output remains.)
 ## Running the compiler
 
 ```sh
-./jackal samples/main.jkl
+./jackal samples/main.jkl              # writes main.bin (input basename + .bin)
+./jackal samples/main.jkl out.bin      # or name the output explicitly
 ```
 
-The CLI (`jackal.c`) opens the file and calls `yyparse()`, which parses and then
-runs `jkl_compile()` on the AST.
+The CLI (`jackal.c`) parses the file, runs `jkl_compile()`, and writes the IR to
+a versioned bytecode file (see [`ir.md`](./ir.md#serialization-file-format-v1)).
+You can eyeball the header with `od -A d -t x1 -N 32 main.bin` — it begins with
+the ASCII magic `JKLB`.
 
-> Important: the standalone binary does **not** currently write an output file —
-> it parses and compiles in-memory and exits. With `-DVERBOSE` you'll see the
-> lexer/parser/compiler logs (and `no rules implemented for ...` warnings for the
-> unfinished node types). Emitting a bytecode file (`jkl_ir_code_save`) is only
-> done via the library API today. See
-> [`architecture.md`](./architecture.md#entry-point-and-control-flow) and
-> [`roadmap.md`](./roadmap.md).
+> With `-DVERBOSE` you'll also see lexer/parser/compiler logs on stderr. Note the
+> lexer echoes unmatched newlines to stdout (a known cosmetic quirk; see
+> [`language.md`](./language.md)).
 
 ## Tests
 
@@ -98,14 +97,15 @@ variable and `tests/` is not in `SUBDIRS`). They have their own `tests/Makefile`
 
 ```sh
 cd tests
-make compiler        # builds ../bin/jackaltest, then runs it
+make compiler        # compiles the lib sources + tests, then runs them
 ```
 
-> Caveat: `tests/Makefile` still references the **pre-rename** library path
-> (`-L../lib`, `make -C ../lib`) and outputs to `../bin/jackaltest`. After the
-> autotools migration the library lives in `libjackal/`, so these paths are
-> stale and the test Makefile needs updating (and `libcheck` must be installed).
-> See [`roadmap.md`](./roadmap.md).
+`tests/Makefile` compiles the `libjackal/` sources directly (no autotools build
+needed) and auto-detects `libcheck` via `pkg-config`: if present it links
+`-lcheck`; otherwise it builds with `-DJKL_NO_CHECK` and uses the dependency-free
+shim in `tests/no_check.h`. So the suite runs even without `libcheck` installed.
+The tests assert emitted IR opcode **sequences and jump targets**, plus a
+save→load round-trip. They are not yet wired into `make check`.
 
 ## Formatting & linting (`tools.mk`)
 
@@ -140,10 +140,13 @@ make compiler        # builds ../bin/jackaltest, then runs it
 
 1. **No `configure` checked in** — must run `autoreconf -i` first. There is no
    `autogen.sh`/`bootstrap.sh` helper.
-2. **`flex` / Check may be missing** — install them (and `bison`, `gperf`) before
-   building/testing.
-3. **Tests are not wired into autotools** and `tests/Makefile` points at the old
-   `lib/`/`bin/` paths.
+2. **`flex` only needed to regenerate the lexer** — the committed `jackal_lexer.c`
+   lets `make` build without `flex`. `bison` is needed only if you change
+   `jackal_parser.y`. The tests no longer require `libcheck` (see above).
+3. **Stale parser header trap** — if you edit `jackal_parser.y` and regenerate,
+   the fresh `jackal_parser.h` must also overwrite `include/jackal_parser.h`
+   (the path the lexer's `#include <jackal_parser.h>` resolves to via
+   `-Iinclude`); otherwise the old token set shadows it. See [`roadmap.md`](./roadmap.md).
 4. **`gperf` keyword generation is not in the autotools build** (it's an orphaned
    `tools.mk` rule); harmless because the generated header is unused.
 

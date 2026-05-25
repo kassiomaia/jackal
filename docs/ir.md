@@ -121,28 +121,38 @@ bytes into `bss` at `position = djb2_hash(str) % 65535` and the compiler emits a
 > hashed slot. It works for the small test cases but is not robust. See
 > [`roadmap.md`](./roadmap.md).
 
-## Serialization
+## Serialization (file format v1)
 
-`jkl_ir_code_save(code, filename)` (`libjackal/jackal_ir.c:49`) writes a raw
-binary file with two back-to-back regions:
+`jkl_ir_code_save(code, filename)` writes a **versioned** binary file: a packed
+32-byte header, then the instruction stream, then the data section.
 
 ```
-┌─────────────────────────────────────────────┐
-│  instructions:  n_irs × sizeof(jkl_ir_t)     │   (the jkl_ir_t array, verbatim)
-├─────────────────────────────────────────────┤
-│  data section:  65535 bytes of bss           │   (verbatim)
-└─────────────────────────────────────────────┘
+off size field           type / value
+0   4    magic           char[4] = "JKLB"
+4   2    version         jkl_word_t  = 1  (JKL_IR_FORMAT_VERSION)
+6   1    endianness      jkl_byte_t  (0 = little, 1 = big; the writing host's)
+7   1    ir_struct_size  jkl_byte_t  = sizeof(jkl_ir_t)   (ABI guard, e.g. 32)
+8   8    n_irs           jkl_qqword_t  (instruction count)
+16  8    bss_len         jkl_qqword_t  (data-section length, 65535 today)
+24  8    reserved        jkl_qqword_t  = 0  (future: entry point / flags)
+─── then n_irs × sizeof(jkl_ir_t) bytes: the jkl_ir_t[] stream, verbatim
+─── then bss_len bytes: the data section, verbatim
 ```
 
-The format is the in-memory layout dumped directly — there is **no header, no
-magic number, no instruction count, and no endianness handling**, so it is
-host-ABI-specific. A consumer (the VM) must know `sizeof(jkl_ir_t)` and that the
-trailing 65535 bytes are the data section. The `.gitignore` lists `ir.bin` /
-`ir.code` as the expected output names.
+The header struct (`jkl_ir_file_header_t`) and the `JKL_IR_MAGIC*` /
+`JKL_IR_FORMAT_VERSION` macros live in `include/jackal/jackal_ir.h` and are shared
+by writer and reader.
 
-> The standalone `jackal` binary does **not** currently call `save` (see
-> [`architecture.md`](./architecture.md#entry-point-and-control-flow)); only API
-> callers/tests do.
+`jkl_ir_code_load(code, filename)` is the inverse: it reads the header, validates
+`magic`, `version`, `ir_struct_size == sizeof(jkl_ir_t)`, and `endianness ==`
+host, then reads the instructions and data section. **v1 rejects** a file written
+on a different-endian or different-ABI host rather than silently misreading it;
+cross-endian byteswapping is a future (v2) additive change keyed off the
+`endianness` byte.
+
+The standalone `jackal` binary now **does** write this file: `./jackal in.jkl
+[out.bin]` compiles and saves, defaulting the output name to the input basename
+with a `.bin` extension. (`.gitignore` lists `ir.bin`/`ir.code`.)
 
 ## How constructs are lowered
 
@@ -163,8 +173,9 @@ Statement lowering (`jkl_compile_block`):
 | AST | Emitted IR |
 |-----|-----------|
 | `JKL_NODE_LET` | `ALLOC hash(name)`, `<expr>`, `STORE hash(name)` |
-| `JKL_NODE_IF` | `<cond>`, `JCP target` *(target is wrong — see below)*, `<block>` |
-| `JKL_NODE_LOOP` | `<block>`, `JMP back` *(target is off-by-one — see below)* |
+| `JKL_NODE_IF` (no else) | `<cond>`, `JCP end`, `<then>` — `JCP` backpatched to the index after `<then>` |
+| `JKL_NODE_IF` (with else) | `<cond>`, `JCP else`, `<then>`, `JMP end`, `<else>` — both jumps backpatched |
+| `JKL_NODE_LOOP` | `<body>`, `JMP start` (back-edge to the first body instruction) |
 | `JKL_NODE_CALL` | `CALL 0` *(callee/arg ignored)* |
 | `JKL_NODE_FUNC` | (`n_funcs++`), `<block>` inlined *(no prologue/epilogue/linkage)* |
 | `JKL_NODE_RETURN` | nothing (warning only) |
@@ -196,30 +207,57 @@ HALT
 ### Worked example — `loop { let x := "value" }`
 
 ```
-ALLOC  hash("x")
-LOAD   hash("value"), hash+len
-STORE  hash("x")
-JMP    <loop start>
-HALT
+0: ALLOC  hash("x")
+1: LOAD   hash("value"), hash+len
+2: STORE  hash("x")
+3: JMP    0                      # back-edge to the first body instruction
+4: HALT
 ```
+
+### Worked example — `if x==1 { puts "a" } else { puts "b" }`
+
+```
+0: LOAD  hash("x")
+1: PUSHI 1
+2: EQL
+3: JCP   6        # condition false -> jump to else
+4: CALL  0        # then: puts "a"
+5: JMP   7        # skip the else
+6: CALL  0        # else: puts "b"
+7: HALT
+```
+
+`elif` is desugared by the parser into `else { if ... }`, so it reuses this exact
+shape recursively (no dedicated `elif` opcodes).
+
+## Jump semantics (the contract)
+
+Because the VM does not exist yet, these definitions **are** the spec:
+
+- Jump targets are **absolute instruction indices** (into the `jkl_ir_t[]`
+  stream).
+- `JMP target` — unconditional: set `PC = target`.
+- `JCP target` — pop the top of stack; if it is **zero / false**, set
+  `PC = target`; otherwise fall through. (I.e. "jump over the then-block.")
+
+Targets are filled in by **backpatching**: the compiler emits the jump with a
+placeholder, compiles the block, then rewrites the target via
+`jkl_ir_code_patch()` (`jkl_ir_code_push` returns the index to patch).
 
 ## Known IR/codegen issues
 
-These are tracked in [`roadmap.md`](./roadmap.md); summarized here because they
-affect anyone reading emitted bytecode:
+Fixed in this version: `if`/`else` and `loop` jump targets are now correct
+(backpatched), the `JCP`/`JMP` contract is defined above, and serialization is
+versioned (header + ABI guard). Remaining gaps, tracked in
+[`roadmap.md`](./roadmap.md):
 
-- **`if` jump target is wrong.** `JCP` is given `n_irs - 1` (the index *before*
-  the condition) instead of the index *after* the block, so it cannot skip the
-  body. There is also no else/merge label. (`jackal_compiler.c:183`)
-- **`loop` back-edge is off-by-one** (`n_irs - 1`) and there is no exit
-  condition, so the loop is infinite. (`jackal_compiler.c:191`)
-- **`JCP` semantics undocumented** — "jump if true" vs "jump if false" is not
-  pinned down; the design note [`jackal_emits_if.md`](./jackal_emits_if.md)
-  assumes a `JNE`-style "jump when value > 0".
 - **`ID` is lowered like a string** (hash + `LOAD` from `bss`) rather than being
   resolved through the symbol table, so variable *reads* don't reference the slot
-  that `ALLOC`/`STORE` created. (`jackal_compiler.c:139`)
+  that `ALLOC`/`STORE` created. (`jackal_compiler.c`)
 - **`CALL` discards the callee and arguments** (always `CALL 0`).
 - **`RETURN` and `RAISE` are not lowered** (`RETURN` is a no-op; `RAISE` would
   hit the `default` error in `jkl_compile_block`).
-- **Serialization is ABI-specific** (no header/endianness).
+- **`loop` has no exit** — it is infinite by language design (no `break`).
+- **Endianness/ABI** — the file records the host's endianness and
+  `sizeof(jkl_ir_t)`; the loader currently *rejects* mismatches rather than
+  converting them.

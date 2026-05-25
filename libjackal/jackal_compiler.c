@@ -178,19 +178,27 @@ jkl_word_t jkl_compile_block(jkl_program_t *program, jkl_node_t *block)
         break;
       }
       case JKL_NODE_IF: {
-        jkl_warn("jkl_compiler", "no rules implemented for JKL_NODE_IF");
-
-        jkl_word_t ifb_pos = program->ir_code->n_irs - 1;
         jkl_compile_expr(program, child->expr);
-        jkl_ir_code_push(program->ir_code, JKL_EMIT_IR(JKL_IR_JCP, ifb_pos, 0, 0));
+        jkl_word_t jcp = jkl_ir_code_push(program->ir_code,
+                                          JKL_EMIT_IR(JKL_IR_JCP, 0, 0, 0));
         jkl_compile_block(program, child->block);
+
+        if (child->block_else == NULL) {
+          jkl_ir_code_patch(program->ir_code, jcp, 0, program->ir_code->n_irs);
+        } else {
+          jkl_word_t jmp = jkl_ir_code_push(program->ir_code,
+                                            JKL_EMIT_IR(JKL_IR_JMP, 0, 0, 0));
+          jkl_ir_code_patch(program->ir_code, jcp, 0, program->ir_code->n_irs);
+          jkl_compile_block(program, child->block_else);
+          jkl_ir_code_patch(program->ir_code, jmp, 0, program->ir_code->n_irs);
+        }
         break;
       }
       case JKL_NODE_LOOP: {
-        jkl_warn("jkl_compiler", "no rules implemented for JKL_NODE_LOOP");
-        unsigned int loop_pos = program->ir_code->n_irs - 1;
+        jkl_qqword_t loop_start = program->ir_code->n_irs;
         jkl_compile_block(program, child->block);
-        jkl_ir_code_push(program->ir_code, JKL_EMIT_IR(JKL_IR_JMP, loop_pos, 0, 0));
+        jkl_ir_code_push(program->ir_code,
+                         JKL_EMIT_IR(JKL_IR_JMP, loop_start, 0, 0));
         break;
       }
       case JKL_NODE_CALL: {

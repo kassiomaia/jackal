@@ -1,9 +1,28 @@
-CFLAGS=-g -I../include -L../lib -DVERBOSE -DENABLE_COLOR -Wl,-rpath=../lib 
-TARGET=../bin/jackaltest
+# Compiler unit tests.
+#
+# Uses the "Check" framework when available (pkg-config); otherwise falls back
+# to the dependency-free shim in no_check.h (-DJKL_NO_CHECK). Library sources
+# are compiled directly so the tests do not depend on the autotools build.
 
-compiler: build_lib
-	@echo "Building jackal compiler tests..."
-	$(CC) $(CFLAGS) -o $(TARGET) main.c compiler.c -ljackal -lm -lcheck
+CC      ?= cc
+CFLAGS   = -g -I../include
+LIBSRC   = $(wildcard ../libjackal/*.c)
+TESTSRC  = main.c compiler.c
+TARGET   = jackaltest
+
+HAVE_CHECK := $(shell pkg-config --exists check 2>/dev/null && echo yes)
+
+ifeq ($(HAVE_CHECK),yes)
+  TESTDEFS =
+  TESTLIBS = -lcheck
+else
+  TESTDEFS = -DJKL_NO_CHECK
+  TESTLIBS =
+endif
+
+compiler:
+	@echo "Building jackal compiler tests (HAVE_CHECK=$(HAVE_CHECK))..."
+	$(CC) $(CFLAGS) $(TESTDEFS) -o $(TARGET) $(TESTSRC) $(LIBSRC) -lm $(TESTLIBS)
 	@echo "Running jackal compiler tests..."
 	@echo "=============================================================="
 	./$(TARGET)
@@ -15,13 +34,8 @@ compiler: build_lib
 		echo "=============================================================="; \
 		echo "Jackal compiler tests passed!"; \
 	fi
-	@echo "=============================================================="
-	
-
-build_lib:
-	make FLAGS="-DVERBOSE -DENABLE_COLOR" -C ../lib
 
 clean:
-	rm -f $(OBJS) $(TARGET)
+	rm -f $(TARGET)
 
-.PHONY: all clean
+.PHONY: compiler clean

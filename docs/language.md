@@ -115,7 +115,11 @@ ident       ::= ID
 
 loop        ::= "loop" "{" block_stmts "}"
 
-if_stm      ::= "if" expr "{" block_stmts "}"
+if_stm      ::= if_then else_opt
+if_then     ::= "if" expr "{" block_stmts "}"
+else_opt    ::= ε
+              | "else" "{" block_stmts "}"
+              | "elif" expr "{" block_stmts "}" else_opt
 
 block_stmts ::= ε
               | block_stmts statement
@@ -169,19 +173,29 @@ Treat precedence as unspecified and **parenthesize** to be safe:
 `%prec`, or adding a precedence-climbing rule layer) is a known to-do — see
 [`roadmap.md`](./roadmap.md).
 
-### Conditionals — `if`
+### Conditionals — `if` / `elif` / `else`
 
 ```jackal
 if cond {
   ...
+} elif other {
+  ...
+} else {
+  ...
 }
 ```
 
-Note: the condition is **not** parenthesized in the grammar (`if expr { ... }`),
-even though `../samples/main.jkl` and the design note
+The condition is **not** parenthesized in the grammar (`if expr { ... }`), even
+though `../samples/main.jkl` and the design note
 [`jackal_emits_if.md`](./jackal_emits_if.md) show parentheses — parentheses work
 only because `( expr )` is itself a valid `expr`. Produces
-`JKL_NODE_IF { expr, block }`. There is **no `else`/`elif`**.
+`JKL_NODE_IF { expr, block, block_else }`.
+
+`else` and any number of `elif` branches are optional. `elif` is **desugared**
+by the parser into `else { if ... }`, so the AST only ever has a single optional
+`block_else` (which may itself contain a nested `JKL_NODE_IF`). Blocks are
+brace-delimited, so there is no dangling-else ambiguity. See
+[`ir.md`](./ir.md#how-constructs-are-lowered) for the lowering.
 
 ### Loops — `loop`
 
@@ -250,8 +264,6 @@ would error). See [`roadmap.md`](./roadmap.md).
 
 These are recognized by the lexer or named in the source but **cannot be used**:
 
-- **`else` / `elif`** — tokenized (`jackal_lexer.l:21-22`) but no grammar rule;
-  `if` is single-branch only.
 - **`!` (logical NOT)** — tokenized and present in `jkl_op_t` as `JKL_OP_NOT`,
   but there is no unary-expression rule, so `!x` does not parse. (`op` only
   covers binary operators.)

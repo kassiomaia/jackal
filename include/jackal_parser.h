@@ -35,8 +35,8 @@
    especially those whose name start with YY_ or yy_.  They are
    private implementation details that can be changed or removed.  */
 
-#ifndef YY_YY_JACKAL_PARSER_TAB_H_INCLUDED
-# define YY_YY_JACKAL_PARSER_TAB_H_INCLUDED
+#ifndef YY_YY_JACKAL_PARSER_H_INCLUDED
+# define YY_YY_JACKAL_PARSER_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
@@ -55,16 +55,58 @@ extern int yydebug;
     YYerror = 256,                 /* error  */
     YYUNDEF = 257,                 /* "invalid token"  */
     ID = 258,                      /* ID  */
-    INT = 259,                     /* INT  */
-    FLOAT = 260,                   /* FLOAT  */
-    STRING = 261                   /* STRING  */
+    CINT = 259,                    /* CINT  */
+    CFLOAT = 260,                  /* CFLOAT  */
+    CSTRING = 261,                 /* CSTRING  */
+    LET = 262,                     /* "let"  */
+    ASSIGN = 263,                  /* ":="  */
+    LBRACE = 264,                  /* "{"  */
+    RBRACE = 265,                  /* "}"  */
+    EQL = 266,                     /* "=="  */
+    NEQ = 267,                     /* "!="  */
+    GT = 268,                      /* ">"  */
+    LT = 269,                      /* "<"  */
+    GTE = 270,                     /* ">="  */
+    LTE = 271,                     /* "<="  */
+    PLUS = 272,                    /* "+"  */
+    MINUS = 273,                   /* "-"  */
+    MUL = 274,                     /* "*"  */
+    DIV = 275,                     /* "/"  */
+    MOD = 276,                     /* "%"  */
+    AND = 277,                     /* "&&"  */
+    OR = 278,                      /* "||"  */
+    NOT = 279,                     /* "!"  */
+    LOOP = 280,                    /* "loop"  */
+    RAISE = 281,                   /* "raise"  */
+    IF = 282,                      /* "if"  */
+    ELIF = 283,                    /* "elif"  */
+    ELSE = 284,                    /* "else"  */
+    FUNC = 285,                    /* "func"  */
+    RETURN = 286,                  /* "return"  */
+    LPAREN = 287,                  /* "("  */
+    RPAREN = 288,                  /* ")"  */
+    COMMA = 289                    /* ","  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef int YYSTYPE;
+union YYSTYPE
+{
+#line 16 "jackal_parser.y"
+
+  char        *id;
+  char        *string;
+  int         number;
+  float       fnumber;
+  jkl_node_t  *node;
+  jkl_op_t    op;
+
+#line 107 "jackal_parser.h"
+
+};
+typedef union YYSTYPE YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
 #endif
@@ -76,4 +118,4 @@ extern YYSTYPE yylval;
 int yyparse (void);
 
 
-#endif /* !YY_YY_JACKAL_PARSER_TAB_H_INCLUDED  */
+#endif /* !YY_YY_JACKAL_PARSER_H_INCLUDED  */

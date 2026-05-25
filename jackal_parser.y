@@ -61,8 +61,9 @@ jkl_program_t *program;
 %type <node> call
 %type <node> func
 %type <node> term
-%type <node> param 
+%type <node> param
 %type <node> func_params
+%type <node> if_then
 %type <op>   op
 
 %type statement
@@ -83,16 +84,6 @@ program: {
        | program statements {
           jkl_pop_context(program);
           jkl_ensure_empty_contexts();
-
-#ifdef USE_EVAL
-          jkl_word_t n = jkl_eval(program);
-#else
-          jkl_word_t n = jkl_compile(program);
-#endif
-          free(program);
-          if (n != 0) {
-            jkl_error("jkl_error", "compilation failed");
-          }
         }
        ;
 
@@ -255,20 +246,57 @@ loop: LOOP LBRACE {
       }
       ;
 
-if_stm: IF expr {
-        jkl_note("jkl_parser", "begin emit ast if");
-        jkl_node_t* if_stm = jkl_node_new(JKL_NODE_IF);
-        if_stm->expr = $2;
-        if_stm->block = jkl_node_new(JKL_NODE_BLOCK);
-        jkl_node_append(jkl_get_context(program), if_stm);
+if_stm: if_then else_opt
+      ;
 
-        jkl_push_context(program, if_stm->block);
-        jkl_note("jkl_parser", "begin emit ast if block");
-      } LBRACE block_stmts RBRACE
-      {
-        jkl_pop_context(program);
-        jkl_note("jkl_parser", "end emit ast if");
-      }
+if_then: IF expr {
+          jkl_note("jkl_parser", "begin emit ast if");
+          jkl_node_t* if_node = jkl_node_new(JKL_NODE_IF);
+          if_node->expr = $2;
+          if_node->block = jkl_node_new(JKL_NODE_BLOCK);
+          jkl_node_append(jkl_get_context(program), if_node);
+
+          jkl_push_context(program, if_node->block);
+          jkl_note("jkl_parser", "begin emit ast if block");
+          $<node>$ = if_node;
+        } LBRACE block_stmts RBRACE {
+          jkl_pop_context(program);
+          jkl_note("jkl_parser", "end emit ast if then");
+          $$ = $<node>3;
+        }
+      ;
+
+else_opt:
+        /* no else */
+      | ELSE {
+          jkl_node_t* if_node = $<node>0;
+          if_node->block_else = jkl_node_new(JKL_NODE_BLOCK);
+          jkl_push_context(program, if_node->block_else);
+          jkl_note("jkl_parser", "begin emit ast else block");
+        } LBRACE block_stmts RBRACE {
+          jkl_pop_context(program);
+          jkl_note("jkl_parser", "end emit ast else");
+        }
+      | ELIF expr {
+          /* desugar `elif` into `else { if ... }` */
+          jkl_node_t* outer = $<node>0;
+          outer->block_else = jkl_node_new(JKL_NODE_BLOCK);
+          jkl_push_context(program, outer->block_else);
+
+          jkl_node_t* inner = jkl_node_new(JKL_NODE_IF);
+          inner->expr = $2;
+          inner->block = jkl_node_new(JKL_NODE_BLOCK);
+          jkl_node_append(jkl_get_context(program), inner);
+          jkl_push_context(program, inner->block);
+          jkl_note("jkl_parser", "begin emit ast elif");
+          $<node>$ = inner;
+        } LBRACE block_stmts RBRACE {
+          jkl_pop_context(program);
+          $<node>$ = $<node>3;
+        } else_opt {
+          jkl_pop_context(program);
+          jkl_note("jkl_parser", "end emit ast elif");
+        }
       ;
 
 block_stmts:

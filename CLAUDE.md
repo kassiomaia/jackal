@@ -40,11 +40,12 @@ feature works.
 autoreconf -i && ./configure && make          # builds libjackal.a and the `jackal` binary
 make CFLAGS="-g -DVERBOSE -DENABLE_COLOR"      # ...with diagnostic logging + colors
 
-# Run the compiler on a sample:
-./jackal samples/main.jkl                      # NOTE: parses+compiles in memory; writes NO file yet
+# Run the compiler on a sample (writes <basename>.bin, or a named output):
+./jackal samples/main.jkl                      # -> main.bin (versioned bytecode; magic "JKLB")
+./jackal samples/main.jkl out.bin
 
-# Tests (Check framework; NOT wired into `make check`):
-cd tests && make compiler                      # see caveat below
+# Tests (auto-uses Check if present, else a -DJKL_NO_CHECK shim; NOT in `make check`):
+cd tests && make compiler
 ```
 
 Prereqs: `gcc make autoconf automake bison flex pkg-config` + the **Check**
@@ -67,17 +68,23 @@ header), `clang-format`/`astyle` (formatting). See [`docs/build.md`](./docs/buil
 
 ## Gotchas (high-value to know up front)
 
-- The **standalone binary emits no output file** — `jkl_ir_code_save()` is never
-  called from `jackal.c`. Serialization is only exercised via the API/tests.
+- The CLI **emits a versioned bytecode file** (`jkl_ir_code_save`, format v1 with
+  a `JKLB` header + ABI guard; `jkl_ir_code_load` is the inverse). `if`/`else`/
+  `loop` jump targets are **correct** (backpatched; `JCP` = jump-if-false to an
+  absolute instruction index, `JMP` = unconditional). See `docs/ir.md`.
 - **Operator precedence is not enforced** (the grammar's `op` is a non-terminal,
   so `%left` doesn't apply). Parenthesize.
-- **`if`/`loop` jump targets are buggy**, `call`/`func`/`return`/`raise` codegen
-  is stubbed or wrong, and **variable reads don't resolve to their storage**
-  (`ID` is hashed into the data section like a string).
+- Still incomplete: `call`/`func`/`return`/`raise` codegen is stubbed or wrong,
+  and **variable reads don't resolve to their storage** (`ID` is hashed into the
+  data section like a string, not looked up in the symbol table).
 - The **symbol table, stack, class system, optimizer, and evaluator are
   built-but-unused** (or stubs). Don't assume they participate in compilation.
-- **Stale build paths**: `tests/Makefile` and `tools.mk` still reference the old
-  `lib/` directory (renamed to `libjackal/`). The gperf keyword header is dead code.
+- **Parser regen trap**: if you edit `jackal_parser.y`, regenerate with `bison`
+  AND copy the fresh `jackal_parser.h` over `include/jackal_parser.h` (the path
+  the lexer's `#include <jackal_parser.h>` resolves to). The committed copies must
+  match, or the old token set silently shadows the new one.
+- `tools.mk` still references the old `lib/` directory (renamed to `libjackal/`);
+  the gperf keyword header is dead code. (`tests/Makefile` is fixed.)
 - Generated files (`jackal_lexer.c`, `jackal_parser.c`), `config.h`, `tags`, and
   the vendored `include/check.h` are committed — don't hand-edit them.
 
