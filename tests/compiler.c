@@ -128,6 +128,10 @@ START_TEST(test_jkl_compile_check_let_with_int)
   for (int i = 0; i < program->ir_code->n_irs; i++) {
     ck_assert_int_eq(program->ir_code->ir[i].type, output[i]);
   }
+
+  /* the first declared variable resolves to slot 0 (ALLOC/STORE operand) */
+  ck_assert_int_eq(program->ir_code->ir[0].args[0], 0);
+  ck_assert_int_eq(program->ir_code->ir[2].args[0], 0);
 }
 END_TEST
 
@@ -324,6 +328,52 @@ START_TEST(test_jkl_ir_save_load_roundtrip)
 END_TEST
 
 /*
+ * let x := 1
+ * let y := x      (x is a read -> must resolve to x's slot, not a name hash)
+ * IR (indices / slots):
+ *  0 ALLOC 0   1 PUSHI   2 STORE 0     (x in slot 0)
+ *  3 ALLOC 1   4 LOAD 0  5 STORE 1     (y in slot 1; read of x -> slot 0)
+ *  6 HALT
+ */
+START_TEST(test_jkl_compile_id_resolves_to_slot)
+{
+  jkl_program_t *program = jkl_program_new();
+
+  jkl_node_t *let_x = jkl_decl_let_with_qword("x", 1);
+
+  jkl_node_t *let_y = jkl_node_new(JKL_NODE_LET);
+  let_y->id = jkl_node_new(JKL_NODE_ID);
+  let_y->id->value.s = "y";
+  let_y->expr = jkl_node_new(JKL_NODE_ID);
+  let_y->expr->value.s = "x";
+
+  jkl_node_t *block = jkl_node_new(JKL_NODE_BLOCK);
+  jkl_node_append(block, let_x);
+  jkl_node_append(block, let_y);
+  program->ast_prog_root = block;
+
+  jkl_word_t r = jkl_compile(program);
+  ck_assert_int_eq(r, 0);
+
+  jkl_ir_type_t output[] = {
+    JKL_IR_ALLOC, JKL_IR_PUSHI, JKL_IR_STORE,
+    JKL_IR_ALLOC, JKL_IR_LOAD, JKL_IR_STORE,
+    JKL_IR_HALT
+  };
+
+  ck_assert_int_eq(program->ir_code->n_irs, 7);
+  for (int i = 0; i < program->ir_code->n_irs; i++) {
+    ck_assert_int_eq(program->ir_code->ir[i].type, output[i]);
+  }
+
+  ck_assert_int_eq(program->ir_code->ir[0].args[0], 0); /* ALLOC x -> 0 */
+  ck_assert_int_eq(program->ir_code->ir[3].args[0], 1); /* ALLOC y -> 1 */
+  ck_assert_int_eq(program->ir_code->ir[4].args[0], 0); /* LOAD x  -> 0 */
+  ck_assert_int_eq(program->ir_code->ir[5].args[0], 1); /* STORE y -> 1 */
+}
+END_TEST
+
+/*
  * Compiler test suite
  */
 
@@ -337,6 +387,7 @@ Suite *jkl_compiler_suite()
   tcase_add_test(tc_core, test_jkl_compile_check_ir);
   tcase_add_test(tc_core, test_jkl_compile_check_let_with_int);
   tcase_add_test(tc_core, test_jkl_compile_check_let_with_string);
+  tcase_add_test(tc_core, test_jkl_compile_id_resolves_to_slot);
   tcase_add_test(tc_core, test_jkl_compile_check_with_loop);
   tcase_add_test(tc_core, test_jkl_compile_if_without_else);
   tcase_add_test(tc_core, test_jkl_compile_if_with_else);

@@ -119,7 +119,17 @@ bytes into `bss` at `position = djb2_hash(str) % 65535` and the compiler emits a
 > This is hash-placement **without collision handling**: two strings that hash to
 > nearby offsets can overwrite each other, and the stored span can run past the
 > hashed slot. It works for the small test cases but is not robust. See
-> [`roadmap.md`](./roadmap.md).
+> [`roadmap.md`](./roadmap.md). Note this applies to **string literals** only.
+
+## Variables and slots
+
+Variables are addressed by a **slot index**, not by their name. The compiler keeps
+a per-program symbol table (`jkl_symbol_table_t`, on `program->symbol_table`); a
+`let` resolves-or-allocates its name to a slot (0-based, in declaration order) and
+emits `ALLOC slot` / `STORE slot`, and a variable read (`ID`) looks the name up and
+emits `LOAD slot`. Reading a name that was never declared is a compile error
+(`undeclared identifier '…'`). So `ALLOC`/`STORE`/`LOAD`'s `args[0]` is a small
+slot index (0, 1, 2, …), not a hash. (Re-declaring a name reuses its slot.)
 
 ## Serialization (file format v1)
 
@@ -165,14 +175,14 @@ operator:
 | `JKL_NODE_INT` | `PUSHI value` |
 | `JKL_NODE_FLOAT` | `PUSHF value` |
 | `JKL_NODE_STRING` | store string in `bss`, then `LOAD hash, hash+len` |
-| `JKL_NODE_ID` | store name in `bss`, then `LOAD hash` |
+| `JKL_NODE_ID` | `LOAD slot` — the name is resolved through the symbol table; a read of an **undeclared** name is a compile error |
 | `JKL_NODE_BINOP` | `<left>`, `<right>`, then the operator opcode |
 
 Statement lowering (`jkl_compile_block`):
 
 | AST | Emitted IR |
 |-----|-----------|
-| `JKL_NODE_LET` | `ALLOC hash(name)`, `<expr>`, `STORE hash(name)` |
+| `JKL_NODE_LET` | `ALLOC slot`, `<expr>`, `STORE slot` (slot from the symbol table; re-declaring a name reuses its slot) |
 | `JKL_NODE_IF` (no else) | `<cond>`, `JCP end`, `<then>` — `JCP` backpatched to the index after `<then>` |
 | `JKL_NODE_IF` (with else) | `<cond>`, `JCP else`, `<then>`, `JMP end`, `<else>` — both jumps backpatched |
 | `JKL_NODE_LOOP` | `<body>`, `JMP start` (back-edge to the first body instruction) |
@@ -186,45 +196,48 @@ Statement lowering (`jkl_compile_block`):
 ### Worked example — `let x := 42`
 
 ```
-ALLOC  hash("x")
+ALLOC  0          # x -> slot 0
 PUSHI  42
-STORE  hash("x")
+STORE  0
 HALT
 ```
 
 (This is exactly what `tests/compiler.c::test_jkl_compile_check_let_with_int`
-asserts.)
+asserts, including the slot operand.)
 
 ### Worked example — `let x := "value"`
 
 ```
-ALLOC  hash("x")
-LOAD   hash("value"), hash+len      # value bytes were placed in bss
-STORE  hash("x")
+ALLOC  0          # x -> slot 0
+LOAD   hash("value"), hash+len      # string literal bytes were placed in bss
+STORE  0
 HALT
 ```
 
 ### Worked example — `loop { let x := "value" }`
 
 ```
-0: ALLOC  hash("x")
+0: ALLOC  0       # x -> slot 0
 1: LOAD   hash("value"), hash+len
-2: STORE  hash("x")
+2: STORE  0
 3: JMP    0                      # back-edge to the first body instruction
 4: HALT
 ```
 
-### Worked example — `if x==1 { puts "a" } else { puts "b" }`
+### Worked example — `let x := 1` then `if x==1 { puts "a" } else { puts "b" }`
 
 ```
-0: LOAD  hash("x")
+0: ALLOC 0        # x -> slot 0
 1: PUSHI 1
-2: EQL
-3: JCP   6        # condition false -> jump to else
-4: CALL  0        # then: puts "a"
-5: JMP   7        # skip the else
-6: CALL  0        # else: puts "b"
-7: HALT
+2: STORE 0
+3: LOAD  0        # read x -> slot 0
+4: PUSHI 1
+5: EQL
+6: JCP   9        # condition false -> jump to else
+7: CALL  0        # then: puts "a"
+8: JMP   10       # skip the else
+9: CALL  0        # else: puts "b"
+10: HALT
 ```
 
 `elif` is desugared by the parser into `else { if ... }`, so it reuses this exact

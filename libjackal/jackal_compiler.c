@@ -26,6 +26,7 @@ void jkl_program_init(jkl_program_t *program)
   program->n_notes = 0;
   program->n_ids = 0;
   program->n_funcs = 0;
+  program->symbol_table = jkl_symbol_table_new();
   program->ir_code = malloc(sizeof(jkl_ir_code_t));
   if (program->ir_code == NULL) {
     jkl_error("jkl_compiler", "cannot allocate memory for ir code");
@@ -137,9 +138,13 @@ jkl_word_t jkl_compile_expr(jkl_program_t *program, jkl_node_t *expr)
       break;
     }
     case JKL_NODE_ID: {
-      jkl_qword_t hash = jkl_string_hash(expr->value.s);
-      jkl_ir_store_string(program->ir_code, (jkl_string_t *)expr->value.s);
-      jkl_ir_code_push(program->ir_code, JKL_EMIT_IR(JKL_IR_LOAD, hash, 0, 0));
+      jkl_symbol_t *sym = jkl_symbol_table_get(program->symbol_table,
+                                               expr->value.s);
+      if (sym == NULL) {
+        jkl_error("jkl_compiler", "undeclared identifier '%s'", expr->value.s);
+      }
+      jkl_ir_code_push(program->ir_code,
+                       JKL_EMIT_IR(JKL_IR_LOAD, sym->slot, 0, 0));
       break;
     }
     case JKL_NODE_BINOP: {
@@ -169,12 +174,15 @@ jkl_word_t jkl_compile_block(jkl_program_t *program, jkl_node_t *block)
     jkl_node_t *child = block->compound.nodes[i];
     switch (child->type) {
       case JKL_NODE_LET: {
-        jkl_word_t hash = jkl_string_hash(child->id->value.s);
-        jkl_warn("jkl_compiler", "no rules implemented for JKL_NODE_LET");
+        jkl_string_t name = child->id->value.s;
+        jkl_symbol_t *sym = jkl_symbol_table_get(program->symbol_table, name);
+        jkl_word_t slot = sym ? sym->slot
+                              : jkl_symbol_table_add(program->symbol_table, name,
+                                                     JKL_SYMBOL_LET);
 
-        jkl_ir_code_push(program->ir_code, JKL_EMIT_IR(JKL_IR_ALLOC, hash, 0, 0));
+        jkl_ir_code_push(program->ir_code, JKL_EMIT_IR(JKL_IR_ALLOC, slot, 0, 0));
         jkl_compile_expr(program, child->expr);
-        jkl_ir_code_push(program->ir_code, JKL_EMIT_IR(JKL_IR_STORE, hash, 0, 0));
+        jkl_ir_code_push(program->ir_code, JKL_EMIT_IR(JKL_IR_STORE, slot, 0, 0));
         break;
       }
       case JKL_NODE_IF: {

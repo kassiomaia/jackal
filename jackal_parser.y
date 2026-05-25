@@ -80,7 +80,6 @@ jkl_program_t *program;
 
 program: { 
           program = jkl_program_new();
-          program->symbol_table = jkl_hash_new();
           program->ast_prog_root = jkl_node_new(JKL_NODE_BLOCK);
           jkl_push_context(program, program->ast_prog_root);
         }

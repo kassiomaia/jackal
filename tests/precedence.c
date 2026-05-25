@@ -61,8 +61,7 @@ static jkl_program_t *compile_snippet(const char *src)
 static void free_program(jkl_program_t *p)
 {
   jkl_node_free(p->ast_prog_root);
-  jkl_hash_free(p->symbol_table);
-  free(p->symbol_table);
+  jkl_symbol_table_free(p->symbol_table);
   jkl_ir_code_free(p->ir_code);
   free(p->ir_code);
   free(p);
@@ -130,6 +129,27 @@ static void test_arith_over_compare(void)
   free_program(p);
 }
 
+/* A variable read resolves to the slot its `let` allocated (not a name hash). */
+static void test_id_resolves_to_slot(void)
+{
+  printf("test: ID reads resolve to declared slots\n");
+  jkl_program_t *p = compile_snippet("let a := 5\nlet b := a + 1\n");
+  jkl_ir_type_t want[] = {
+    JKL_IR_ALLOC, JKL_IR_PUSHI, JKL_IR_STORE,        /* a := 5   -> slot 0 */
+    JKL_IR_ALLOC, JKL_IR_LOAD, JKL_IR_PUSHI,         /* b := a+1 -> slot 1 */
+    JKL_IR_ADD, JKL_IR_STORE,
+    JKL_IR_HALT,
+  };
+  CHECK(ir_seq_eq(p, want, 9), "let a; let b := a + 1 opcode stream");
+  if (p->ir_code->n_irs == 9) {
+    CHECK(p->ir_code->ir[0].args[0] == 0, "ALLOC a -> slot 0");
+    CHECK(p->ir_code->ir[3].args[0] == 1, "ALLOC b -> slot 1");
+    CHECK(p->ir_code->ir[4].args[0] == 0, "LOAD a  -> slot 0 (read resolves)");
+    CHECK(p->ir_code->ir[7].args[0] == 1, "STORE b -> slot 1");
+  }
+  free_program(p);
+}
+
 /* Parse a tree spanning many node types, then free it (ASan proves #11). */
 static void test_recursive_free_real_ast(void)
 {
@@ -165,6 +185,7 @@ int main(void)
   test_precedence_mul_over_add();
   test_left_associativity();
   test_arith_over_compare();
+  test_id_resolves_to_slot();
   test_recursive_free_real_ast();
   test_container_frees();
   printf("==============================================================\n");

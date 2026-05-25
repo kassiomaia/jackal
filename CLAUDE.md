@@ -78,13 +78,16 @@ header), `clang-format`/`astyle` (formatting). See [`docs/build.md`](./docs/buil
 - The AST is freed at exit: `jkl_node_free` is **recursive/type-aware** (frees
   owned children + lexer strings); `main()` also frees the symbol table. Build the
   ASan integration tests with `cd tests && make precedence`.
-- Still incomplete: `call`/`func`/`return`/`raise` codegen is stubbed or wrong,
-  and **variable reads don't resolve to their storage** (`ID` is hashed into the
-  data section like a string, not looked up in the symbol table). Because of the
-  `call`/`func` stubs, `./jackal samples/main.jkl` still leaks a few token strings
-  (the discarded callee + dropped top-level `func`) — not a regression.
-- The **symbol table, stack, class system, optimizer, and evaluator are
-  built-but-unused** (or stubs). Don't assume they participate in compilation.
+- **Variables resolve to slots**: `let`/`ID` go through `program->symbol_table`
+  (a real `jkl_symbol_table_t`) — `ALLOC`/`STORE`/`LOAD` carry a 0-based slot
+  index, not a name hash. Reading a name with no prior `let` is a compile error.
+  (String *literals* still go into `bss` via a hash.)
+- Still incomplete: `call`/`func`/`return`/`raise` codegen is stubbed or wrong.
+  Because of the `call`/`func` stubs, `./jackal samples/main.jkl` still leaks a few
+  token strings (the discarded callee + dropped top-level `func`) — not a regression.
+- The **stack, class system, optimizer, and evaluator are built-but-unused** (or
+  stubs). Don't assume they participate in compilation. (The symbol table is now
+  wired; the `hash` module is no longer used by the compiler.)
 - **Parser regen trap**: if you edit `jackal_parser.y`, regenerate with `bison`
   AND copy the fresh `jackal_parser.h` over `include/jackal_parser.h` (the path
   the lexer's `#include <jackal_parser.h>` resolves to). The committed copies must

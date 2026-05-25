@@ -127,24 +127,33 @@ one program per process). Contains a dead unused global `jkl_node_t *cc`. See
 ## UNUSED / STUB modules
 
 These compile and (mostly) work in isolation, but nothing in the active pipeline
-calls them. They represent intended future runtime/semantic features.
+calls them. They represent intended future runtime/semantic features. (Exception:
+`symbol_table` is **now wired** — it is listed here only to keep the bug-history
+together; see its note below.)
 
 ### hash — `include/jackal/jackal_hash.h`, `libjackal/jackal_hash.c`
 
 A generic string-keyed hash map with typed values (`STRING/INT/FLOAT/BOOL/ARRAY/
-OBJECT/NIL`) and a `jkl_hash_to_json` serializer. The parser allocates one as
-`program->symbol_table` but never `set`s or `get`s it.
+OBJECT/NIL`) and a `jkl_hash_to_json` serializer. **No longer used by the
+compiler** — it was previously mis-allocated as `program->symbol_table`, which is
+now a real `jkl_symbol_table_t` (see below).
 
 - **Direct-index, no collision resolution**: `set`/`get` index `hash % capacity`
   with no probing/chaining — colliding keys overwrite.
 - **Fixed**: `jkl_hash_free` now runs its cleanup loop before zeroing `capacity`,
   then frees the bucket array (`jackal_hash.c`).
 
-### symbol_table — `include/jackal/jackal_symbol_table.h`, `libjackal/jackal_symbol_table.c`
+### symbol_table — `include/jackal/jackal_symbol_table.h`, `libjackal/jackal_symbol_table.c` (**now active**)
 
 A fixed `jkl_symbol_t[1024]` with symbol kinds (`LET/FUNCTION/CLASS/
-CLASS_METHOD`), `add` (linear, rejects duplicates) and `get` (linear search).
-Never instantiated by the pipeline.
+CLASS_METHOD`), `add` (linear, returns the new index) and `get` (linear search);
+each symbol records its 0-based `slot`.
+
+**Wired into the compiler**: `jkl_program_init` allocates `program->symbol_table`;
+`jkl_compile_block` resolves a `let` to a slot via `get`-or-`add` and emits
+`ALLOC/STORE <slot>`, while an `ID` read uses `get` (erroring on an undeclared
+name) and emits `LOAD <slot>`. The stored `id` aliases the AST node's string, so
+`jkl_symbol_table_free` frees only the table block (the AST owns the strings).
 
 - **Fixed**: `jkl_symbol_table_free` frees the whole heap block (struct + embedded
   array) in one `free`, instead of `free`ing the embedded array (`jackal_symbol_table.c`).

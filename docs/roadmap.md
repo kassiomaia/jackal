@@ -41,7 +41,7 @@ Legend: ✅ works · 🟡 partial / buggy · 🟥 stub / unwired · ⬛ planned-
 | `func` lowering | 🟥 | body inlined; no prologue/epilogue/linkage/params |
 | `return` lowering | 🟥 | no-op (warning only) |
 | `raise` lowering | 🟥 | hits the `default` error path |
-| Variable *reads* resolve to slots | 🟥 | `ID` is hashed+`LOAD`ed like a string, not via symbol table |
+| Variable *reads* resolve to slots | ✅ | `let`/`ID` resolve to symbol-table slots; undeclared reads error |
 | IR serialization to file | ✅ | versioned format (header + ABI guard); save **and** load; round-trip tested |
 | CLI emits a bytecode file | ✅ | `./jackal in.jkl [out.bin]` writes the `.bin` |
 | Optimizer | 🟥 | type-check only, never invoked |
@@ -52,8 +52,8 @@ Legend: ✅ works · 🟡 partial / buggy · 🟥 stub / unwired · ⬛ planned-
 | Module | Status | Notes |
 |--------|:------:|-------|
 | types, error, string, ast, context, ir | ✅ | the working core |
-| hash | 🟡 | works for non-colliding keys; `free` fixed; allocated as `symbol_table` but never read |
-| symbol_table | 🟥 | not wired (`free` fixed); the `program` "symbol_table" is actually a `jkl_hash_tbl` |
+| hash | 🟡 | works for non-colliding keys; `free` fixed; no longer used by the compiler |
+| symbol_table | ✅ | wired: `program->symbol_table` resolves `let`/`ID` to slots |
 | stack | ✅/🟥 | correct, but unused |
 | class (OOP runtime) | 🟥 | full model + built-ins declared; all methods `jkl_not_implemented`; `jkl_class_init` never called |
 
@@ -70,9 +70,9 @@ Correctness bugs that would bite if the relevant path were exercised:
    `jackal_parser.y:158` / `:301`.
 4. **`call` loses the callee.** Only the single argument is stored on the
    `JKL_NODE_CALL`; the function name (`ID`) is discarded. `jackal_parser.y:279`.
-5. **Variable reads don't reference their storage.** `ID` lowering hashes the name
-   into `bss` and `LOAD`s that, instead of resolving the `ALLOC`/`STORE` slot.
-   `libjackal/jackal_compiler.c:139`.
+5. ✅ *Fixed.* `let`/`ID` now resolve to symbol-table slots
+   (`ALLOC`/`STORE`/`LOAD <slot>`); a read of an undeclared name is a compile
+   error. `libjackal/jackal_compiler.c`.
 6. ✅ *Fixed.* `jkl_hash_free` now runs the cleanup loop before zeroing
    `capacity`, then frees the buckets. `libjackal/jackal_hash.c`.
 7. ✅ *Fixed.* `jkl_symbol_table_free` frees the whole heap block (struct +
@@ -125,8 +125,8 @@ A pragmatic order for making the compiler end-to-end useful:
    `jkl_ir_code_load`, header/ABI guard — see [`ir.md`](./ir.md)).
 2. ✅ *Done.* Control-flow targets corrected (`if`/`else` + `loop` backpatching),
    with a documented `JCP`/`JMP` contract and unit tests.
-3. **Wire up the symbol table** — resolve `ID` reads/writes to allocated slots
-   instead of hashing names into `bss`; this unlocks real variables.
+3. ✅ *Done.* The symbol table is wired: `let`/`ID` resolve to numbered slots via
+   `jkl_symbol_table_t`; undeclared reads error. Covered by unit + ASan tests.
 4. **Finish `call`/`func`/`return`** — keep the callee, pass arguments, give
    functions linkage, and emit `RET`.
 5. **Repair the build glue** — `autogen.sh`, integrate tests into `make check`,

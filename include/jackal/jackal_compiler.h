@@ -2,7 +2,7 @@
 #define JACKAL_COMPILER_H
 
 #include <jackal/jackal_types.h>
-#include <jackal/jackal_hash.h>
+#include <jackal/jackal_symbol_table.h>
 #include <jackal/jackal_ir.h>
 
 typedef struct {
@@ -12,7 +12,7 @@ typedef struct {
   jkl_word_t n_notes;
   jkl_word_t n_ids;
   jkl_word_t n_funcs;
-  jkl_hash_tbl *symbol_table;
+  jkl_symbol_table_t *symbol_table;
   jkl_ir_code_t *ir_code;
 } jkl_program_t;
 

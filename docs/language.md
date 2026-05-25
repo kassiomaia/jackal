@@ -148,8 +148,13 @@ let name := expr
 ```
 
 There is no separate assignment statement; `let` is the only way to bind a name,
-and it can re-declare. The right-hand side is any `expr`. Produces
-`JKL_NODE_LET { id, expr }`.
+and it can re-declare (re-declaring reuses the name's storage). The right-hand
+side is any `expr`. Produces `JKL_NODE_LET { id, expr }`.
+
+Names resolve to **storage slots** through a symbol table: a `let` allocates (or
+reuses) a slot, and a later use of the name loads that slot. **Using a name that
+was never declared with `let` is a compile error** (`undeclared identifier '…'`),
+so declare before use.
 
 ### Expressions and operators
 

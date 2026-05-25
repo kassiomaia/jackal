@@ -30,6 +30,7 @@ jkl_word_t jkl_symbol_table_add(jkl_symbol_table_t *table, jkl_string_t id,
   jkl_word_t i = table->n_symbols;
   table->symbols[i].id = id;
   table->symbols[i].type = type;
+  table->symbols[i].slot = i;
   table->n_symbols++;
 
   jkl_log("jkl_symbol_table", "symbol `%s` has been added\n", id);
