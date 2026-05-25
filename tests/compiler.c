@@ -374,6 +374,105 @@ START_TEST(test_jkl_compile_id_resolves_to_slot)
 END_TEST
 
 /*
+ * func inc(n) { return n }
+ * inc 41
+ * IR: top-level first (entry 0), HALT, then the hoisted func body.
+ *  0 PUSHI 41        (call arg)
+ *  1 CALL  entry,0,1 (internal: target = inc's entry, kind 0, nargs 1)
+ *  2 HALT
+ *  3 ALLOC s         (inc prologue: bind param)  <- entry
+ *  4 STORE s
+ *  5 LOAD  s         (return n)
+ *  6 RET
+ */
+START_TEST(test_jkl_compile_call_func_return)
+{
+  jkl_program_t *program = jkl_program_new();
+
+  jkl_node_t *param = jkl_node_new(JKL_NODE_PARAM);
+  param->id = jkl_node_new(JKL_NODE_ID);
+  param->id->value.s = "n";
+  jkl_node_t *params = jkl_node_new(JKL_NODE_PARAMS);
+  jkl_node_append(params, param);
+
+  jkl_node_t *ret = jkl_node_new(JKL_NODE_RETURN);
+  ret->expr = jkl_node_new(JKL_NODE_ID);
+  ret->expr->value.s = "n";
+  jkl_node_t *fbody = jkl_node_new(JKL_NODE_BLOCK);
+  jkl_node_append(fbody, ret);
+
+  jkl_node_t *func = jkl_node_new(JKL_NODE_FUNC);
+  func->id = jkl_node_new(JKL_NODE_ID);
+  func->id->value.s = "inc";
+  func->params = params;
+  func->block = fbody;
+
+  jkl_node_t *call = jkl_node_new(JKL_NODE_CALL);
+  call->id = jkl_node_new(JKL_NODE_ID);
+  call->id->value.s = "inc";
+  call->node = make_int_node(41);
+
+  jkl_node_t *block = jkl_node_new(JKL_NODE_BLOCK);
+  jkl_node_append(block, func);
+  jkl_node_append(block, call);
+  program->ast_prog_root = block;
+
+  ck_assert_int_eq(jkl_compile(program), 0);
+
+  jkl_ir_type_t output[] = {
+    JKL_IR_PUSHI, JKL_IR_CALL, JKL_IR_HALT,
+    JKL_IR_ALLOC, JKL_IR_STORE, JKL_IR_LOAD, JKL_IR_RET
+  };
+  ck_assert_int_eq(program->ir_code->n_irs, 7);
+  for (int i = 0; i < program->ir_code->n_irs; i++) {
+    ck_assert_int_eq(program->ir_code->ir[i].type, output[i]);
+  }
+
+  /* CALL is internal (kind 0), one arg, targeting the func entry (index 3) */
+  ck_assert_int_eq(program->ir_code->ir[1].args[0], 3);
+  ck_assert_int_eq(program->ir_code->ir[1].args[1], 0);
+  ck_assert_int_eq(program->ir_code->ir[1].args[2], 1);
+  /* prologue/body use the same param slot */
+  ck_assert_int_eq(program->ir_code->ir[3].args[0], program->ir_code->ir[4].args[0]);
+  ck_assert_int_eq(program->ir_code->ir[3].args[0], program->ir_code->ir[5].args[0]);
+}
+END_TEST
+
+/*
+ * puts "hi"   (puts has no func definition -> external/builtin call)
+ *  0 LOAD ...           (string arg "hi" from bss)
+ *  1 CALL off,1,1       (kind 1 external: target = bss offset of "puts")
+ *  2 HALT
+ */
+START_TEST(test_jkl_compile_external_call)
+{
+  jkl_program_t *program = jkl_program_new();
+
+  jkl_node_t *call = jkl_node_new(JKL_NODE_CALL);
+  call->id = jkl_node_new(JKL_NODE_ID);
+  call->id->value.s = "puts";
+  call->node = jkl_node_new(JKL_NODE_STRING);
+  call->node->value.s = "hi";
+
+  jkl_node_t *block = jkl_node_new(JKL_NODE_BLOCK);
+  jkl_node_append(block, call);
+  program->ast_prog_root = block;
+
+  ck_assert_int_eq(jkl_compile(program), 0);
+
+  ck_assert_int_eq(program->ir_code->n_irs, 3);
+  ck_assert_int_eq(program->ir_code->ir[0].type, JKL_IR_LOAD);
+  ck_assert_int_eq(program->ir_code->ir[1].type, JKL_IR_CALL);
+  ck_assert_int_eq(program->ir_code->ir[2].type, JKL_IR_HALT);
+
+  /* external: kind 1, target = bss offset of the callee name */
+  jkl_word_t off = jkl_string_hash("puts") % ((1 << (sizeof(jkl_word_t) * 8)) - 1);
+  ck_assert_int_eq(program->ir_code->ir[1].args[1], 1);
+  ck_assert_int_eq(program->ir_code->ir[1].args[0], off);
+}
+END_TEST
+
+/*
  * Compiler test suite
  */
 
@@ -388,6 +487,8 @@ Suite *jkl_compiler_suite()
   tcase_add_test(tc_core, test_jkl_compile_check_let_with_int);
   tcase_add_test(tc_core, test_jkl_compile_check_let_with_string);
   tcase_add_test(tc_core, test_jkl_compile_id_resolves_to_slot);
+  tcase_add_test(tc_core, test_jkl_compile_call_func_return);
+  tcase_add_test(tc_core, test_jkl_compile_external_call);
   tcase_add_test(tc_core, test_jkl_compile_check_with_loop);
   tcase_add_test(tc_core, test_jkl_compile_if_without_else);
   tcase_add_test(tc_core, test_jkl_compile_if_with_else);

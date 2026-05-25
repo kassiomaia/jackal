@@ -148,7 +148,12 @@ statement: LET ident ASSIGN expr {
 
             jkl_node_append(jkl_get_context(program), ret);
          }
-         | func
+         | func {
+            if (jkl_get_context(program) == NULL)
+              jkl_error("jkl_parser", "no current context");
+
+            jkl_node_append(jkl_get_context(program), $1);
+         }
          ;
 
 expr: expr PLUS  expr { $$ = jkl_node_binop($1, JKL_OP_PLUS,  $3); }
@@ -287,22 +292,29 @@ block_stmts:
            ;
 
 call: ID CSTRING {
+      jkl_node_t* callee = jkl_node_new(JKL_NODE_ID);
+      callee->value.s = $1;
+
       jkl_node_t* cstring = jkl_node_new(JKL_NODE_STRING);
       cstring->value.s = $2;
 
       jkl_node_t* call = jkl_node_new(JKL_NODE_CALL);
+      call->id = callee;
       call->node = cstring;
 
-      jkl_log("jkl_parser", "emit ast call: %s", $2);
+      jkl_log("jkl_parser", "emit ast call: %s", $1);
 
       $$ = call;
     }
     | ID ident {
-      jkl_node_t* ident = $2;
-      jkl_node_t* call = jkl_node_new(JKL_NODE_CALL);
-      call->node = ident;
+      jkl_node_t* callee = jkl_node_new(JKL_NODE_ID);
+      callee->value.s = $1;
 
-      jkl_log("jkl_parser", "emit ast call: %s", $2);
+      jkl_node_t* call = jkl_node_new(JKL_NODE_CALL);
+      call->id = callee;
+      call->node = $2;
+
+      jkl_log("jkl_parser", "emit ast call: %s", $1);
 
       $$ = call;
     }

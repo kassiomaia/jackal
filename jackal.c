@@ -50,11 +50,7 @@ int main(int argv, char **argc)
 
   jkl_ir_code_save(program->ir_code, out_path);
 
-  jkl_ir_code_free(program->ir_code);
-  free(program->ir_code);
-  jkl_node_free(program->ast_prog_root);
-  jkl_symbol_table_free(program->symbol_table);
-  free(program);
+  jkl_program_free(program);
 
   return 0;
 }

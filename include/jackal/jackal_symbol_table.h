@@ -17,6 +17,7 @@ typedef struct {
   jkl_string_t id;
   jkl_symbol_type_t type;
   jkl_word_t slot;
+  jkl_qqword_t addr;
 } jkl_symbol_t;
 
 typedef struct {

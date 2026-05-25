@@ -89,6 +89,7 @@ jkl_word_t jkl_node_free(jkl_node_t *node)
       jkl_node_free(node->block);
       break;
     case JKL_NODE_CALL:
+      jkl_node_free(node->id);
       jkl_node_free(node->node);
       break;
     case JKL_NODE_RETURN:

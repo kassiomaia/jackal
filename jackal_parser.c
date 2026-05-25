@@ -558,11 +558,11 @@ static const yytype_int8 yytranslate[] =
 static const yytype_int16 yyrline[] =
 {
        0,    81,    81,    86,    92,    93,    94,    97,   116,   117,
-     128,   139,   140,   151,   154,   155,   156,   157,   158,   159,
-     160,   161,   162,   163,   164,   165,   166,   167,   168,   171,
-     172,   180,   188,   198,   208,   208,   231,   234,   234,   251,
-     253,   253,   262,   275,   262,   284,   285,   286,   289,   300,
-     311,   311,   328,   328,   336,   337,   342,   349
+     128,   139,   140,   151,   159,   160,   161,   162,   163,   164,
+     165,   166,   167,   168,   169,   170,   171,   172,   173,   176,
+     177,   185,   193,   203,   213,   213,   236,   239,   239,   256,
+     258,   258,   267,   280,   267,   289,   290,   291,   294,   309,
+     323,   323,   340,   340,   348,   349,   354,   361
 };
 #endif
 
@@ -1301,98 +1301,109 @@ yyreduce:
 #line 1302 "jackal_parser.c"
     break;
 
+  case 13: /* statement: func  */
+#line 151 "jackal_parser.y"
+                {
+            if (jkl_get_context(program) == NULL)
+              jkl_error("jkl_parser", "no current context");
+
+            jkl_node_append(jkl_get_context(program), (yyvsp[0].node));
+         }
+#line 1313 "jackal_parser.c"
+    break;
+
   case 14: /* expr: expr "+" expr  */
-#line 154 "jackal_parser.y"
+#line 159 "jackal_parser.y"
                       { (yyval.node) = jkl_node_binop((yyvsp[-2].node), JKL_OP_PLUS,  (yyvsp[0].node)); }
-#line 1308 "jackal_parser.c"
+#line 1319 "jackal_parser.c"
     break;
 
   case 15: /* expr: expr "-" expr  */
-#line 155 "jackal_parser.y"
+#line 160 "jackal_parser.y"
                       { (yyval.node) = jkl_node_binop((yyvsp[-2].node), JKL_OP_MINUS, (yyvsp[0].node)); }
-#line 1314 "jackal_parser.c"
+#line 1325 "jackal_parser.c"
     break;
 
   case 16: /* expr: expr "*" expr  */
-#line 156 "jackal_parser.y"
+#line 161 "jackal_parser.y"
                       { (yyval.node) = jkl_node_binop((yyvsp[-2].node), JKL_OP_MUL,   (yyvsp[0].node)); }
-#line 1320 "jackal_parser.c"
+#line 1331 "jackal_parser.c"
     break;
 
   case 17: /* expr: expr "/" expr  */
-#line 157 "jackal_parser.y"
+#line 162 "jackal_parser.y"
                       { (yyval.node) = jkl_node_binop((yyvsp[-2].node), JKL_OP_DIV,   (yyvsp[0].node)); }
-#line 1326 "jackal_parser.c"
+#line 1337 "jackal_parser.c"
     break;
 
   case 18: /* expr: expr "%" expr  */
-#line 158 "jackal_parser.y"
+#line 163 "jackal_parser.y"
                       { (yyval.node) = jkl_node_binop((yyvsp[-2].node), JKL_OP_MOD,   (yyvsp[0].node)); }
-#line 1332 "jackal_parser.c"
+#line 1343 "jackal_parser.c"
     break;
 
   case 19: /* expr: expr "==" expr  */
-#line 159 "jackal_parser.y"
+#line 164 "jackal_parser.y"
                       { (yyval.node) = jkl_node_binop((yyvsp[-2].node), JKL_OP_EQL,   (yyvsp[0].node)); }
-#line 1338 "jackal_parser.c"
+#line 1349 "jackal_parser.c"
     break;
 
   case 20: /* expr: expr "!=" expr  */
-#line 160 "jackal_parser.y"
+#line 165 "jackal_parser.y"
                       { (yyval.node) = jkl_node_binop((yyvsp[-2].node), JKL_OP_NEQ,   (yyvsp[0].node)); }
-#line 1344 "jackal_parser.c"
+#line 1355 "jackal_parser.c"
     break;
 
   case 21: /* expr: expr ">" expr  */
-#line 161 "jackal_parser.y"
+#line 166 "jackal_parser.y"
                       { (yyval.node) = jkl_node_binop((yyvsp[-2].node), JKL_OP_GT,    (yyvsp[0].node)); }
-#line 1350 "jackal_parser.c"
+#line 1361 "jackal_parser.c"
     break;
 
   case 22: /* expr: expr ">=" expr  */
-#line 162 "jackal_parser.y"
+#line 167 "jackal_parser.y"
                       { (yyval.node) = jkl_node_binop((yyvsp[-2].node), JKL_OP_GTE,   (yyvsp[0].node)); }
-#line 1356 "jackal_parser.c"
+#line 1367 "jackal_parser.c"
     break;
 
   case 23: /* expr: expr "<" expr  */
-#line 163 "jackal_parser.y"
+#line 168 "jackal_parser.y"
                       { (yyval.node) = jkl_node_binop((yyvsp[-2].node), JKL_OP_LT,    (yyvsp[0].node)); }
-#line 1362 "jackal_parser.c"
+#line 1373 "jackal_parser.c"
     break;
 
   case 24: /* expr: expr "<=" expr  */
-#line 164 "jackal_parser.y"
+#line 169 "jackal_parser.y"
                       { (yyval.node) = jkl_node_binop((yyvsp[-2].node), JKL_OP_LTE,   (yyvsp[0].node)); }
-#line 1368 "jackal_parser.c"
+#line 1379 "jackal_parser.c"
     break;
 
   case 25: /* expr: expr "&&" expr  */
-#line 165 "jackal_parser.y"
+#line 170 "jackal_parser.y"
                       { (yyval.node) = jkl_node_binop((yyvsp[-2].node), JKL_OP_AND,   (yyvsp[0].node)); }
-#line 1374 "jackal_parser.c"
+#line 1385 "jackal_parser.c"
     break;
 
   case 26: /* expr: expr "||" expr  */
-#line 166 "jackal_parser.y"
+#line 171 "jackal_parser.y"
                       { (yyval.node) = jkl_node_binop((yyvsp[-2].node), JKL_OP_OR,    (yyvsp[0].node)); }
-#line 1380 "jackal_parser.c"
+#line 1391 "jackal_parser.c"
     break;
 
   case 27: /* expr: "(" expr ")"  */
-#line 167 "jackal_parser.y"
+#line 172 "jackal_parser.y"
                          { (yyval.node) = (yyvsp[-1].node); }
-#line 1386 "jackal_parser.c"
+#line 1397 "jackal_parser.c"
     break;
 
   case 28: /* expr: term  */
-#line 168 "jackal_parser.y"
+#line 173 "jackal_parser.y"
                          { (yyval.node) = (yyvsp[0].node); }
-#line 1392 "jackal_parser.c"
+#line 1403 "jackal_parser.c"
     break;
 
   case 30: /* term: CINT  */
-#line 172 "jackal_parser.y"
+#line 177 "jackal_parser.y"
            {
       jkl_node_t* cint = jkl_node_new(JKL_NODE_INT);
       cint->value.i = (yyvsp[0].number);
@@ -1401,11 +1412,11 @@ yyreduce:
 
       (yyval.node) = cint;
     }
-#line 1405 "jackal_parser.c"
+#line 1416 "jackal_parser.c"
     break;
 
   case 31: /* term: CSTRING  */
-#line 180 "jackal_parser.y"
+#line 185 "jackal_parser.y"
               {
       jkl_node_t* cstring = jkl_node_new(JKL_NODE_STRING);
       cstring->value.s = (yyvsp[0].string);
@@ -1414,11 +1425,11 @@ yyreduce:
 
       (yyval.node) = cstring;
     }
-#line 1418 "jackal_parser.c"
+#line 1429 "jackal_parser.c"
     break;
 
   case 32: /* term: CFLOAT  */
-#line 188 "jackal_parser.y"
+#line 193 "jackal_parser.y"
              {
       jkl_node_t* cfloat = jkl_node_new(JKL_NODE_FLOAT);
       cfloat->value.f = (yyvsp[0].fnumber);
@@ -1427,11 +1438,11 @@ yyreduce:
 
       (yyval.node) = cfloat;
     }
-#line 1431 "jackal_parser.c"
+#line 1442 "jackal_parser.c"
     break;
 
   case 33: /* ident: ID  */
-#line 198 "jackal_parser.y"
+#line 203 "jackal_parser.y"
           {
         jkl_node_t* ident = jkl_node_new(JKL_NODE_ID);
         ident->value.s = (yyvsp[0].id);
@@ -1440,22 +1451,22 @@ yyreduce:
 
         (yyval.node) = ident;
       }
-#line 1444 "jackal_parser.c"
+#line 1455 "jackal_parser.c"
     break;
 
   case 34: /* $@1: %empty  */
-#line 208 "jackal_parser.y"
+#line 213 "jackal_parser.y"
                   {
         jkl_note("jkl_parser", "begin emit ast loop");
         jkl_note("jkl_parser", "begin emit ast block");
         jkl_node_t* block = jkl_node_new(JKL_NODE_BLOCK);
         jkl_push_context(program, block);
       }
-#line 1455 "jackal_parser.c"
+#line 1466 "jackal_parser.c"
     break;
 
   case 35: /* loop: "loop" "{" $@1 block_stmts "}"  */
-#line 215 "jackal_parser.y"
+#line 220 "jackal_parser.y"
              {
         jkl_note("jkl_parser", "end emit ast block");
         jkl_node_t* block = jkl_pop_context(program);
@@ -1470,11 +1481,11 @@ yyreduce:
         jkl_node_append(context, loop);
         jkl_log("jkl_parser", "emit ast loop");
       }
-#line 1474 "jackal_parser.c"
+#line 1485 "jackal_parser.c"
     break;
 
   case 37: /* @2: %empty  */
-#line 234 "jackal_parser.y"
+#line 239 "jackal_parser.y"
                  {
           jkl_note("jkl_parser", "begin emit ast if");
           jkl_node_t* if_node = jkl_node_new(JKL_NODE_IF);
@@ -1486,41 +1497,41 @@ yyreduce:
           jkl_note("jkl_parser", "begin emit ast if block");
           (yyval.node) = if_node;
         }
-#line 1490 "jackal_parser.c"
+#line 1501 "jackal_parser.c"
     break;
 
   case 38: /* if_then: "if" expr @2 "{" block_stmts "}"  */
-#line 244 "jackal_parser.y"
+#line 249 "jackal_parser.y"
                                     {
           jkl_pop_context(program);
           jkl_note("jkl_parser", "end emit ast if then");
           (yyval.node) = (yyvsp[-3].node);
         }
-#line 1500 "jackal_parser.c"
+#line 1511 "jackal_parser.c"
     break;
 
   case 40: /* $@3: %empty  */
-#line 253 "jackal_parser.y"
+#line 258 "jackal_parser.y"
              {
           jkl_node_t* if_node = (yyvsp[-1].node);
           if_node->block_else = jkl_node_new(JKL_NODE_BLOCK);
           jkl_push_context(program, if_node->block_else);
           jkl_note("jkl_parser", "begin emit ast else block");
         }
-#line 1511 "jackal_parser.c"
+#line 1522 "jackal_parser.c"
     break;
 
   case 41: /* else_opt: "else" $@3 "{" block_stmts "}"  */
-#line 258 "jackal_parser.y"
+#line 263 "jackal_parser.y"
                                     {
           jkl_pop_context(program);
           jkl_note("jkl_parser", "end emit ast else");
         }
-#line 1520 "jackal_parser.c"
+#line 1531 "jackal_parser.c"
     break;
 
   case 42: /* @4: %empty  */
-#line 262 "jackal_parser.y"
+#line 267 "jackal_parser.y"
                   {
           /* desugar `elif` into `else { if ... }` */
           jkl_node_t* outer = (yyvsp[-2].node);
@@ -1535,68 +1546,75 @@ yyreduce:
           jkl_note("jkl_parser", "begin emit ast elif");
           (yyval.node) = inner;
         }
-#line 1539 "jackal_parser.c"
+#line 1550 "jackal_parser.c"
     break;
 
   case 43: /* @5: %empty  */
-#line 275 "jackal_parser.y"
+#line 280 "jackal_parser.y"
                                     {
           jkl_pop_context(program);
           (yyval.node) = (yyvsp[-3].node);
         }
-#line 1548 "jackal_parser.c"
+#line 1559 "jackal_parser.c"
     break;
 
   case 44: /* else_opt: "elif" expr @4 "{" block_stmts "}" @5 else_opt  */
-#line 278 "jackal_parser.y"
+#line 283 "jackal_parser.y"
                    {
           jkl_pop_context(program);
           jkl_note("jkl_parser", "end emit ast elif");
         }
-#line 1557 "jackal_parser.c"
+#line 1568 "jackal_parser.c"
     break;
 
   case 48: /* call: ID CSTRING  */
-#line 289 "jackal_parser.y"
+#line 294 "jackal_parser.y"
                  {
+      jkl_node_t* callee = jkl_node_new(JKL_NODE_ID);
+      callee->value.s = (yyvsp[-1].id);
+
       jkl_node_t* cstring = jkl_node_new(JKL_NODE_STRING);
       cstring->value.s = (yyvsp[0].string);
 
       jkl_node_t* call = jkl_node_new(JKL_NODE_CALL);
+      call->id = callee;
       call->node = cstring;
 
-      jkl_log("jkl_parser", "emit ast call: %s", (yyvsp[0].string));
+      jkl_log("jkl_parser", "emit ast call: %s", (yyvsp[-1].id));
 
       (yyval.node) = call;
     }
-#line 1573 "jackal_parser.c"
+#line 1588 "jackal_parser.c"
     break;
 
   case 49: /* call: ID ident  */
-#line 300 "jackal_parser.y"
+#line 309 "jackal_parser.y"
                {
-      jkl_node_t* ident = (yyvsp[0].node);
-      jkl_node_t* call = jkl_node_new(JKL_NODE_CALL);
-      call->node = ident;
+      jkl_node_t* callee = jkl_node_new(JKL_NODE_ID);
+      callee->value.s = (yyvsp[-1].id);
 
-      jkl_log("jkl_parser", "emit ast call: %s", (yyvsp[0].node));
+      jkl_node_t* call = jkl_node_new(JKL_NODE_CALL);
+      call->id = callee;
+      call->node = (yyvsp[0].node);
+
+      jkl_log("jkl_parser", "emit ast call: %s", (yyvsp[-1].id));
 
       (yyval.node) = call;
     }
-#line 1587 "jackal_parser.c"
+#line 1605 "jackal_parser.c"
     break;
 
   case 50: /* $@6: %empty  */
-#line 311 "jackal_parser.y"
+#line 323 "jackal_parser.y"
                                     {
         jkl_node_t* block = jkl_node_new(JKL_NODE_BLOCK);
         jkl_push_context(program, block);
       }
-#line 1596 "jackal_parser.c"
+#line 1614 "jackal_parser.c"
     break;
 
   case 51: /* func: "func" ident func_params "{" $@6 block_stmts "}"  */
-#line 314 "jackal_parser.y"
+#line 326 "jackal_parser.y"
                            {
         jkl_node_t* block = jkl_pop_context(program);
         jkl_node_t* func = jkl_node_new(JKL_NODE_FUNC);
@@ -1609,48 +1627,48 @@ yyreduce:
 
         (yyval.node) = func;
       }
-#line 1613 "jackal_parser.c"
+#line 1631 "jackal_parser.c"
     break;
 
   case 52: /* $@7: %empty  */
-#line 328 "jackal_parser.y"
+#line 340 "jackal_parser.y"
                     {
             jkl_node_t* params = jkl_node_new(JKL_NODE_PARAMS);
             jkl_push_context(program, params);
            }
-#line 1622 "jackal_parser.c"
+#line 1640 "jackal_parser.c"
     break;
 
   case 53: /* func_params: "(" $@7 params ")"  */
-#line 331 "jackal_parser.y"
+#line 343 "jackal_parser.y"
                            {
             (yyval.node) = jkl_pop_context(program);
            }
-#line 1630 "jackal_parser.c"
+#line 1648 "jackal_parser.c"
     break;
 
   case 55: /* params: params "," param  */
-#line 337 "jackal_parser.y"
+#line 349 "jackal_parser.y"
                            {
         jkl_node_t* params = jkl_pop_context(program);
         jkl_node_append(params, (yyvsp[0].node));
         jkl_push_context(program, params);
       }
-#line 1640 "jackal_parser.c"
+#line 1658 "jackal_parser.c"
     break;
 
   case 56: /* params: param  */
-#line 342 "jackal_parser.y"
+#line 354 "jackal_parser.y"
               {
         jkl_node_t* params = jkl_pop_context(program);
         jkl_node_append(params, (yyvsp[0].node));
         jkl_push_context(program, params);
       }
-#line 1650 "jackal_parser.c"
+#line 1668 "jackal_parser.c"
     break;
 
   case 57: /* param: ident  */
-#line 349 "jackal_parser.y"
+#line 361 "jackal_parser.y"
              {
       jkl_node_t* param = jkl_node_new(JKL_NODE_PARAM);
       param->id = (yyvsp[0].node);
@@ -1659,11 +1677,11 @@ yyreduce:
 
       (yyval.node) = param;
     }
-#line 1663 "jackal_parser.c"
+#line 1681 "jackal_parser.c"
     break;
 
 
-#line 1667 "jackal_parser.c"
+#line 1685 "jackal_parser.c"
 
       default: break;
     }
@@ -1856,7 +1874,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 359 "jackal_parser.y"
+#line 371 "jackal_parser.y"
 
 
 int yyerror(char *s) {

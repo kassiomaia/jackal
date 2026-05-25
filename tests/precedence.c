@@ -6,12 +6,13 @@
  * exercise it is to parse real source, so this harness compiles a snippet to a
  * temp file, runs yyparse()+jkl_compile(), and inspects the emitted IR.
  *
- * It doubles as a memory check: each parsed AST is released with the recursive
- * jkl_node_free() (#11) and the hash/symbol-table frees (#6/#7) are exercised
- * directly. Build with -fsanitize=address to catch leaks and invalid frees.
+ * It doubles as a memory check: each parsed program is released with
+ * jkl_program_free() (recursive AST free #11 + symbol table), so leaks or invalid
+ * frees surface. Build with -fsanitize=address to catch them.
  *
- * Snippets here deliberately avoid `call`/`func` (bugs #3/#4 leak token strings,
- * out of scope for this milestone) so ASan output stays meaningful.
+ * Coverage includes precedence (#9), variable slot resolution (#3 symbol table),
+ * and now call/func/return (#4): internal calls into hoisted function bodies and
+ * external/builtin calls (a callee with no `func` definition, e.g. `puts`).
  */
 #include <jackal.h>
 
@@ -60,11 +61,18 @@ static jkl_program_t *compile_snippet(const char *src)
 
 static void free_program(jkl_program_t *p)
 {
-  jkl_node_free(p->ast_prog_root);
-  jkl_symbol_table_free(p->symbol_table);
-  jkl_ir_code_free(p->ir_code);
-  free(p->ir_code);
-  free(p);
+  jkl_program_free(p);
+}
+
+/* Index of the first instruction with the given opcode, or -1. */
+static int first_op(jkl_program_t *p, jkl_ir_type_t op)
+{
+  for (int i = 0; i < p->ir_code->n_irs; i++) {
+    if (p->ir_code->ir[i].type == op) {
+      return i;
+    }
+  }
+  return -1;
 }
 
 /* Compare the emitted opcode stream against an expected sequence. */
@@ -150,6 +158,36 @@ static void test_id_resolves_to_slot(void)
   free_program(p);
 }
 
+/* A call to a user-defined func resolves to an internal CALL into the hoisted body. */
+static void test_internal_call(void)
+{
+  printf("test: internal call into a hoisted function body\n");
+  jkl_program_t *p = compile_snippet(
+    "func inc(n) { return n }\nlet x := 41\ninc x\n");
+  int call = first_op(p, JKL_IR_CALL);
+  int halt = first_op(p, JKL_IR_HALT);
+  CHECK(call >= 0 && halt >= 0, "emits a CALL and a HALT");
+  if (call >= 0 && halt >= 0) {
+    CHECK(p->ir_code->ir[call].args[1] == 0, "CALL kind == 0 (internal)");
+    CHECK(p->ir_code->ir[call].args[0] > halt, "CALL target is in the hoisted region (after HALT)");
+    CHECK(first_op(p, JKL_IR_RET) > halt, "the function body ends in RET after HALT");
+  }
+  free_program(p);
+}
+
+/* A call to an undefined name compiles as an external/builtin CALL (no error). */
+static void test_external_call(void)
+{
+  printf("test: external/builtin call (undefined callee)\n");
+  jkl_program_t *p = compile_snippet("puts \"x\"\n");
+  int call = first_op(p, JKL_IR_CALL);
+  CHECK(call >= 0, "emits a CALL");
+  if (call >= 0) {
+    CHECK(p->ir_code->ir[call].args[1] == 1, "CALL kind == 1 (external)");
+  }
+  free_program(p);
+}
+
 /* Parse a tree spanning many node types, then free it (ASan proves #11). */
 static void test_recursive_free_real_ast(void)
 {
@@ -186,6 +224,8 @@ int main(void)
   test_left_associativity();
   test_arith_over_compare();
   test_id_resolves_to_slot();
+  test_internal_call();
+  test_external_call();
   test_recursive_free_real_ast();
   test_container_frees();
   printf("==============================================================\n");

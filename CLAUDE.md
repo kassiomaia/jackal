@@ -75,16 +75,20 @@ header), `clang-format`/`astyle` (formatting). See [`docs/build.md`](./docs/buil
 - **Operator precedence is enforced** — operators are inlined into `expr` as
   terminals with a `%left`/`%nonassoc` ladder (`*` `/` `%` > `+` `-` > relational
   > `==` `!=` > `&&` > `||`; relational is non-associative). See `docs/language.md`.
-- The AST is freed at exit: `jkl_node_free` is **recursive/type-aware** (frees
-  owned children + lexer strings); `main()` also frees the symbol table. Build the
+- Teardown is centralized in `jkl_program_free` (recursive/type-aware
+  `jkl_node_free` + symbol table + ir_code + the func/fixup lists); `main()` and the
+  integration tests use it, and `./jackal samples/main.jkl` is ASan-clean. Build the
   ASan integration tests with `cd tests && make precedence`.
 - **Variables resolve to slots**: `let`/`ID` go through `program->symbol_table`
   (a real `jkl_symbol_table_t`) — `ALLOC`/`STORE`/`LOAD` carry a 0-based slot
   index, not a name hash. Reading a name with no prior `let` is a compile error.
   (String *literals* still go into `bss` via a hash.)
-- Still incomplete: `call`/`func`/`return`/`raise` codegen is stubbed or wrong.
-  Because of the `call`/`func` stubs, `./jackal samples/main.jkl` still leaks a few
-  token strings (the discarded callee + dropped top-level `func`) — not a regression.
+- **Functions are lowered** (see `docs/ir.md` calling convention): top-level funcs
+  are **hoisted after `HALT`** (entry = index 0); `CALL target,kind,nargs` is
+  internal (`kind 0`, entry address) or external/builtin (`kind 1`, bss name, for
+  undefined callees like `puts`); `return`→`RET`. Single-arg calls, flat slot table
+  (no recursion/per-function scopes yet), calls are statements. `raise` is still a
+  stub (hits the `default` error path).
 - The **stack, class system, optimizer, and evaluator are built-but-unused** (or
   stubs). Don't assume they participate in compilation. (The symbol table is now
   wired; the `hash` module is no longer used by the compiler.)

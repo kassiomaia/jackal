@@ -97,22 +97,29 @@ Owns the program object and the AST→IR walk.
 
 ```c
 typedef struct {
-  jkl_node_t   *ast_prog_root;   // root BLOCK
-  jkl_error_t   n_errors;
-  jkl_word_t    n_warnings, n_notes, n_ids, n_funcs;
-  jkl_hash_tbl *symbol_table;    // allocated by the parser, never used
-  jkl_ir_code_t*ir_code;         // the emitted bytecode
+  jkl_node_t        *ast_prog_root;   // root BLOCK
+  jkl_error_t        n_errors;
+  jkl_word_t         n_warnings, n_notes, n_ids, n_funcs;
+  jkl_symbol_table_t*symbol_table;    // wired: variable slots + function symbols
+  jkl_ir_code_t     *ir_code;         // the emitted bytecode
+  jkl_node_t       **func_queue;      // funcs to emit after HALT (phase 2)
+  jkl_call_fixup_t  *call_fixups;     // deferred CALL targets (phase 3)
+  /* ...counts/caps for the two lists... */
 } jkl_program_t;
 ```
 
 - `jkl_program_new` / `jkl_program_init` — allocate program + a 1024-instruction
-  IR buffer.
-- `jkl_compile(program)` — walk `ast_prog_root`, emit IR, append `HALT`.
+  IR buffer + the symbol table.
+- `jkl_program_free` — centralized teardown (AST, symbol table, ir_code, the two
+  lists, the program).
+- `jkl_compile(program)` — 3 phases: walk `ast_prog_root` (top-level; funcs enqueue,
+  calls emit placeholders) → `HALT` → drain `func_queue` (`jkl_compile_func`, hoisted
+  bodies) → resolve `call_fixups` (internal entry address vs external bss name).
 - internal: `jkl_compile_block`, `jkl_compile_expr`, `jkl_emit_expr_op`,
-  `jkl_get_idx` (the variable counter helper — itself never called).
+  `jkl_compile_func`.
 
 See [`ir.md`](./ir.md#how-constructs-are-lowered) for what each node emits and the
-known codegen bugs.
+calling convention.
 
 ## PARSE-ONLY modules
 

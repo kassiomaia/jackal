@@ -20,8 +20,8 @@ Legend: ✅ works · 🟡 partial / buggy · 🟥 stub / unwired · ⬛ planned-
 | Parenthesized expressions | ✅ | use to force grouping |
 | `if` / `elif` / `else` | ✅ | full conditional; `elif` desugars to `else { if … }` |
 | `loop` | ✅ (parse) | infinite loop only; no `break`/`while`/`for` |
-| `call` (`puts "x"`, `f x`) | 🟡 | one arg, no parens; **callee name discarded** in AST |
-| `func` definition | 🟡 | parsed, but **top-level `func` is not appended to the program block** |
+| `call` (`puts "x"`, `f x`) | ✅ | one arg, no parens; callee kept on the AST (`call->id`) |
+| `func` definition | ✅ | parsed and appended to the program block |
 | `return expr` | ✅ (parse) | expr is mandatory |
 | `raise "msg"` | ✅ (parse) | string only |
 | Unary `!` | 🟥 | tokenized, in `jkl_op_t`, but no grammar rule |
@@ -37,9 +37,9 @@ Legend: ✅ works · 🟡 partial / buggy · 🟥 stub / unwired · ⬛ planned-
 | `let` → `ALLOC/…/STORE` | ✅ | unit-tested |
 | `loop` lowering | ✅ | back-edge backpatched to first body instruction; unit-tested |
 | `if` / `if-else` lowering | ✅ | `JCP`/`JMP` backpatched; defined contract; unit-tested |
-| `call` lowering | 🟥 | emits `CALL 0`; callee/args ignored |
-| `func` lowering | 🟥 | body inlined; no prologue/epilogue/linkage/params |
-| `return` lowering | 🟥 | no-op (warning only) |
+| `call` lowering | ✅ | `CALL target,kind,nargs`; internal (entry addr) / external (bss name); single arg |
+| `func` lowering | 🟡 | hoisted after `HALT`; param prologue + `RET`; flat slots, no recursion |
+| `return` lowering | ✅ | `<expr>` then `RET` |
 | `raise` lowering | 🟥 | hits the `default` error path |
 | Variable *reads* resolve to slots | ✅ | `let`/`ID` resolve to symbol-table slots; undeclared reads error |
 | IR serialization to file | ✅ | versioned format (header + ABI guard); save **and** load; round-trip tested |
@@ -65,11 +65,10 @@ Correctness bugs that would bite if the relevant path were exercised:
    targets (with a defined jump contract). `libjackal/jackal_compiler.c`.
 2. ✅ *Fixed.* `loop` back-edge now targets the first body instruction
    (still infinite by design — no `break`). `libjackal/jackal_compiler.c`.
-3. **`func` definitions are dropped.** The `statement: func` rule has no action to
-   append the node, so top-level functions never enter the AST.
-   `jackal_parser.y:158` / `:301`.
-4. **`call` loses the callee.** Only the single argument is stored on the
-   `JKL_NODE_CALL`; the function name (`ID`) is discarded. `jackal_parser.y:279`.
+3. ✅ *Fixed.* `statement: func` now appends the node, so top-level functions enter
+   the AST and are compiled. `jackal_parser.y`.
+4. ✅ *Fixed.* `call` keeps the callee on `call->id`; the compiler resolves it to an
+   internal or external `CALL`. `jackal_parser.y`, `libjackal/jackal_compiler.c`.
 5. ✅ *Fixed.* `let`/`ID` now resolve to symbol-table slots
    (`ALLOC`/`STORE`/`LOAD <slot>`); a read of an undeclared name is a compile
    error. `libjackal/jackal_compiler.c`.
@@ -127,8 +126,10 @@ A pragmatic order for making the compiler end-to-end useful:
    with a documented `JCP`/`JMP` contract and unit tests.
 3. ✅ *Done.* The symbol table is wired: `let`/`ID` resolve to numbered slots via
    `jkl_symbol_table_t`; undeclared reads error. Covered by unit + ASan tests.
-4. **Finish `call`/`func`/`return`** — keep the callee, pass arguments, give
-   functions linkage, and emit `RET`.
+4. ✅ *Done.* `call`/`func`/`return` lowered: top-level funcs compiled, callee kept
+   and resolved (internal/external `CALL`), params bound, `RET` emitted, with a
+   documented calling convention (see [`ir.md`](./ir.md)). Single-arg, flat slots,
+   no recursion yet; `raise` still pending.
 5. **Repair the build glue** — `autogen.sh`, integrate tests into `make check`,
    fix the stale `lib/` paths, and (optionally) wire gperf in or delete it.
 6. ✅ *Done.* Memory bugs (#6 hash free, #7 symbol-table free, #11 recursive

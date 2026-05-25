@@ -186,9 +186,9 @@ Statement lowering (`jkl_compile_block`):
 | `JKL_NODE_IF` (no else) | `<cond>`, `JCP end`, `<then>` — `JCP` backpatched to the index after `<then>` |
 | `JKL_NODE_IF` (with else) | `<cond>`, `JCP else`, `<then>`, `JMP end`, `<else>` — both jumps backpatched |
 | `JKL_NODE_LOOP` | `<body>`, `JMP start` (back-edge to the first body instruction) |
-| `JKL_NODE_CALL` | `CALL 0` *(callee/arg ignored)* |
-| `JKL_NODE_FUNC` | (`n_funcs++`), `<block>` inlined *(no prologue/epilogue/linkage)* |
-| `JKL_NODE_RETURN` | nothing (warning only) |
+| `JKL_NODE_CALL` | `<arg>`, then `CALL target, kind, nargs` (target/kind backpatched — see Calling convention) |
+| `JKL_NODE_FUNC` | hoisted: registered + queued, body emitted after `HALT` |
+| `JKL_NODE_RETURN` | `<expr>`, then `RET` |
 
 `jkl_compile` finishes by emitting a single `HALT`
 (`libjackal/jackal_compiler.c:227`).
@@ -227,21 +227,51 @@ HALT
 ### Worked example — `let x := 1` then `if x==1 { puts "a" } else { puts "b" }`
 
 ```
-0: ALLOC 0        # x -> slot 0
+0: ALLOC 0                  # x -> slot 0
 1: PUSHI 1
 2: STORE 0
-3: LOAD  0        # read x -> slot 0
+3: LOAD  0                  # read x -> slot 0
 4: PUSHI 1
 5: EQL
-6: JCP   9        # condition false -> jump to else
-7: CALL  0        # then: puts "a"
-8: JMP   10       # skip the else
-9: CALL  0        # else: puts "b"
-10: HALT
+6: JCP   11                 # condition false -> jump to else
+7: LOAD  hash("a"), hash+len   # then: arg "a"
+8: CALL  off("puts"), 1, 1     #       external call, kind 1
+9: JMP   13                 # skip the else
+10: ... (else mirrors then)
+13: HALT
 ```
 
-`elif` is desugared by the parser into `else { if ... }`, so it reuses this exact
-shape recursively (no dedicated `elif` opcodes).
+(`puts` has no `func`, so it is an **external** call: `kind=1`, target = the
+`bss` offset of the callee name.) `elif` desugars to `else { if ... }`, reusing
+this shape recursively.
+
+## Calling convention (the contract)
+
+Like the jump contract, these definitions **are** the spec until a VM exists.
+
+- **Entry point is instruction 0** (top-level code). Top-level ends at `HALT`.
+  Function bodies are **hoisted after `HALT`** and are reachable only via `CALL`.
+- Two stacks: the **operand stack** carries arguments and return values; a separate
+  **control stack** holds return addresses.
+- **`CALL target, kind, nargs`**:
+  - `kind = 0` (internal): `target` = the callee's entry instruction index.
+  - `kind = 1` (external/builtin): `target` = the `bss` offset of the callee name
+    (stored NUL-terminated); used when the name has no `func` definition (e.g.
+    `puts`).
+  - `nargs` = number of arguments pushed (0 or 1 today).
+  Execution: push the next instruction index on the control stack, set `PC = target`.
+- **`RET`**: pop the control stack into `PC`; any return value remains on the
+  operand stack.
+- **Caller**: push the (single) argument, then `CALL`. **Callee prologue**: bind the
+  first parameter by `STORE`-ing the pushed argument into its slot; the body runs;
+  an explicit `return e` does `<e>; RET`; a function with no trailing `RET` gets an
+  implicit one.
+
+**Limits (current):** single-argument calls (a function with >1 parameter binds
+only the first — compile-time warning); a **flat** slot table shared by globals,
+params, and locals, so there is **no recursion / no per-function scopes** yet;
+calls are statements (the return value is left on the stack but not consumed);
+external callee names share `bss` with string literals (no collision handling).
 
 ## Jump semantics (the contract)
 

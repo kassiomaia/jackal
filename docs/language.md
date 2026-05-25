@@ -226,10 +226,12 @@ print x        # ID ident    → call with an identifier argument
 
 `puts` is **not** a keyword — it is just an identifier used in the `ID CSTRING`
 call form. There is no general call syntax (no `f(a, b)`, exactly one argument,
-no parentheses). Produces `JKL_NODE_CALL { node }` where `node` is the single
-argument. The callee name (`$1`/`ID`) is currently **discarded** — the AST keeps
-only the argument, not which function is being called. See
-[`roadmap.md`](./roadmap.md).
+no parentheses). Produces `JKL_NODE_CALL { id, node }` where `id` is the callee
+name and `node` is the single argument. A call is a **statement**, not an
+expression, so a return value cannot be consumed yet (it is left on the stack).
+The compiler resolves the callee to an **internal** `CALL` (into a user `func`)
+or, if the name has no definition, an **external/builtin** call (e.g. `puts`).
+See the calling convention in [`ir.md`](./ir.md).
 
 ### Functions — `func`
 
@@ -243,10 +245,12 @@ Produces `JKL_NODE_FUNC { id, params, block }`, with `params` a
 `JKL_NODE_PARAMS` of `JKL_NODE_PARAM` children. Parameters are bare identifiers
 separated by commas.
 
-> Known issue: the `func` rule builds the node and sets `$$`, but the
-> `statement: func` alternative has no action to append it, so a top-level
-> function definition is **not inserted into the program block** — it is parsed
-> and then dropped. See [`roadmap.md`](./roadmap.md).
+Top-level functions are compiled: the body is **hoisted** after the program's
+`HALT` and entered only via `CALL`, with a prologue that binds the parameter and
+a trailing `RET` (see [`ir.md`](./ir.md)). Limitations today: calls pass a single
+argument, so a function with more than one parameter binds only the first (the
+rest are declared but unbound, with a compile-time warning); variables use a flat
+slot space, so **recursion and per-function scopes are not supported yet**.
 
 ### Return — `return`
 
