@@ -87,8 +87,11 @@ extern int yydebug;
     FALSE = 288,                   /* "false"  */
     LPAREN = 289,                  /* "("  */
     RPAREN = 290,                  /* ")"  */
-    COMMA = 291,                   /* ","  */
-    DOT = 292                      /* "."  */
+    LBRACK = 291,                  /* "["  */
+    RBRACK = 292,                  /* "]"  */
+    COMMA = 293,                   /* ","  */
+    DOT = 294,                     /* "."  */
+    PIPE = 295                     /* "|"  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -106,7 +109,7 @@ union YYSTYPE
   jkl_node_t  *node;
   jkl_op_t    op;
 
-#line 110 "jackal_parser.h"
+#line 113 "jackal_parser.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

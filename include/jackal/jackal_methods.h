@@ -31,4 +31,20 @@ jkl_value_t jkl_int_odd_p(jkl_value_t self, jkl_value_t *argv, jkl_word_t argc);
 jkl_value_t jkl_bool_to_s(jkl_value_t self, jkl_value_t *argv, jkl_word_t argc);
 jkl_value_t jkl_bool_not(jkl_value_t self, jkl_value_t *argv, jkl_word_t argc);
 
+/* Array (data-manipulation) */
+jkl_value_t jkl_arr_length(jkl_value_t self, jkl_value_t *argv, jkl_word_t argc);
+jkl_value_t jkl_arr_at(jkl_value_t self, jkl_value_t *argv, jkl_word_t argc);
+jkl_value_t jkl_arr_push(jkl_value_t self, jkl_value_t *argv, jkl_word_t argc);
+jkl_value_t jkl_arr_pop(jkl_value_t self, jkl_value_t *argv, jkl_word_t argc);
+jkl_value_t jkl_arr_clear(jkl_value_t self, jkl_value_t *argv, jkl_word_t argc);
+jkl_value_t jkl_arr_reverse(jkl_value_t self, jkl_value_t *argv, jkl_word_t argc);
+jkl_value_t jkl_arr_join(jkl_value_t self, jkl_value_t *argv, jkl_word_t argc);
+jkl_value_t jkl_arr_empty_p(jkl_value_t self, jkl_value_t *argv, jkl_word_t argc);
+
+/* Array (iterators) */
+jkl_value_t jkl_arr_each(jkl_value_t self, jkl_value_t *argv, jkl_word_t argc);
+jkl_value_t jkl_arr_map(jkl_value_t self, jkl_value_t *argv, jkl_word_t argc);
+jkl_value_t jkl_arr_filter(jkl_value_t self, jkl_value_t *argv, jkl_word_t argc);
+jkl_value_t jkl_arr_reduce(jkl_value_t self, jkl_value_t *argv, jkl_word_t argc);
+
 #endif

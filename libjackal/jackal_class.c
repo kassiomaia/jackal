@@ -439,38 +439,40 @@ void jkl_class_init()
 
   jkl_class_add_method(Array, jkl_method_new("new", 1, JKL_METHOD_STATIC_OVERRIDE,
                        jkl_not_implemented));
-  jkl_class_add_method(Array, jkl_method_new("length", 0, JKL_METHOD_STATIC,
+  jkl_class_add_method(Array, jkl_method_new("length", 0, JKL_METHOD_INSTANCE,
+                       jkl_arr_length));
+  jkl_class_add_method(Array, jkl_method_new("at", 1, JKL_METHOD_INSTANCE,
+                       jkl_arr_at));
+  jkl_class_add_method(Array, jkl_method_new("push", 1, JKL_METHOD_INSTANCE,
+                       jkl_arr_push));
+  jkl_class_add_method(Array, jkl_method_new("pop", 0, JKL_METHOD_INSTANCE,
+                       jkl_arr_pop));
+  jkl_class_add_method(Array, jkl_method_new("shift", 0, JKL_METHOD_INSTANCE,
                        jkl_not_implemented));
-  jkl_class_add_method(Array, jkl_method_new("at", 1, JKL_METHOD_STATIC,
+  jkl_class_add_method(Array, jkl_method_new("unshift", 1, JKL_METHOD_INSTANCE,
                        jkl_not_implemented));
-  jkl_class_add_method(Array, jkl_method_new("push", 1, JKL_METHOD_STATIC,
+  jkl_class_add_method(Array, jkl_method_new("insert", 2, JKL_METHOD_INSTANCE,
                        jkl_not_implemented));
-  jkl_class_add_method(Array, jkl_method_new("pop", 0, JKL_METHOD_STATIC,
+  jkl_class_add_method(Array, jkl_method_new("remove", 1, JKL_METHOD_INSTANCE,
                        jkl_not_implemented));
-  jkl_class_add_method(Array, jkl_method_new("shift", 0, JKL_METHOD_STATIC,
+  jkl_class_add_method(Array, jkl_method_new("clear", 0, JKL_METHOD_INSTANCE,
+                       jkl_arr_clear));
+  jkl_class_add_method(Array, jkl_method_new("empty?", 0, JKL_METHOD_INSTANCE,
+                       jkl_arr_empty_p));
+  jkl_class_add_method(Array, jkl_method_new("each", 1, JKL_METHOD_INSTANCE,
+                       jkl_arr_each));
+  jkl_class_add_method(Array, jkl_method_new("map", 1, JKL_METHOD_INSTANCE,
+                       jkl_arr_map));
+  jkl_class_add_method(Array, jkl_method_new("filter", 1, JKL_METHOD_INSTANCE,
+                       jkl_arr_filter));
+  jkl_class_add_method(Array, jkl_method_new("reduce", 2, JKL_METHOD_INSTANCE,
+                       jkl_arr_reduce));
+  jkl_class_add_method(Array, jkl_method_new("reverse", 0, JKL_METHOD_INSTANCE,
+                       jkl_arr_reverse));
+  jkl_class_add_method(Array, jkl_method_new("sort", 0, JKL_METHOD_INSTANCE,
                        jkl_not_implemented));
-  jkl_class_add_method(Array, jkl_method_new("unshift", 1, JKL_METHOD_STATIC,
-                       jkl_not_implemented));
-  jkl_class_add_method(Array, jkl_method_new("insert", 2, JKL_METHOD_STATIC,
-                       jkl_not_implemented));
-  jkl_class_add_method(Array, jkl_method_new("remove", 1, JKL_METHOD_STATIC,
-                       jkl_not_implemented));
-  jkl_class_add_method(Array, jkl_method_new("clear", 0, JKL_METHOD_STATIC,
-                       jkl_not_implemented));
-  jkl_class_add_method(Array, jkl_method_new("each", 1, JKL_METHOD_STATIC,
-                       jkl_not_implemented));
-  jkl_class_add_method(Array, jkl_method_new("map", 1, JKL_METHOD_STATIC,
-                       jkl_not_implemented));
-  jkl_class_add_method(Array, jkl_method_new("filter", 1, JKL_METHOD_STATIC,
-                       jkl_not_implemented));
-  jkl_class_add_method(Array, jkl_method_new("reduce", 2, JKL_METHOD_STATIC,
-                       jkl_not_implemented));
-  jkl_class_add_method(Array, jkl_method_new("reverse", 0, JKL_METHOD_STATIC,
-                       jkl_not_implemented));
-  jkl_class_add_method(Array, jkl_method_new("sort", 0, JKL_METHOD_STATIC,
-                       jkl_not_implemented));
-  jkl_class_add_method(Array, jkl_method_new("join", 1, JKL_METHOD_STATIC,
-                       jkl_not_implemented));
+  jkl_class_add_method(Array, jkl_method_new("join", 1, JKL_METHOD_INSTANCE,
+                       jkl_arr_join));
 
 
   /*
@@ -506,6 +508,7 @@ void jkl_class_init()
   JKL_TAG_CLASS[JKL_T_BOOL] = Boolean;
   JKL_TAG_CLASS[JKL_T_STRING] = String;
   JKL_TAG_CLASS[JKL_T_ARRAY] = Array;
+  JKL_TAG_CLASS[JKL_T_BLOCK] = Base;   /* no source-callable methods this milestone */
   JKL_TAG_CLASS[JKL_T_OBJECT] = Base;
 
   atexit(jkl_class_destroy_all);

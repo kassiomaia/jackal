@@ -45,6 +45,9 @@ void jkl_program_init(jkl_program_t *program)
   program->call_fixups = NULL;
   program->n_fixups = 0;
   program->fixups_cap = 0;
+  program->blocks = NULL;
+  program->n_blocks = 0;
+  program->blocks_cap = 0;
 }
 
 void jkl_program_free(jkl_program_t *program)
@@ -63,6 +66,10 @@ void jkl_program_free(jkl_program_t *program)
 
   free(program->func_queue);
   free(program->call_fixups);
+  for (size_t i = 0; i < program->n_blocks; i++) {
+    free(program->blocks[i]);  /* the jkl_block_t header; its AST is program-owned */
+  }
+  free(program->blocks);
   free(program);
 }
 
@@ -201,7 +208,10 @@ jkl_word_t jkl_compile_expr(jkl_program_t *program, jkl_node_t *expr)
       break;
     }
     case JKL_NODE_METHOD_CALL: {
-      /* receiver, then args left-to-right, then SEND name_off, argc */
+      /* receiver, then paren-args left-to-right, then (if present) the trailing
+       * block as the LAST positional arg, then SEND name_off, argc. Block-last
+       * matches Ruby's implicit-block convention and gives iterator methods a
+       * predictable signature: each(blk), reduce(init, blk). */
       jkl_compile_expr(program, expr->node);
       jkl_word_t argc = 0;
       if (expr->params != NULL) {
@@ -210,8 +220,41 @@ jkl_word_t jkl_compile_expr(jkl_program_t *program, jkl_node_t *expr)
           argc++;
         }
       }
+      if (expr->block_arg != NULL) {
+        jkl_compile_expr(program, expr->block_arg);
+        argc++;
+      }
       jkl_word_t off = jkl_bss_intern(program, expr->id->value.s);
       jkl_ir_code_push(program->ir_code, JKL_EMIT_IR(JKL_IR_SEND, off, argc, 0));
+      break;
+    }
+    case JKL_NODE_ARRAY_LIT: {
+      for (jkl_word_t i = 0; i < expr->compound.n_nodes; i++) {
+        jkl_compile_expr(program, expr->compound.nodes[i]);
+      }
+      jkl_ir_code_push(program->ir_code,
+                       JKL_EMIT_IR(JKL_IR_NEWARR, expr->compound.n_nodes, 0, 0));
+      break;
+    }
+    case JKL_NODE_BLOCK_LIT: {
+      /* Register this block in the program's in-process block table and emit
+       * PUSHBLK with its index. The block AST is owned by program->ast_prog_root;
+       * the jkl_block_t header is freed in jkl_program_free. */
+      if (program->n_blocks == program->blocks_cap) {
+        program->blocks_cap = program->blocks_cap ? program->blocks_cap * 2 : 4;
+        program->blocks = realloc(program->blocks,
+                                  program->blocks_cap * sizeof(jkl_block_t *));
+        if (program->blocks == NULL) {
+          jkl_error("jkl_compiler", "cannot grow block table");
+        }
+      }
+      jkl_block_t *blk = malloc(sizeof(jkl_block_t));
+      if (blk == NULL) jkl_error("jkl_compiler", "out of memory for block");
+      blk->params = expr->params;
+      blk->expr = expr->expr;
+      jkl_word_t idx = (jkl_word_t)program->n_blocks;
+      program->blocks[program->n_blocks++] = blk;
+      jkl_ir_code_push(program->ir_code, JKL_EMIT_IR(JKL_IR_PUSHBLK, idx, 0, 0));
       break;
     }
     default: {

@@ -547,6 +547,130 @@ START_TEST(test_jkl_send_boolean)
 END_TEST
 
 /*
+ * Arrays — data-manipulation methods (dispatched via jkl_send).
+ */
+START_TEST(test_jkl_arr_basic)
+{
+  ensure_types();
+  jkl_array_t *arr = jkl_array_new();
+  jkl_array_push(arr, jkl_int(10));
+  jkl_array_push(arr, jkl_int(20));
+  jkl_array_push(arr, jkl_int(30));
+  jkl_value_t a = jkl_array_value(arr);
+
+  ck_assert_int_eq(jkl_send(a, "length", NULL, 0).as.i, 3);
+
+  jkl_value_t one = jkl_int(1);
+  ck_assert_int_eq(jkl_send(a, "at", &one, 1).as.i, 20);
+
+  jkl_value_t popped = jkl_send(a, "pop", NULL, 0);
+  ck_assert_int_eq(popped.as.i, 30);
+  ck_assert_int_eq(jkl_send(a, "length", NULL, 0).as.i, 2);
+
+  ck_assert_int_eq(jkl_send(a, "empty?", NULL, 0).as.i, 0);
+
+  jkl_value_t sep = jkl_string(", ");
+  jkl_value_t joined = jkl_send(a, "join", &sep, 1);
+  ck_assert_int_eq(joined.tag, JKL_T_STRING);
+  ck_assert_int_eq(strcmp(joined.as.s, "10, 20"), 0);
+  jkl_value_free(joined);
+
+  jkl_value_t rev = jkl_send(a, "reverse", NULL, 0);
+  ck_assert_int_eq(rev.tag, JKL_T_ARRAY);
+  ck_assert_int_eq(jkl_send(rev, "at", &one, 1).as.i, 10); /* rev = [20, 10] */
+  jkl_value_free(rev);
+
+  jkl_value_free(a);
+}
+END_TEST
+
+/* Iterators driven through the block evaluator, with the block AST built by
+ * hand (no parser involved). Proves end-to-end: jkl_send -> native method ->
+ * jkl_block_call -> jkl_eval_expr -> jkl_send (for x.succ). */
+START_TEST(test_jkl_arr_map_block)
+{
+  ensure_types();
+
+  /* block AST: { |x| x.succ } */
+  jkl_node_t *param = jkl_node_new(JKL_NODE_PARAM);
+  param->id = jkl_node_new(JKL_NODE_ID);
+  param->id->value.s = "x";
+  jkl_node_t *params = jkl_node_new(JKL_NODE_PARAMS);
+  jkl_node_append(params, param);
+
+  jkl_node_t *recv = jkl_node_new(JKL_NODE_ID);
+  recv->value.s = "x";
+  jkl_node_t *body = jkl_node_new(JKL_NODE_METHOD_CALL);
+  body->node = recv;
+  body->id = jkl_node_new(JKL_NODE_ID);
+  body->id->value.s = "succ";
+
+  jkl_block_t blk_storage = { .params = params, .expr = body };
+  jkl_value_t blk_val;
+  blk_val.tag = JKL_T_BLOCK;
+  blk_val.owned = 0;
+  blk_val.as.obj = &blk_storage;
+
+  jkl_array_t *arr = jkl_array_new();
+  jkl_array_push(arr, jkl_int(1));
+  jkl_array_push(arr, jkl_int(2));
+  jkl_array_push(arr, jkl_int(3));
+  jkl_value_t a = jkl_array_value(arr);
+
+  jkl_value_t result = jkl_send(a, "map", &blk_val, 1);
+  ck_assert_int_eq(result.tag, JKL_T_ARRAY);
+  ck_assert_int_eq(jkl_send(result, "length", NULL, 0).as.i, 3);
+
+  jkl_value_t i0 = jkl_int(0), i1 = jkl_int(1), i2 = jkl_int(2);
+  ck_assert_int_eq(jkl_send(result, "at", &i0, 1).as.i, 2);
+  ck_assert_int_eq(jkl_send(result, "at", &i1, 1).as.i, 3);
+  ck_assert_int_eq(jkl_send(result, "at", &i2, 1).as.i, 4);
+
+  jkl_value_free(result);
+  jkl_value_free(a);
+  /* AST nodes leak in the non-ASan compiler target (same pattern as the other
+   * jkl_send tests; freeing would crash on the string-literal value.s fields). */
+}
+END_TEST
+
+/* reduce with the canonical "free previous acc" pattern. */
+START_TEST(test_jkl_arr_reduce_block)
+{
+  ensure_types();
+
+  /* block AST: { |acc, x| acc + x } */
+  jkl_node_t *p1 = jkl_node_new(JKL_NODE_PARAM);
+  p1->id = jkl_node_new(JKL_NODE_ID); p1->id->value.s = "acc";
+  jkl_node_t *p2 = jkl_node_new(JKL_NODE_PARAM);
+  p2->id = jkl_node_new(JKL_NODE_ID); p2->id->value.s = "x";
+  jkl_node_t *params = jkl_node_new(JKL_NODE_PARAMS);
+  jkl_node_append(params, p1);
+  jkl_node_append(params, p2);
+
+  jkl_node_t *l = jkl_node_new(JKL_NODE_ID); l->value.s = "acc";
+  jkl_node_t *r = jkl_node_new(JKL_NODE_ID); r->value.s = "x";
+  jkl_node_t *body = jkl_node_binop(l, JKL_OP_PLUS, r);
+
+  jkl_block_t blk_storage = { .params = params, .expr = body };
+  jkl_value_t blk_val = { .tag = JKL_T_BLOCK, .owned = 0, .as.obj = &blk_storage };
+
+  jkl_array_t *arr = jkl_array_new();
+  jkl_array_push(arr, jkl_int(1));
+  jkl_array_push(arr, jkl_int(2));
+  jkl_array_push(arr, jkl_int(3));
+  jkl_array_push(arr, jkl_int(4));
+  jkl_value_t a = jkl_array_value(arr);
+
+  jkl_value_t argv[2] = { jkl_int(0), blk_val };
+  jkl_value_t sum = jkl_send(a, "reduce", argv, 2);
+  ck_assert_int_eq(sum.tag, JKL_T_INT);
+  ck_assert_int_eq(sum.as.i, 10);
+
+  jkl_value_free(a);
+}
+END_TEST
+
+/*
  * Compiler test suite
  */
 
@@ -566,6 +690,9 @@ Suite *jkl_compiler_suite()
   tcase_add_test(tc_core, test_jkl_send_string);
   tcase_add_test(tc_core, test_jkl_send_integer);
   tcase_add_test(tc_core, test_jkl_send_boolean);
+  tcase_add_test(tc_core, test_jkl_arr_basic);
+  tcase_add_test(tc_core, test_jkl_arr_map_block);
+  tcase_add_test(tc_core, test_jkl_arr_reduce_block);
   tcase_add_test(tc_core, test_jkl_compile_check_with_loop);
   tcase_add_test(tc_core, test_jkl_compile_if_without_else);
   tcase_add_test(tc_core, test_jkl_compile_if_with_else);

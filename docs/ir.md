@@ -47,6 +47,8 @@ operands from the value stack.
 | `JKL_IR_HALT`  | `0x00e6` | 0 | Halt execution |
 | `JKL_IR_SEND`  | `0x01e7` | 2 | Method dispatch: `args = [name_off, argc]` |
 | `JKL_IR_PUSHB` | `0x01e8` | 1 | Push a boolean (`arg0` = 0/1) |
+| `JKL_IR_NEWARR`| `0x01e9` | 1 | Pop `arg0` values, push a new array (see [`arrays.md`](./arrays.md)) |
+| `JKL_IR_PUSHBLK`|`0x01ea` | 1 | Push a block from the per-program in-process block table — **not serializable** ([`arrays.md`](./arrays.md)) |
 
 ## Opcode encoding
 
@@ -180,7 +182,9 @@ operator:
 | `JKL_NODE_ID` | `LOAD slot` — the name is resolved through the symbol table; a read of an **undeclared** name is a compile error |
 | `JKL_NODE_BINOP` | `<left>`, `<right>`, then the operator opcode |
 | `JKL_NODE_BOOL` | `PUSHB 0/1` |
-| `JKL_NODE_METHOD_CALL` | `<receiver>`, args left-to-right, then `SEND name_off, argc` (see [`types.md`](./types.md)) |
+| `JKL_NODE_METHOD_CALL` | `<receiver>`, args left-to-right, optional trailing block as the last arg via `PUSHBLK`, then `SEND name_off, argc` (see [`types.md`](./types.md) / [`arrays.md`](./arrays.md)) |
+| `JKL_NODE_ARRAY_LIT` | each element left-to-right, then `NEWARR n` |
+| `JKL_NODE_BLOCK_LIT` | register block in `program->blocks`, then `PUSHBLK k` |
 
 Statement lowering (`jkl_compile_block`):
 

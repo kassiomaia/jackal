@@ -12,6 +12,7 @@
 #include <jackal/jackal_types.h>
 #include <jackal/jackal_string.h>
 #include <jackal/jackal_value.h>
+#include <jackal/jackal_array.h>
 #include <jackal/jackal_ast.h>
 #include <jackal/jackal_error.h>
 #include <jackal/jackal_stack.h>

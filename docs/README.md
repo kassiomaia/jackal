@@ -32,6 +32,7 @@ called *jackalvm*. The VM itself does not live in this repository; this repo is
 | [`language.md`](./language.md) | The Jackal language: lexical rules, full grammar, every construct with examples, semantics, and what the syntax does/doesn't support. |
 | [`ir.md`](./ir.md) | The IR/bytecode: opcode table, the arity-in-low-byte encoding, instruction & code-buffer layout, the binary file format, and per-construct codegen examples. |
 | [`types.md`](./types.md) | The type system: the tagged value model, the class/method registry + `jkl_send` dispatch, the `SEND` opcode, the `int`/`bool`/`string` method tables, and how to add a method. |
+| [`arrays.md`](./arrays.md) | Arrays + iterators: the trash-list memory model, the `[1,2,3]`/`arr[i]` syntax, the block/lambda surface + evaluator, the `NEWARR`/`PUSHBLK` opcodes and why blocks aren't serialized. |
 | [`modules.md`](./modules.md) | File-by-file reference of `libjackal` and the headers, with each module's API and maturity (wired-in / built-but-unused / stub). |
 | [`build.md`](./build.md) | Prerequisites, how to build / run / test, the formatting/lint tooling, and the concrete blockers for a fresh build. |
 | [`roadmap.md`](./roadmap.md) | Feature maturity matrix (works / needs adjustment / stubbed / deprecated), the consolidated known-bug list, and suggested next steps. |

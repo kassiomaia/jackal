@@ -253,6 +253,29 @@ postfix on `term`, so they bind tighter than every operator (`s.length + 1` is
 `(s.length) + 1`) and chain (`a.b.c`). The available primitive methods and how to
 add more are documented in [`types.md`](./types.md).
 
+### Arrays and iterators
+
+Array literals use `[...]` with comma-separated expressions; `arr[i]` is sugar
+for `arr.at(i)`. Iterator methods take a trailing block:
+
+```jkl
+let a := [1, 2, 3]
+let n := a.length
+let x := a[1]
+let r := a.map    { |x| x.succ }
+let s := a.reduce(0) { |acc, x| acc + x }
+let _ := a.each   { |x| puts x.to_s }
+```
+
+Blocks are `{ |params...| body-expr }` — exactly one expression body, no
+closures yet (just the param env), max 8 params. The method-call rule on `term`
+accepts a trailing block whether the parens are present (`a.reduce(0) { … }`)
+or absent (`a.each { … }`). Empty parens (`{ || expr }`) and empty params
+(`{ puts "hi" }`) are both accepted.
+
+Full memory model, the implemented method set, and the rationale for why
+iterators don't serialize to bytecode are in [`arrays.md`](./arrays.md).
+
 ### Functions — `func`
 
 ```jackal

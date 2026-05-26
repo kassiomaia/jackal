@@ -3,6 +3,7 @@
 
 #include <jackal/jackal_types.h>
 #include <jackal/jackal_symbol_table.h>
+#include <jackal/jackal_array.h>
 #include <jackal/jackal_ir.h>
 
 typedef struct {
@@ -25,6 +26,10 @@ typedef struct {
   jkl_call_fixup_t *call_fixups;
   size_t n_fixups;
   size_t fixups_cap;
+  /* Block table (in-process only; never serialized — see jkl_ir_code_save). */
+  jkl_block_t **blocks;
+  size_t n_blocks;
+  size_t blocks_cap;
 } jkl_program_t;
 
 /*

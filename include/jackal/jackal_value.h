@@ -16,6 +16,7 @@ typedef enum {
   JKL_T_BOOL,
   JKL_T_STRING,
   JKL_T_ARRAY,
+  JKL_T_BLOCK,
   JKL_T_OBJECT,
 } jkl_type_tag_t;
 

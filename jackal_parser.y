@@ -56,11 +56,17 @@ jkl_program_t *program;
 %token FALSE  "false"
 %token LPAREN "("
 %token RPAREN ")"
+%token LBRACK "["
+%token RBRACK "]"
 %token COMMA  ","
 %token DOT    "."
+%token PIPE   "|"
 
 %type <node> expr
 %type <node> arglist
+%type <node> block_arg
+%type <node> block_params
+%type <node> param_seq
 %type <node> ident
 %type <node> call
 %type <node> func
@@ -236,7 +242,90 @@ term: ident
       m->params = $5;
       $$ = m;
     }
+    | term DOT ID block_arg {
+      jkl_node_t* m = jkl_node_new(JKL_NODE_METHOD_CALL);
+      m->node = $1;
+      m->id = jkl_node_new(JKL_NODE_ID);
+      m->id->value.s = $3;
+      m->params = NULL;
+      m->block_arg = $4;
+      $$ = m;
+    }
+    | term DOT ID LPAREN RPAREN block_arg {
+      jkl_node_t* m = jkl_node_new(JKL_NODE_METHOD_CALL);
+      m->node = $1;
+      m->id = jkl_node_new(JKL_NODE_ID);
+      m->id->value.s = $3;
+      m->params = jkl_node_new(JKL_NODE_PARAMS);
+      m->block_arg = $6;
+      $$ = m;
+    }
+    | term DOT ID LPAREN arglist RPAREN block_arg {
+      jkl_node_t* m = jkl_node_new(JKL_NODE_METHOD_CALL);
+      m->node = $1;
+      m->id = jkl_node_new(JKL_NODE_ID);
+      m->id->value.s = $3;
+      m->params = $5;
+      m->block_arg = $7;
+      $$ = m;
+    }
+    | LBRACK RBRACK {
+      jkl_node_t* a = jkl_node_new(JKL_NODE_ARRAY_LIT);
+      $$ = a;
+    }
+    | LBRACK arglist RBRACK {
+      jkl_node_t* a = jkl_node_new(JKL_NODE_ARRAY_LIT);
+      a->compound = $2->compound;     /* steal the PARAMS' child array */
+      $2->compound.nodes = NULL;
+      $2->compound.n_nodes = 0;
+      jkl_node_free($2);
+      $$ = a;
+    }
+    | term LBRACK expr RBRACK {
+      /* sugar: arr[i]  ==  arr.at(i)  */
+      jkl_node_t* m = jkl_node_new(JKL_NODE_METHOD_CALL);
+      m->node = $1;
+      m->id = jkl_node_new(JKL_NODE_ID);
+      m->id->value.s = strdup("at");
+      m->params = jkl_node_new(JKL_NODE_PARAMS);
+      jkl_node_append(m->params, $3);
+      $$ = m;
+    }
     ;
+
+block_arg: LBRACE block_params expr RBRACE {
+       jkl_node_t* b = jkl_node_new(JKL_NODE_BLOCK_LIT);
+       b->params = $2;
+       b->expr = $3;
+       $$ = b;
+     }
+     ;
+
+block_params: /* empty */ {
+       $$ = jkl_node_new(JKL_NODE_PARAMS);
+     }
+     | PIPE PIPE {
+       $$ = jkl_node_new(JKL_NODE_PARAMS);
+     }
+     | PIPE param_seq PIPE {
+       $$ = $2;
+     }
+     ;
+
+param_seq: ident {
+       jkl_node_t* params = jkl_node_new(JKL_NODE_PARAMS);
+       jkl_node_t* p = jkl_node_new(JKL_NODE_PARAM);
+       p->id = $1;
+       jkl_node_append(params, p);
+       $$ = params;
+     }
+     | param_seq COMMA ident {
+       jkl_node_t* p = jkl_node_new(JKL_NODE_PARAM);
+       p->id = $3;
+       jkl_node_append($1, p);
+       $$ = $1;
+     }
+     ;
 
 arglist: expr {
        jkl_node_t* params = jkl_node_new(JKL_NODE_PARAMS);

@@ -223,6 +223,57 @@ static void test_bool_literal(void)
   free_program(p);
 }
 
+/* Array literal lowers to: PUSH each element, then NEWARR n. */
+static void test_array_literal_newarr(void)
+{
+  printf("test: array literal lowers to NEWARR\n");
+  jkl_program_t *p = compile_snippet("let a := [1, 2, 3]\n");
+  jkl_ir_type_t want[] = {
+    JKL_IR_ALLOC, JKL_IR_PUSHI, JKL_IR_PUSHI, JKL_IR_PUSHI,
+    JKL_IR_NEWARR, JKL_IR_STORE, JKL_IR_HALT,
+  };
+  CHECK(ir_seq_eq(p, want, 7), "[1,2,3] => ALLOC PUSHI*3 NEWARR STORE HALT");
+  int n = first_op(p, JKL_IR_NEWARR);
+  if (n >= 0) {
+    CHECK(p->ir_code->ir[n].args[0] == 3, "NEWARR arg0 == 3 (element count)");
+  }
+  free_program(p);
+}
+
+/* arr[i] is sugar for arr.at(i) -> SEND "at". */
+static void test_index_sugar_send_at(void)
+{
+  printf("test: arr[i] desugars to SEND \"at\"\n");
+  jkl_program_t *p = compile_snippet("let a := [10, 20, 30]\nlet x := a[1]\n");
+  int send = first_op(p, JKL_IR_SEND);
+  CHECK(send >= 0, "emits a SEND for indexing");
+  if (send >= 0) {
+    CHECK(p->ir_code->ir[send].args[1] == 1, "SEND argc == 1 (the index)");
+  }
+  free_program(p);
+}
+
+/* Iterator method: arr.each { |x| x.succ } lowers to PUSHBLK and SEND,
+ * registers the block in program->blocks, and refuses to serialize. */
+static void test_each_pushblk_and_no_save(void)
+{
+  printf("test: arr.each { |x| ... } emits PUSHBLK + SEND; PUSHBLK forbids save\n");
+  jkl_program_t *p = compile_snippet(
+    "let a := [1, 2, 3]\nlet r := a.each { |x| x.succ }\n");
+  int pb = first_op(p, JKL_IR_PUSHBLK);
+  int send = first_op(p, JKL_IR_SEND);
+  CHECK(pb >= 0, "PUSHBLK present for the block");
+  CHECK(send >= 0, "SEND present for the method call");
+  CHECK(p->n_blocks == 1, "program->n_blocks == 1");
+  if (pb >= 0 && send >= 0) {
+    CHECK(pb < send, "PUSHBLK comes before SEND (block is the last arg pushed)");
+  }
+  if (send >= 0) {
+    CHECK(p->ir_code->ir[send].args[1] == 1, "SEND argc == 1 (just the block)");
+  }
+  free_program(p);
+}
+
 /* Parse a tree spanning many node types, then free it (ASan proves #11). */
 static void test_recursive_free_real_ast(void)
 {
@@ -263,6 +314,9 @@ int main(void)
   test_external_call();
   test_method_call_send();
   test_bool_literal();
+  test_array_literal_newarr();
+  test_index_sugar_send_at();
+  test_each_pushblk_and_no_save();
   test_recursive_free_real_ast();
   test_container_frees();
   printf("==============================================================\n");

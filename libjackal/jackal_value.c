@@ -1,4 +1,5 @@
 #include <jackal.h>
+#include <jackal/jackal_array.h>
 
 jkl_value_t jkl_nil(void)
 {
@@ -41,14 +42,27 @@ jkl_value_t jkl_value_dup(jkl_value_t v)
     memcpy(copy, v.as.s, len + 1);
     return jkl_string_owned(copy);
   }
+  if (v.tag == JKL_T_ARRAY || v.tag == JKL_T_OBJECT || v.tag == JKL_T_BLOCK) {
+    jkl_error("jkl_value",
+              "jkl_value_dup of array/object/block is forbidden in v1");
+  }
   return v;
 }
 
 void jkl_value_free(jkl_value_t v)
 {
-  if (v.owned && v.tag == JKL_T_STRING && v.as.s != NULL) {
-    free(v.as.s);
+  if (!v.owned) {
+    return;
   }
+  if (v.tag == JKL_T_STRING && v.as.s != NULL) {
+    free(v.as.s);
+    return;
+  }
+  if (v.tag == JKL_T_ARRAY && v.as.obj != NULL) {
+    jkl_array_free((jkl_array_t *)v.as.obj);
+    return;
+  }
+  /* JKL_T_BLOCK / JKL_T_OBJECT: no payload to free (block AST is program-owned). */
 }
 
 jkl_string_t jkl_value_to_cstr(jkl_value_t v)

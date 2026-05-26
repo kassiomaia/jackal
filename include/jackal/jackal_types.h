@@ -57,6 +57,8 @@ typedef enum {
   JKL_NODE_PARAMS,
   JKL_NODE_BOOL,
   JKL_NODE_METHOD_CALL,
+  JKL_NODE_ARRAY_LIT,
+  JKL_NODE_BLOCK_LIT,
 } jkl_node_type_t;
 
 typedef enum {
@@ -99,7 +101,7 @@ struct jkl_node {
   jkl_node_t *node;
   jkl_node_t *parent;
   jkl_node_t *id;
-  jkl_node_t *assign;
+  jkl_node_t *block_arg;   /* METHOD_CALL: optional trailing { |...| ... } */
   jkl_node_t *params;
 };
 

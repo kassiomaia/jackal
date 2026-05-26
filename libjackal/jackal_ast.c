@@ -17,7 +17,7 @@ jkl_node_t *jkl_node_new(jkl_node_type_t type)
   node->parent = NULL;
   node->expr = NULL;
   node->id = NULL;
-  node->assign = NULL;
+  node->block_arg = NULL;
   node->params = NULL;
   node->value.i = 0;
   node->value.s = NULL;
@@ -93,15 +93,33 @@ jkl_word_t jkl_node_free(jkl_node_t *node)
       jkl_node_free(node->node);
       break;
     case JKL_NODE_METHOD_CALL:
-      jkl_node_free(node->node);   /* receiver */
-      jkl_node_free(node->id);     /* method name */
-      jkl_node_free(node->params); /* args */
+      jkl_node_free(node->node);       /* receiver */
+      jkl_node_free(node->id);         /* method name */
+      jkl_node_free(node->params);     /* args */
+      jkl_node_free(node->block_arg);  /* trailing { |...| ... }, NULL-safe */
       break;
     case JKL_NODE_RETURN:
       jkl_node_free(node->expr);
       break;
-    default:
+    case JKL_NODE_ARRAY_LIT:
+      for (jkl_word_t i = 0; i < node->compound.n_nodes; i++) {
+        jkl_node_free(node->compound.nodes[i]);
+      }
+      free(node->compound.nodes);
       break;
+    case JKL_NODE_BLOCK_LIT:
+      jkl_node_free(node->params);
+      jkl_node_free(node->expr);
+      break;
+    case JKL_NODE_NONE:
+    case JKL_NODE_INT:
+    case JKL_NODE_FLOAT:
+    case JKL_NODE_BOOL:
+    case JKL_NODE_ASSIGNMENT:
+      /* scalar leaves: no owned children, no heap payload */
+      break;
+    default:
+      jkl_error("jkl_ast", "jkl_node_free: unknown node type %d", node->type);
   }
 
   free(node);

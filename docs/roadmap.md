@@ -57,6 +57,7 @@ Legend: ✅ works · 🟡 partial / buggy · 🟥 stub / unwired · ⬛ planned-
 | stack | ✅/🟥 | correct, but unused |
 | class (OOP runtime) | 🟡 | wired as the **type registry**: tagged `jkl_value_t`, `jkl_send` dispatch, real `int`/`bool`/`string` methods; user classes/instances still TODO. See [`types.md`](./types.md) |
 | primitive types + methods | 🟡 | `int`/`bool`/`string` methods via `.`-calls → `SEND`; runtime-tested via `jkl_send` (no VM to execute end-to-end yet) |
+| arrays + iterators | 🟡 | `[1,2,3]` literals + `arr[i]` indexing; data-manip methods (length/at/push/pop/clear/reverse/join/empty?) and iterators (each/map/filter/reduce) driving block bodies through `jkl_eval`. PUSHBLK refuses to serialize (evaluator-only). See [`arrays.md`](./arrays.md) |
 
 ## Consolidated known bugs
 

@@ -52,6 +52,8 @@ typedef enum {
   /* TYPES */
   JKL_IR_SEND     = 0x01e7,         // method dispatch: args = [name_off, argc]
   JKL_IR_PUSHB    = 0x01e8,         // push a boolean (arg0 = 0/1)
+  JKL_IR_NEWARR   = 0x01e9,         // pop arg0 values, push new array
+  JKL_IR_PUSHBLK  = 0x01ea,         // push block value (arg0 = program block-table idx)
 } jkl_ir_type_t;
 
 #define JKL_IR_TYPE_SIZE sizeof(jkl_ir_type_t)

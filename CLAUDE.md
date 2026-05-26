@@ -98,6 +98,16 @@ library (`libcheck`) for tests (optional — there's a shim). Optional:
   in two tiers: **behavioral** via `jkl_send` (the non-ASan `compiler` target —
   `jkl_class_init` leaks its method tables, so keep it off ASan) and **structural**
   IR-shape via the ASan `precedence` target.
+- **Arrays + iterators** (see `docs/arrays.md`): `[1,2,3]` literals lower to
+  `NEWARR n`; `arr[i]` desugars to `SEND "at"`; iterators (`each`/`map`/`filter`/
+  `reduce`) take a trailing block `{ |x| body-expr }` lowered to `PUSHBLK k`
+  (per-program block table, in-process only). `jkl_ir_code_save` **refuses** to
+  serialize a `.bin` containing `PUSHBLK` — blocks are evaluator-only in v1, run
+  by `jkl_eval_expr`/`jkl_block_call` (the long-stubbed evaluator finally has a
+  job). Memory rule: `jkl_array_t` keeps `items[]` as **borrowed views**, with
+  a `trash[]` list holding owned heap payloads — `push` of an owned value MOVES
+  it to trash, `at(i)` returns a view (don't `jkl_value_free` it). `jkl_value_dup`
+  of an array is forbidden in v1.
 - The **stack, optimizer, and evaluator are still built-but-unused** (or stubs);
   the `hash` module is no longer used by the compiler.
 - **Parser regen trap**: if you edit `jackal_parser.y`, regenerate with `bison`

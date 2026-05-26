@@ -61,6 +61,19 @@ void jkl_ir_code_patch(jkl_ir_code_t *ir_code, jkl_word_t idx,
 jkl_word_t jkl_ir_code_save(jkl_ir_code_t *ir_code, const char *filename)
 {
   jkl_note("jkl_ir", "saving ir code to %s", filename);
+
+  /* Blocks are an evaluator-only construct in v1; PUSHBLK references an
+   * in-process block table that doesn't appear in the bytecode file. Refusing
+   * to serialize here keeps the file format honest and surfaces the limit
+   * loudly instead of writing a half-meaningless .bin. */
+  for (jkl_qqword_t i = 0; i < ir_code->n_irs; i++) {
+    if (ir_code->ir[i].type == JKL_IR_PUSHBLK) {
+      jkl_error("jkl_ir",
+                "cannot serialize bytecode containing PUSHBLK "
+                "(blocks/iterators are evaluator-only in v1)");
+    }
+  }
+
   int fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
   if (fd == -1) {
     jkl_error("jkl_ir", "cannot open file for writing");

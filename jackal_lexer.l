@@ -43,8 +43,11 @@ float [+|-]?{int}?[.]{int}
 "!"                                     { return NOT;    }
 "("                                     { return LPAREN; }
 ")"                                     { return RPAREN; }
+"["                                     { return LBRACK; }
+"]"                                     { return RBRACK; }
 ","                                     { return COMMA;  }
 "."                                     { return DOT;    }
+"|"                                     { return PIPE;   }
 
 [a-zA-Z_][a-zA-Z0-9_]*                  {
   yylval.id = malloc(strlen(yytext) + 1);
